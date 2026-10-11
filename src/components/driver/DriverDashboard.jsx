@@ -141,24 +141,115 @@ export default function DriverDashboard() {
     return () => { isMounted = false; };
   }, []);
 
-  // Listen for socket ride offers if driver profile exists
+  // Helper to check if driver's vehicle matches the requested car/vehicle type
+  const isMatchingVehicle = (driverType, requestedType) => {
+    if (!driverType || !requestedType) return true;
+    const d = (driverType || '').toLowerCase().trim();
+    const r = (requestedType || '').toLowerCase().trim();
+    if (d === r) return true;
+
+    // Both are bikes / 2-wheelers
+    if ((d.includes('bike') || d.includes('moto')) && (r.includes('bike') || r.includes('moto'))) return true;
+
+    // Both are XL / minivans
+    if (d.includes('xl') && r.includes('xl')) return true;
+
+    // Both are Premier / Comfort / Sedans
+    if ((d.includes('premier') || d.includes('comfort')) && (r.includes('premier') || r.includes('comfort'))) return true;
+
+    // Both are Go / Economy / Hatchback
+    if ((d.includes('go') || d.includes('economy') || d.includes('uberx')) && (r.includes('go') || r.includes('economy') || r.includes('uberx'))) return true;
+
+    return false;
+  };
+
+  // Play audio chime for incoming ride request
+  const playIncomingOfferChime = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.5);
+    } catch {}
+  };
+
+  // Listen for socket ride offers & cross-tab dispatch if driver is online
   useEffect(() => {
-    if (!socket || !driverProfile) return;
+    if (!driverProfile) return;
 
     const driverRoomId = driverProfile.id || 'demo_driver_1';
-    joinDriverRoom(driverRoomId);
+    if (socket && joinDriverRoom) {
+      joinDriverRoom(driverRoomId);
+    }
 
-    const handleNewOffer = (data) => {
-      console.log('🔔 [Driver] New offer received via WebSocket:', data);
-      setIncomingOffer(data);
+    const processIncomingOffer = (data) => {
+      // Driver must be online to receive offers
+      const currentlyOnline = isOnline || localStorage.getItem('driver_is_online') === 'true';
+      if (!currentlyOnline) {
+        console.log('Driver is offline, ignoring offer.');
+        return;
+      }
+
+      // Verify that this driver has the type of car the rider requested
+      const driverVehicle = driverProfile.vehicleTypeId || 'uber_go_ac';
+      const requestedVehicle = data.vehicleType || data.vehicleTypeId || 'uber_go_ac';
+
+      if (!isMatchingVehicle(driverVehicle, requestedVehicle)) {
+        console.log(`[Driver] Mismatched vehicle: Driver has ${driverVehicle}, rider requested ${requestedVehicle}.`);
+        return;
+      }
+
+      console.log('🔔 [Driver] Matched ride offer popup triggered:', data);
+      setIncomingOffer({
+        id: data.rideId || data.id,
+        pickupAddress: data.pickupAddress,
+        dropoffAddress: data.dropoffAddress,
+        estimatedFare: data.estimatedFare || data.finalFare || '180.00',
+        vehicleTier: data.vehicleTier || data.vehicleType || 'Uber Go AC',
+        otp: data.otp
+      });
+
+      playIncomingOfferChime();
     };
 
-    socket.on(SOCKET_EVENTS.RIDE_NEW_OFFER, handleNewOffer);
+    if (socket) {
+      socket.on(SOCKET_EVENTS.RIDE_NEW_OFFER, processIncomingOffer);
+    }
+
+    // Cross-tab broadcast channel listener
+    let channel = null;
+    try {
+      channel = new BroadcastChannel('uber_dispatch_channel');
+      channel.onmessage = (event) => {
+        if (event.data && event.data.type === 'NEW_OFFER') {
+          processIncomingOffer(event.data);
+        }
+      };
+    } catch {}
+
+    // Custom window event listener
+    const handleCustomOffer = (e) => {
+      if (e.detail) processIncomingOffer(e.detail);
+    };
+    window.addEventListener('uber_driver_offer', handleCustomOffer);
 
     return () => {
-      socket.off(SOCKET_EVENTS.RIDE_NEW_OFFER, handleNewOffer);
+      if (socket) {
+        socket.off(SOCKET_EVENTS.RIDE_NEW_OFFER, processIncomingOffer);
+      }
+      if (channel) {
+        channel.close();
+      }
+      window.removeEventListener('uber_driver_offer', handleCustomOffer);
     };
-  }, [socket, driverProfile, joinDriverRoom]);
+  }, [socket, driverProfile, joinDriverRoom, isOnline]);
 
   // Clean up geolocation watcher on unmount
   useEffect(() => {
@@ -232,21 +323,6 @@ export default function DriverDashboard() {
       } catch (e) {
         // Fallback
       }
-
-      // Simulate incoming passenger offer after 7s for testing dispatch
-      setTimeout(() => {
-        if (!incomingOffer && !activeRide) {
-          setIncomingOffer({
-            id: 'ride_sim_' + Math.floor(Math.random() * 1000),
-            pickupAddress: 'Financial District Terminal',
-            dropoffAddress: 'Embarcadero Pier Center',
-            estimatedFare: '280.00',
-            vehicleTier: driverProfile?.vehicleTypeId === 'xl' ? 'UberXL' : 'UberX',
-            pickupCoords: [lat + 0.003, lng + 0.003],
-            dropoffCoords: [lat + 0.012, lng + 0.009]
-          });
-        }
-      }, 7000);
     };
 
     if ('geolocation' in navigator) {
@@ -295,7 +371,7 @@ export default function DriverDashboard() {
     }
   };
 
-  const handleAcceptOffer = (offer) => {
+  const handleAcceptOffer = async (offer) => {
     setActiveRide(offer);
     setIncomingOffer(null);
     const fare = Number(offer.estimatedFare || 25);
@@ -309,6 +385,40 @@ export default function DriverDashboard() {
     } catch (e) {
       // Ignore
     }
+
+    const driverId = driverProfile?.id || 'demo_driver_1';
+    const rideId = offer.id || offer.rideId;
+
+    try {
+      await driversApi.respondToOffer(rideId, driverId, 'ACCEPT');
+    } catch (e) {}
+
+    const driverDetails = {
+      rideId,
+      driverId,
+      driverName: driverProfile?.fullName,
+      vehicleMake: driverProfile?.vehicleMake,
+      vehicleModel: driverProfile?.vehicleModel,
+      licensePlate: driverProfile?.licensePlate,
+      rating: driverProfile?.rating || 5.0,
+      driverCoords: driverLocation
+    };
+
+    if (socket) {
+      socket.emit(SOCKET_EVENTS.RIDE_STATUS_CHANGE, {
+        rideId,
+        status: 'ACCEPTED',
+        driver: driverDetails
+      });
+    }
+
+    try {
+      const channel = new BroadcastChannel('uber_dispatch_channel');
+      channel.postMessage({ type: 'RIDE_ACCEPTED', ...driverDetails });
+      channel.close();
+    } catch {}
+
+    window.dispatchEvent(new CustomEvent('uber_ride_accepted', { detail: driverDetails }));
   };
 
   const handleDeclineOffer = () => {

@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { CONFIG } from '../../constants/config';
 import { ridesApi } from '../../api';
+import { useSocketContext } from '../../context/SocketContext';
+import { SOCKET_EVENTS } from '../../constants/socketEvents';
 
 // Official transparent 3D car render assets from Uber CDN (white car icons)
 export const OFFICIAL_UBER_CAR_IMAGES = {
@@ -165,9 +167,54 @@ export default function RideBookingWidget({
 
   const [loading, setLoading] = useState(false);
   const [estimates, setEstimates] = useState(null);
-  const [selectedTier, setSelectedTier] = useState('economy');
+  const [selectedTier, setSelectedTier] = useState('uber_go_ac');
   const [bookingConfirmed, setBookingConfirmed] = useState(null);
+  const [acceptedDriver, setAcceptedDriver] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const { socket } = useSocketContext();
+
+  // Listen for driver acceptance via socket, cross-tab channel, or window events
+  useEffect(() => {
+    const handleDriverAccepted = (driver) => {
+      console.log('🎉 Driver accepted your ride request:', driver);
+      setAcceptedDriver(driver);
+    };
+
+    if (socket) {
+      const onStatusChange = (data) => {
+        if (data && data.status === 'ACCEPTED' && data.driver) {
+          handleDriverAccepted(data.driver);
+        }
+      };
+      socket.on(SOCKET_EVENTS.RIDE_STATUS_CHANGE, onStatusChange);
+      socket.on('ride:accept', handleDriverAccepted);
+    }
+
+    let channel = null;
+    try {
+      channel = new BroadcastChannel('uber_dispatch_channel');
+      channel.onmessage = (event) => {
+        if (event.data && event.data.type === 'RIDE_ACCEPTED') {
+          handleDriverAccepted(event.data);
+        }
+      };
+    } catch {}
+
+    const customListener = (e) => {
+      if (e.detail) handleDriverAccepted(e.detail);
+    };
+    window.addEventListener('uber_ride_accepted', customListener);
+
+    return () => {
+      if (socket) {
+        socket.off(SOCKET_EVENTS.RIDE_STATUS_CHANGE);
+        socket.off('ride:accept', handleDriverAccepted);
+      }
+      if (channel) channel.close();
+      window.removeEventListener('uber_ride_accepted', customListener);
+    };
+  }, [socket]);
 
   // Autocomplete suggestions state
   const [activeField, setActiveField] = useState(null); // 'pickup' | 'dropoff' | null
@@ -359,6 +406,33 @@ export default function RideBookingWidget({
 
       if (res && res.success) {
         setBookingConfirmed(res.data);
+        setAcceptedDriver(null);
+
+        const currentTierObj = estimates?.estimates?.find((t) => t.vehicleTypeId === selectedTier);
+        const tierTitle = currentTierObj?.name || selectedTier.toUpperCase();
+
+        const dispatchPayload = {
+          rideId: res.data.id,
+          pickupAddress: pickup,
+          dropoffAddress: dropoff,
+          pickupLatitude: pickupCoords.lat,
+          pickupLongitude: pickupCoords.lng,
+          dropoffLatitude: dropoffCoords.lat,
+          dropoffLongitude: dropoffCoords.lng,
+          estimatedFare: res.data.final_fare || res.data.estimated_fare,
+          vehicleType: selectedTier,
+          vehicleTier: tierTitle,
+          otp: res.data.otp,
+          timestamp: Date.now()
+        };
+
+        try {
+          const channel = new BroadcastChannel('uber_dispatch_channel');
+          channel.postMessage({ type: 'NEW_OFFER', ...dispatchPayload });
+          channel.close();
+        } catch {}
+
+        window.dispatchEvent(new CustomEvent('uber_driver_offer', { detail: dispatchPayload }));
       } else {
         setErrorMsg(res?.message || 'Ride booking failed');
       }
@@ -368,6 +442,10 @@ export default function RideBookingWidget({
       setLoading(false);
     }
   };
+
+  const selectedTierName =
+    estimates?.estimates?.find((t) => t.vehicleTypeId === selectedTier)?.name ||
+    selectedTier.toUpperCase();
 
   return (
     <div className="w-full max-w-[500px] text-white">
@@ -393,35 +471,114 @@ export default function RideBookingWidget({
       </h1>
 
       {bookingConfirmed ? (
-        /* Booking Confirmed State */
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-5 animate-fadeIn">
-          <div className="flex items-center space-x-3 text-emerald-400">
-            <CheckCircle2 className="w-8 h-8 shrink-0" />
-            <div>
-              <h3 className="text-xl font-bold text-white">Ride Requested!</h3>
-              <p className="text-xs text-neutral-400">Searching for nearest verified drivers...</p>
-            </div>
-          </div>
+        /* Booking Dispatched & Accepted State */
+        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl space-y-5 animate-fadeIn shadow-2xl">
+          {acceptedDriver ? (
+            /* State 1: Driver Accepted Ride */
+            <div className="bg-emerald-950/80 border border-emerald-600/80 p-5 rounded-2xl space-y-4 animate-in zoom-in-95">
+              <div className="flex items-center space-x-3 text-emerald-400">
+                <CheckCircle2 className="w-8 h-8 shrink-0 text-emerald-400" />
+                <div>
+                  <h4 className="text-lg font-black text-white">Driver Assigned!</h4>
+                  <p className="text-xs text-emerald-300">
+                    A verified {selectedTierName} driver accepted your ride.
+                  </p>
+                </div>
+              </div>
 
-          <div className="bg-black border border-neutral-800 p-4 rounded-xl space-y-3">
-            <div className="flex justify-between items-center pb-2 border-b border-neutral-800">
-              <span className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Your Ride PIN</span>
-              <span className="text-2xl font-black text-amber-400 tracking-widest bg-amber-400/10 px-3 py-1 rounded-lg">
+              <div className="bg-black/90 p-4 rounded-xl border border-emerald-900/60 space-y-2.5 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="font-extrabold text-white text-sm">
+                    {acceptedDriver.driverName || 'Verified Driver'}
+                  </span>
+                  <span className="text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded">
+                    ⭐ {acceptedDriver.rating || '5.0'}
+                  </span>
+                </div>
+                <div className="text-neutral-300 flex justify-between">
+                  <span>Vehicle:</span>
+                  <strong className="text-white">
+                    {acceptedDriver.vehicleMake} {acceptedDriver.vehicleModel}
+                  </strong>
+                </div>
+                <div className="text-neutral-400 flex justify-between items-center">
+                  <span>License Plate:</span>
+                  <span className="bg-neutral-800 text-amber-400 px-2 py-0.5 rounded font-mono font-bold">
+                    {acceptedDriver.licensePlate}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* State 2: Request Dispatched to Matching Drivers */
+            <div className="flex items-start space-x-4">
+              <div className="relative flex items-center justify-center shrink-0 mt-1">
+                <span className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 animate-ping absolute"></span>
+                <span className="w-4 h-4 rounded-full bg-emerald-500"></span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-xl font-black text-white">Dispatching Request...</h3>
+                  <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase">
+                    Live Broadcast
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-300 leading-relaxed">
+                  Popup offer sent to all nearest online drivers with <strong>{selectedTierName}</strong>. Waiting for driver to accept...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Ride Details Card */}
+          <div className="bg-black border border-neutral-800 p-4 rounded-2xl space-y-3">
+            <div className="flex justify-between items-center pb-2.5 border-b border-neutral-800">
+              <span className="text-xs text-neutral-400 uppercase tracking-wider font-bold">
+                Your Ride PIN (Share with driver)
+              </span>
+              <span className="text-2xl font-mono font-black text-amber-400 tracking-widest bg-amber-400/10 px-3 py-1 rounded-xl border border-amber-400/20">
                 {bookingConfirmed.otp}
               </span>
             </div>
-            <div className="text-xs space-y-1.5 text-neutral-300">
-              <div><strong>Pickup:</strong> {bookingConfirmed.pickup_address}</div>
-              <div><strong>Dropoff:</strong> {bookingConfirmed.dropoff_address}</div>
-              <div><strong>Final Fare:</strong> ₹{bookingConfirmed.final_fare || bookingConfirmed.estimated_fare}</div>
+            <div className="text-xs space-y-2 text-neutral-300 pt-1">
+              <div className="flex items-start space-x-2">
+                <span className="w-2 h-2 rounded-full bg-white mt-1 shrink-0"></span>
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Pickup</span>
+                  <span className="font-semibold text-white">{bookingConfirmed.pickup_address}</span>
+                </div>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="w-2 h-2 rounded bg-white mt-1 shrink-0"></span>
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Destination</span>
+                  <span className="font-semibold text-white">{bookingConfirmed.dropoff_address}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-neutral-800/80">
+                <span className="text-neutral-400">Vehicle Type:</span>
+                <span className="font-bold text-white bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800">
+                  {selectedTierName}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-neutral-400">Total Fare:</span>
+                <span className="font-extrabold text-white text-base">
+                  ₹{Number(bookingConfirmed.final_fare || bookingConfirmed.estimated_fare).toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
 
           <button
-            onClick={() => setBookingConfirmed(null)}
-            className="w-full py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition cursor-pointer"
+            type="button"
+            onClick={() => {
+              setBookingConfirmed(null);
+              setAcceptedDriver(null);
+            }}
+            className="w-full py-3.5 bg-white text-black font-extrabold text-sm rounded-xl hover:bg-neutral-200 transition cursor-pointer active:scale-95 shadow-md"
           >
-            Book Another Ride
+            {acceptedDriver ? 'Book Another Ride' : 'Cancel Request / Choose Different Car'}
           </button>
         </div>
       ) : (
