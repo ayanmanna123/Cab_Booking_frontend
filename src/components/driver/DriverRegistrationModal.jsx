@@ -18,45 +18,43 @@ import {
 } from 'lucide-react';
 import { driversApi } from '../../api';
 
-const SUPABASE_BUCKET_BASE = 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images';
-
-// Pre-configured high-quality vehicle images from Supabase Storage bucket
+// Pre-configured official transparent white vehicle assets
 const CAR_PRESETS = [
   {
-    name: 'Silver Sedan (UberX)',
-    make: 'Toyota',
-    model: 'Camry',
-    year: 2023,
-    color: 'Silver Metallic',
-    tier: 'economy',
-    url: `${SUPABASE_BUCKET_BASE}/uberx.jpg`
+    name: 'Uber Go AC (Hatchback)',
+    make: 'Maruti Suzuki',
+    model: 'Swift Dzire',
+    year: 2024,
+    color: 'White',
+    tier: 'uber_go_ac',
+    url: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/HatchbackMini-Snowflake-520.png'
   },
   {
-    name: 'Executive Comfort (Uber Comfort)',
+    name: 'Premier AC Sedan',
     make: 'Honda',
-    model: 'Accord Hybrid',
+    model: 'City',
     year: 2024,
     color: 'Pearl White',
-    tier: 'comfort',
-    url: `${SUPABASE_BUCKET_BASE}/uber_comfort.jpg`
+    tier: 'premier_ac',
+    url: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/SedanComfort-Sparkles-523.png'
   },
   {
-    name: 'Spacious 6-Seater SUV (UberXL)',
+    name: 'UberXL 6-Seater SUV',
     make: 'Toyota',
     model: 'Innova Crysta',
-    year: 2023,
-    color: 'Bronze Metallic',
-    tier: 'xl',
-    url: `${SUPABASE_BUCKET_BASE}/uber_xl.jpg`
+    year: 2024,
+    color: 'Silver White',
+    tier: 'uber_xl',
+    url: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/MinivanLuggage-169-0.png'
   },
   {
-    name: 'Luxury Black Chauffeur (Uber Black)',
-    make: 'Mercedes-Benz',
-    model: 'E-Class AMG',
-    year: 2024,
-    color: 'Obsidian Black',
-    tier: 'black',
-    url: `${SUPABASE_BUCKET_BASE}/uber_black.jpg`
+    name: 'Uber Moto / Bike',
+    make: 'Hero',
+    model: 'Splendor Plus',
+    year: 2023,
+    color: 'Black/Silver',
+    tier: 'bike',
+    url: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/MotorcycleOrange-249-0.png'
   }
 ];
 
@@ -234,8 +232,8 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
         vehicleYear: payload.vehicleYear || res?.data?.vehicleYear || res?.data?.vehicle_year || 2024,
         vehicleColor: payload.vehicleColor || res?.data?.vehicleColor || res?.data?.vehicle_color || 'Silver',
         licensePlate: payload.licensePlate || res?.data?.licensePlate || res?.data?.license_plate || 'DL 01 AB 1234',
-        vehicleTypeId: payload.vehicleTypeId || res?.data?.vehicleTypeId || res?.data?.vehicle_type_id || 'economy',
-        carImageUrl: payload.carImageUrl || res?.data?.carImageUrl || res?.data?.car_image_url || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+        vehicleTypeId: payload.vehicleTypeId || res?.data?.vehicleTypeId || res?.data?.vehicle_type_id || 'uber_go_ac',
+        carImageUrl: payload.carImageUrl || res?.data?.carImageUrl || res?.data?.car_image_url || 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/HatchbackMini-Snowflake-520.png',
         aadhaarNumber: payload.aadhaarNumber || res?.data?.aadhaarNumber || res?.data?.aadhaar_number || '',
         drivingLicense: payload.drivingLicense || res?.data?.drivingLicense || res?.data?.driving_license || '',
         payoutMethod: payload.payoutMethod || res?.data?.payoutMethod || 'UPI',
@@ -268,11 +266,11 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
         ...formData,
         fullName: formData.fullName || 'Driver Partner',
         vehicleMake: formData.vehicleMake || 'Toyota',
-        vehicleModel: formData.vehicleModel || 'Camry',
+        vehicleModel: formData.vehicleModel || 'Swift Dzire',
         vehicleYear: Number(formData.vehicleYear) || 2024,
         licensePlate: formData.licensePlate?.toUpperCase() || 'DL 01 AB 1234',
-        vehicleColor: formData.vehicleColor || 'Silver',
-        carImageUrl: formData.carImageUrl || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+        vehicleColor: formData.vehicleColor || 'White',
+        carImageUrl: formData.carImageUrl || 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/HatchbackMini-Snowflake-520.png',
         aadhaarNumber: formData.aadhaarNumber,
         drivingLicense: formData.drivingLicense,
         payoutMethod: formData.payoutMethod,

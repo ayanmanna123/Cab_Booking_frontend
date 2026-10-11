@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import InteractiveMap from '../map/InteractiveMap';
 import { Map, Image, ArrowRight } from 'lucide-react';
 
@@ -11,6 +11,12 @@ export default function HeroVisual({
 }) {
   // If active route is calculated, show map by default, otherwise allow toggle
   const [viewMode, setViewMode] = useState(hasActiveRoute ? 'map' : 'gallery');
+
+  useEffect(() => {
+    if (hasActiveRoute) {
+      setViewMode('map');
+    }
+  }, [hasActiveRoute]);
 
   return (
     <div className="relative w-full">

@@ -1,13 +1,9 @@
 /**
  * Format currency amount with symbol
  */
-export function formatCurrency(amount, currency = 'USD') {
-  if (amount === undefined || amount === null) return '$0.00';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2
-  }).format(amount);
+export function formatCurrency(amount, currency = 'INR') {
+  if (amount === undefined || amount === null) return '₹0.00';
+  return `₹${Number(amount).toFixed(2)}`;
 }
 
 /**

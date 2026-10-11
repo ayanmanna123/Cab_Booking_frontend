@@ -52,7 +52,7 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
         <div className="flex items-center justify-between bg-black p-4 rounded-2xl border border-neutral-800">
           <div>
             <span className="text-xs text-neutral-400 block font-medium">Estimated Earnings</span>
-            <span className="text-3xl font-black text-white">${offer.estimatedFare || '24.50'}</span>
+            <span className="text-3xl font-black text-white">₹{offer.estimatedFare || '250.00'}</span>
           </div>
           <div className="text-right">
             <span className="text-xs text-neutral-400 block font-medium">Tier</span>

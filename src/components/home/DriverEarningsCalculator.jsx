@@ -6,10 +6,10 @@ export default function DriverEarningsCalculator() {
   const [tier, setTier] = useState('UberX');
 
   const ratePerHour = {
-    'UberX': 32,
-    'Uber Comfort': 40,
-    'UberXL': 48,
-    'Uber Black': 65
+    'UberX': 250,
+    'Uber Comfort': 320,
+    'UberXL': 420,
+    'Uber Black': 600
   };
 
   const estimatedWeekly = hoursPerWeek * ratePerHour[tier];
@@ -89,7 +89,7 @@ export default function DriverEarningsCalculator() {
 
               <div>
                 <div className="text-5xl sm:text-6xl font-black text-white tracking-tight">
-                  ${estimatedWeekly.toLocaleString()}
+                  ₹{estimatedWeekly.toLocaleString('en-IN')}
                 </div>
                 <span className="text-xs text-neutral-400 font-medium">per week on average</span>
               </div>
@@ -97,11 +97,11 @@ export default function DriverEarningsCalculator() {
               <div className="pt-4 border-t border-neutral-900 grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <span className="text-neutral-500 block">Estimated Monthly</span>
-                  <span className="text-lg font-bold text-neutral-200">${estimatedMonthly.toLocaleString()}</span>
+                  <span className="text-lg font-bold text-neutral-200">₹{estimatedMonthly.toLocaleString('en-IN')}</span>
                 </div>
                 <div>
                   <span className="text-neutral-500 block">Average Hourly Rate</span>
-                  <span className="text-lg font-bold text-neutral-200">${ratePerHour[tier]}/hr</span>
+                  <span className="text-lg font-bold text-neutral-200">₹{ratePerHour[tier]}/hr</span>
                 </div>
               </div>
             </div>

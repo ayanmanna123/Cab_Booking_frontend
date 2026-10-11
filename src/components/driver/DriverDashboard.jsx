@@ -34,20 +34,31 @@ import { SOCKET_EVENTS } from '../../constants/socketEvents';
 import { driversApi } from '../../api';
 
 // Helper to reliably normalize driver profiles regardless of snake_case or camelCase keys
-export const normalizeDriverProfile = (raw) => {
+export const getDriverCarImage = (url, typeId) => {
+  if (url && url.includes('cloudfront.net') && !url.endsWith('.jpg') && !url.includes('car-images')) {
+    return url;
+  }
+  const tid = (typeId || '').toLowerCase();
+  if (tid.includes('xl')) return 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/MinivanLuggage-169-0.png';
+  if (tid.includes('bike') || tid.includes('moto')) return 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/MotorcycleOrange-249-0.png';
+  if (tid.includes('comfort') || tid.includes('premier')) return 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/SedanComfort-Sparkles-523.png';
+  return 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/HatchbackMini-Snowflake-520.png';
+};
+
+const normalizeDriverProfile = (raw) => {
   if (!raw) return null;
   return {
     id: raw.id || 'demo_driver_1',
     fullName: raw.fullName || raw.full_name || raw.cb_users?.full_name || 'Driver Partner',
     phone: raw.phone || raw.cb_users?.phone || '',
     email: raw.email || raw.cb_users?.email || '',
-    vehicleMake: raw.vehicleMake || raw.vehicle_make || 'Toyota',
-    vehicleModel: raw.vehicleModel || raw.vehicle_model || 'Camry',
+    vehicleMake: raw.vehicleMake || raw.vehicle_make || 'Maruti Suzuki',
+    vehicleModel: raw.vehicleModel || raw.vehicle_model || 'Swift Dzire',
     vehicleYear: raw.vehicleYear || raw.vehicle_year || 2024,
-    vehicleColor: raw.vehicleColor || raw.vehicle_color || 'Silver',
+    vehicleColor: raw.vehicleColor || raw.vehicle_color || 'White',
     licensePlate: raw.licensePlate || raw.license_plate || 'DL 01 AB 1234',
-    vehicleTypeId: raw.vehicleTypeId || raw.vehicle_type_id || 'economy',
-    carImageUrl: raw.carImageUrl || raw.car_image_url || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+    vehicleTypeId: raw.vehicleTypeId || raw.vehicle_type_id || 'uber_go_ac',
+    carImageUrl: getDriverCarImage(raw.carImageUrl || raw.car_image_url, raw.vehicleTypeId || raw.vehicle_type_id),
     aadhaarNumber: raw.aadhaarNumber || raw.aadhaar_number || (raw.stripe_account_id?.replace('AADHAAR:', '') || ''),
     drivingLicense: raw.drivingLicense || raw.driving_license || '',
     payoutMethod: raw.payoutMethod || raw.payout_method || 'UPI',
@@ -226,7 +237,7 @@ export default function DriverDashboard() {
             id: 'ride_sim_' + Math.floor(Math.random() * 1000),
             pickupAddress: 'Financial District Terminal',
             dropoffAddress: 'Embarcadero Pier Center',
-            estimatedFare: '32.50',
+            estimatedFare: '280.00',
             vehicleTier: driverProfile?.vehicleTypeId === 'xl' ? 'UberXL' : 'UberX',
             pickupCoords: [lat + 0.003, lng + 0.003],
             dropoffCoords: [lat + 0.012, lng + 0.009]
@@ -352,11 +363,11 @@ export default function DriverDashboard() {
       vehicleModel: 'Camry Hybrid',
       vehicleYear: 2024,
       licensePlate: 'MH 02 CZ 4488',
-      vehicleColor: 'Silver Metallic',
-      vehicleTypeId: 'economy',
+      vehicleColor: 'Pearl White',
+      vehicleTypeId: 'uber_go_ac',
       aadhaarNumber: '9182 3412 8765',
       drivingLicense: 'MH-02-2022-004488',
-      carImageUrl: 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+      carImageUrl: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/HatchbackMini-Snowflake-520.png',
       payoutMethod: 'UPI',
       upiId: 'vikram.driver@okaxis',
       emergencyContactName: 'Anjali Malhotra',
@@ -584,14 +595,13 @@ export default function DriverDashboard() {
       {/* Driver Portal Dashboard Header & Online Toggle */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-neutral-900 border border-neutral-800 p-6 rounded-3xl gap-6">
         <div className="flex items-center space-x-5">
-          {/* Driver's Registered Car Thumbnail from Supabase */}
-          <div className="w-20 h-20 rounded-2xl overflow-hidden border border-neutral-700 bg-black shrink-0 relative group shadow-md">
+          {/* Driver's Registered Car Thumbnail */}
+          <div className="w-20 h-20 rounded-2xl overflow-hidden border border-neutral-700 bg-neutral-950 shrink-0 relative group shadow-md flex items-center justify-center p-1">
             <img
-              src={driverProfile.carImageUrl || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg'}
+              src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
               alt="Registered Car"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition" />
           </div>
 
           <div className="space-y-1">
@@ -646,14 +656,14 @@ export default function DriverDashboard() {
         </div>
       </div>
 
-      {/* Dynamic KPI Stats Grid (Real figures, starting at $0.00) */}
+      {/* Dynamic KPI Stats Grid (Real figures, starting at ₹0.00) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-neutral-400 text-xs font-semibold">
             <span>Today's Net Payout</span>
-            <DollarSign className="w-4 h-4 text-emerald-400" />
+            <span className="text-emerald-400 font-bold text-sm">₹</span>
           </div>
-          <div className="text-3xl font-black text-white">${todayEarnings.toFixed(2)}</div>
+          <div className="text-3xl font-black text-white">₹{todayEarnings.toFixed(2)}</div>
           <span className="text-[11px] text-emerald-400 font-medium">
             {todayEarnings > 0 ? 'Live payout accumulated today' : 'No trips completed yet today'}
           </span>
@@ -749,14 +759,14 @@ export default function DriverDashboard() {
             </div>
 
             {/* Car Photo Thumbnail */}
-            <div className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-800">
+            <div className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/60 flex items-center justify-center p-2">
               <img
-                src={driverProfile.carImageUrl || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg'}
+                src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
                 alt="Registered Vehicle"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
               <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-white border border-neutral-700">
-                Supabase Bucket
+                Verified Vehicle
               </div>
             </div>
 
