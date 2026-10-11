@@ -34,8 +34,8 @@ export const driversApi = {
   /**
    * Find nearby online drivers within a given radius
    */
-  getNearbyDrivers: async (latitude, longitude, radiusKm = 5) => {
-    return apiClient.get(`/drivers/nearby?lat=${latitude}&lng=${longitude}&radius=${radiusKm}`);
+  getNearbyDrivers: async (latitude, longitude, radiusKm = 15) => {
+    return apiClient.get(`/drivers/nearby?latitude=${latitude}&longitude=${longitude}&radiusKm=${radiusKm}&lat=${latitude}&lng=${longitude}`);
   },
 
   /**

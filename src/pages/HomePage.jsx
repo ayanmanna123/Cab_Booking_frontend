@@ -11,7 +11,7 @@ import { useSocketContext } from '../context/SocketContext';
 import { SOCKET_EVENTS } from '../constants/socketEvents';
 
 export default function HomePage() {
-  const [pickupCoords, setPickupCoords] = useState([37.7749, -122.4194]);
+  const [pickupCoords, setPickupCoords] = useState([22.6113, 88.4202]);
   const [dropoffCoords, setDropoffCoords] = useState(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [hasActiveRoute, setHasActiveRoute] = useState(false);
@@ -26,38 +26,70 @@ export default function HomePage() {
     const fetchDrivers = async () => {
       try {
         const res = await driversApi.getNearbyDrivers(pickupCoords[0], pickupCoords[1]);
-        if (res && res.data && isMounted) {
-          const formatted = (res.data || []).map((d) => ({
-            id: d.id,
-            vehicle_model: `${d.vehicle_make || 'Uber'} ${d.vehicle_model || 'Driver'}`,
-            latitude: Number(d.current_latitude || d.latitude),
-            longitude: Number(d.current_longitude || d.longitude),
-            rating: Number(d.rating || 5.0),
-            heading: Number(d.heading || 0)
-          }));
+        const formatted = [];
 
-          // Merge local driver if currently marked online in this browser
+        if (res && res.data && Array.isArray(res.data)) {
+          res.data.forEach((d) => {
+            if (d && (d.latitude || d.current_latitude)) {
+              formatted.push({
+                id: d.id,
+                vehicle_model: `${d.vehicle_make || 'Uber'} ${d.vehicle_model || 'Driver'}`,
+                type: (d.vehicle_type_id || '').toLowerCase().includes('bike') ? 'bike' : 'car',
+                latitude: Number(d.current_latitude || d.latitude),
+                longitude: Number(d.current_longitude || d.longitude),
+                rating: Number(d.rating || 5.0),
+                heading: Number(d.heading || 0)
+              });
+            }
+          });
+        }
+
+        // Merge local driver ONLY if currently marked online in this browser
+        try {
+          const isOnline = localStorage.getItem('driver_is_online') === 'true';
+          const saved = JSON.parse(localStorage.getItem('registered_driver') || 'null');
+          if (isOnline && saved) {
+            const coords = JSON.parse(localStorage.getItem('driver_last_coords') || 'null') || pickupCoords;
+            // Prevent duplicate if already in formatted
+            if (!formatted.some((d) => d.id === 'my_live_driver' || d.id === saved.id)) {
+              formatted.push({
+                id: saved.id || 'my_live_driver',
+                vehicle_model: `${saved.fullName} (${saved.vehicleMake} ${saved.vehicleModel})`,
+                type: (saved.vehicleTypeId || '').toLowerCase().includes('bike') ? 'bike' : 'car',
+                latitude: coords[0],
+                longitude: coords[1],
+                rating: Number(saved.rating || 5.0),
+                heading: 0
+              });
+            }
+          }
+        } catch {}
+
+        if (isMounted) {
+          setNearbyDrivers(formatted);
+        }
+      } catch (err) {
+        if (isMounted) {
+          // Check local driver if online even if network error
           try {
             const isOnline = localStorage.getItem('driver_is_online') === 'true';
             const saved = JSON.parse(localStorage.getItem('registered_driver') || 'null');
             if (isOnline && saved) {
               const coords = JSON.parse(localStorage.getItem('driver_last_coords') || 'null') || pickupCoords;
-              formatted.push({
-                id: 'my_live_driver',
+              setNearbyDrivers([{
+                id: saved.id || 'my_live_driver',
                 vehicle_model: `${saved.fullName} (${saved.vehicleMake} ${saved.vehicleModel})`,
+                type: (saved.vehicleTypeId || '').toLowerCase().includes('bike') ? 'bike' : 'car',
                 latitude: coords[0],
                 longitude: coords[1],
-                rating: 5.0,
+                rating: Number(saved.rating || 5.0),
                 heading: 0
-              });
+              }]);
+              return;
             }
           } catch {}
-
-          setNearbyDrivers(formatted);
+          setNearbyDrivers([]);
         }
-      } catch (err) {
-        // If error or no drivers online, fallback to empty array
-        if (isMounted) setNearbyDrivers([]);
       }
     };
 

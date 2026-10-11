@@ -63,11 +63,13 @@ export default function HeroVisual({
           <div className="mt-3 flex items-center justify-between text-xs text-neutral-400 px-2">
             <span className="flex items-center">
               <span className={`w-2 h-2 rounded-full mr-1.5 ${nearbyDrivers && nearbyDrivers.length > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600'}`}></span>
-              {nearbyDrivers && nearbyDrivers.length > 0
-                ? `${nearbyDrivers.length} Driver${nearbyDrivers.length > 1 ? 's' : ''} live nearby`
-                : 'No drivers online nearby · Go Live in Drive tab'}
+              <span>
+                {nearbyDrivers && nearbyDrivers.length > 0
+                  ? `${nearbyDrivers.length} driver${nearbyDrivers.length > 1 ? 's' : ''} live nearby`
+                  : 'No drivers online nearby · Go Live in Drive tab'}
+              </span>
             </span>
-            <span>OSRM Turn-by-Turn GPS Navigation</span>
+            <span className="text-neutral-500">Scroll wheel or + / − to zoom map</span>
           </div>
         </div>
       ) : (

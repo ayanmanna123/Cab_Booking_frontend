@@ -57,3 +57,42 @@
 .dark-tiles .leaflet-tile {
   filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.85);
 }
+
+.light-tiles .leaflet-tile {
+  filter: saturate(1.05) contrast(1.02);
+}
+
+/* Hide default leaflet zoom control in favor of custom UI */
+.leaflet-control-zoom {
+  display: none !important;
+}
+
+/* Custom vehicle marker resets */
+.custom-leaflet-marker,
+.custom-vehicle-car-marker,
+.custom-vehicle-bike-marker {
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Elegant Leaflet Popup Styling */
+.leaflet-popup-content-wrapper {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-radius: 14px !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.7) !important;
+  padding: 2px !important;
+}
+
+.leaflet-popup-tip {
+  background: #0f172a !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px 14px !important;
+  line-height: 1.4 !important;
+}

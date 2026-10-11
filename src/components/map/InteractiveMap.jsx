@@ -1,42 +1,150 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import {
+  Plus,
+  Minus,
+  Maximize2,
+  Minimize2,
+  Compass,
+  Sun,
+  Moon,
+  Car as CarIcon,
+  Navigation,
+  X,
+  Sparkles,
+  ShieldCheck
+} from 'lucide-react';
 
-// Custom Uber style DivIcons
-const createCustomIcon = (type, label = '') => {
+// Top-Down realistic white car icon matching screenshot 2
+const createCarIcon = (heading = 0) => {
+  const innerHtml = `
+    <div style="width: 24px; height: 50px; display: flex; align-items: center; justify-content: center; transform: rotate(${heading}deg); transform-origin: center center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.55)); transition: transform 0.6s ease;">
+      <svg width="24" height="50" viewBox="0 0 24 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Car Chassis / White Body -->
+        <path d="M 5.5,9.5 C 5.5,4 8,1.2 12,1.2 C 16,1.2 18.5,4 18.5,9.5 L 19,38 C 19,43.5 16.5,47 12,47 C 7.5,47 5,43.5 5,38 Z" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.3" stroke-linejoin="round" />
+        
+        <!-- Left Mirror -->
+        <path d="M 3.2,14 C 2.5,14 2,15 2.2,16.5 C 2.4,17.5 3,18 4.2,17.5" fill="#FFFFFF" stroke="#334155" stroke-width="0.8" />
+        <!-- Right Mirror -->
+        <path d="M 20.8,14 C 21.5,14 22,15 21.8,16.5 C 21.6,17.5 21,18 19.8,17.5" fill="#FFFFFF" stroke="#334155" stroke-width="0.8" />
+
+        <!-- Front Windshield (curved dark glass) -->
+        <path d="M 6.8,13.5 C 8.8,12.8 15.2,12.8 17.2,13.5 L 16.2,20.5 C 14.5,20 9.5,20 7.8,20.5 Z" fill="#0F172A" />
+        <!-- Windshield reflection highlight -->
+        <path d="M 8.2,14.5 L 10.5,14.5 L 9.5,19.5 L 7.8,19.5 Z" fill="#94A3B8" opacity="0.75" />
+
+        <!-- Side Windows -->
+        <path d="M 6,21.5 L 6.6,28.5 L 5.6,29 L 5.4,22 Z" fill="#0F172A" />
+        <path d="M 18,21.5 L 17.4,28.5 L 18.4,29 L 18.6,22 Z" fill="#0F172A" />
+
+        <!-- Roof / Sunroof Contour -->
+        <rect x="7.8" y="22" width="8.4" height="6.5" rx="1.5" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="0.5" />
+
+        <!-- Rear Window -->
+        <path d="M 7.2,30.5 C 9.2,31 14.8,31 16.8,30.5 L 16.2,35 C 14.2,34.5 9.8,34.5 7.8,35 Z" fill="#0F172A" />
+
+        <!-- Front Headlights (amber/yellow glow) -->
+        <path d="M 5.8,2.2 C 6.8,2.2 7.6,3 7.6,4 L 5.4,4.2 Z" fill="#FEF08A" />
+        <path d="M 18.2,2.2 C 17.2,2.2 16.4,3 16.4,4 L 18.6,4.2 Z" fill="#FEF08A" />
+
+        <!-- Rear Taillights (distinct red accents) -->
+        <path d="M 5.4,42.5 C 5.4,44.5 6.8,45.5 8.2,45.5 L 7.8,43 Z" fill="#EF4444" />
+        <path d="M 18.6,42.5 C 18.6,44.5 17.2,45.5 15.8,45.5 L 16.2,43 Z" fill="#EF4444" />
+      </svg>
+    </div>
+  `;
+
+  return L.divIcon({
+    html: innerHtml,
+    className: 'custom-vehicle-car-marker',
+    iconSize: [24, 50],
+    iconAnchor: [12, 25]
+  });
+};
+
+// Top-Down realistic motorcycle / scooter icon matching screenshot 2
+const createBikeIcon = (heading = 0) => {
+  const innerHtml = `
+    <div style="width: 20px; height: 42px; display: flex; align-items: center; justify-content: center; transform: rotate(${heading}deg); transform-origin: center center; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.55)); transition: transform 0.6s ease;">
+      <svg width="20" height="42" viewBox="0 0 20 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Front Wheel -->
+        <rect x="9" y="1" width="2" height="7" rx="1" fill="#111827" />
+        
+        <!-- Handlebars -->
+        <path d="M 3.5,8 C 7,7.2 13,7.2 16.5,8" stroke="#1F2937" stroke-width="2.2" stroke-linecap="round" />
+        <!-- Hand Grips -->
+        <circle cx="3.5" cy="8" r="1.2" fill="#F97316" />
+        <circle cx="16.5" cy="8" r="1.2" fill="#F97316" />
+
+        <!-- Front Fairing / Headlight -->
+        <path d="M 8.5,8.5 L 11.5,8.5 L 11,12 L 9,12 Z" fill="#F97316" />
+        <circle cx="10" cy="8.2" r="1" fill="#FEF08A" />
+
+        <!-- Rider Arms / Body -->
+        <path d="M 5,14.5 C 5,12 8,11 10,11 C 12,11 15,12 15,14.5 L 14,19 L 6,19 Z" fill="#1E293B" />
+
+        <!-- Rider Helmet with cyan visor -->
+        <circle cx="10" cy="14" r="3.2" fill="#0F172A" stroke="#475569" stroke-width="0.8" />
+        <path d="M 8.2,12.8 Q 10,11.5 11.8,12.8" stroke="#38BDF8" stroke-width="1.2" stroke-linecap="round" />
+
+        <!-- Bike Seat / Chassis -->
+        <path d="M 8.2,19 L 11.8,19 L 11.2,29 L 8.8,29 Z" fill="#334155" />
+
+        <!-- Rear Wheel -->
+        <rect x="9" y="29" width="2" height="8" rx="1" fill="#111827" />
+
+        <!-- Taillight -->
+        <circle cx="10" cy="30" r="1.2" fill="#EF4444" />
+      </svg>
+    </div>
+  `;
+
+  return L.divIcon({
+    html: innerHtml,
+    className: 'custom-vehicle-bike-marker',
+    iconSize: [20, 42],
+    iconAnchor: [10, 21]
+  });
+};
+
+// Custom Uber style DivIcons for Pickup & Destination
+export const createCustomIcon = (type, label = '', heading = 0) => {
   let innerHtml = '';
 
   if (type === 'pickup') {
     innerHtml = `
-      <div style="background-color: #000000; border: 3px solid #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+      <div style="background-color: #000000; border: 3px solid #ffffff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">
         <div style="background-color: #ffffff; width: 10px; height: 10px; border-radius: 50%;"></div>
       </div>
     `;
-  } else if (type === 'dropoff') {
+    return L.divIcon({
+      html: innerHtml,
+      className: 'custom-leaflet-marker',
+      iconSize: [34, 34],
+      iconAnchor: [17, 17]
+    });
+  }
+
+  if (type === 'dropoff') {
     innerHtml = `
-      <div style="background-color: #ffffff; border: 3px solid #000000; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+      <div style="background-color: #ffffff; border: 3px solid #000000; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">
         <div style="background-color: #000000; width: 12px; height: 12px; border-radius: 2px;"></div>
       </div>
     `;
-  } else if (type === 'car') {
-    innerHtml = `
-      <div style="background-color: #000000; border: 2px solid #3b82f6; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.5); transform: rotate(${label}deg);">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
-          <circle cx="7" cy="17" r="2"/>
-          <path d="M9 17h6"/>
-          <circle cx="17" cy="17" r="2"/>
-        </svg>
-      </div>
-    `;
+    return L.divIcon({
+      html: innerHtml,
+      className: 'custom-leaflet-marker',
+      iconSize: [34, 34],
+      iconAnchor: [17, 17]
+    });
   }
 
-  return L.divIcon({
-    html: innerHtml,
-    className: 'custom-leaflet-marker',
-    iconSize: [34, 34],
-    iconAnchor: [17, 17]
-  });
+  if (type === 'bike') {
+    return createBikeIcon(heading);
+  }
+
+  return createCarIcon(heading);
 };
 
 // Component to dynamically fit map bounds to route or coordinates
@@ -58,18 +166,176 @@ function AutoFitBounds({ pickup, dropoff, routeCoordinates }) {
   return null;
 }
 
+// Dedicated sleek Zoom & Map Controls component inside MapContainer
+function MapZoomControls({
+  pickupCoords,
+  dropoffCoords,
+  routeCoordinates,
+  mapTheme,
+  setMapTheme,
+  onToggleFullscreen,
+  isFullscreen
+}) {
+  const map = useMap();
+  const [zoomLevel, setZoomLevel] = useState(map.getZoom());
+  const controlRef = useRef(null);
+
+  useEffect(() => {
+    if (controlRef.current) {
+      L.DomEvent.disableClickPropagation(controlRef.current);
+      L.DomEvent.disableScrollPropagation(controlRef.current);
+    }
+
+    const onZoom = () => {
+      setZoomLevel(map.getZoom());
+    };
+    map.on('zoomend', onZoom);
+    return () => {
+      map.off('zoomend', onZoom);
+    };
+  }, [map]);
+
+  const handleZoomIn = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    map.zoomIn();
+  };
+
+  const handleZoomOut = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    map.zoomOut();
+  };
+
+  const handleRecenter = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (routeCoordinates && routeCoordinates.length > 0) {
+      map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [50, 50] });
+    } else if (pickupCoords && dropoffCoords) {
+      map.fitBounds(L.latLngBounds([pickupCoords, dropoffCoords]), { padding: [60, 60] });
+    } else if (pickupCoords) {
+      map.setView(pickupCoords, 14, { animate: true });
+    }
+  };
+
+  const handleToggleTheme = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setMapTheme((prev) => (prev === 'dark' ? 'street' : 'dark'));
+  };
+
+  const handleFullscreenClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onToggleFullscreen) onToggleFullscreen();
+  };
+
+  return (
+    <div
+      ref={controlRef}
+      className="leaflet-top leaflet-right pointer-events-auto"
+      style={{ margin: '14px', zIndex: 1000 }}
+    >
+      <div className="flex flex-col items-center space-y-2 select-none">
+        {/* Zoom In & Out Pill with Level display */}
+        <div className="bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-2xl p-1 shadow-2xl flex flex-col items-center divide-y divide-neutral-800 text-white">
+          {/* Zoom In */}
+          <button
+            type="button"
+            onClick={handleZoomIn}
+            title="Zoom In (+)"
+            className="w-8 h-8 flex items-center justify-center hover:bg-neutral-800 active:scale-90 rounded-xl transition text-neutral-200 hover:text-white cursor-pointer"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+          </button>
+
+          {/* Zoom Level Indicator */}
+          <div className="py-1 px-1.5 text-[10px] font-mono font-bold text-neutral-400">
+            {zoomLevel}x
+          </div>
+
+          {/* Zoom Out */}
+          <button
+            type="button"
+            onClick={handleZoomOut}
+            title="Zoom Out (−)"
+            className="w-8 h-8 flex items-center justify-center hover:bg-neutral-800 active:scale-90 rounded-xl transition text-neutral-200 hover:text-white cursor-pointer"
+          >
+            <Minus className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* Re-center / Fit bounds */}
+        <button
+          type="button"
+          onClick={handleRecenter}
+          title="Re-center on Pickup / Route"
+          className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
+        >
+          <Compass className="w-4 h-4 text-emerald-400" />
+        </button>
+
+        {/* Street Light / Night Dark Map Style Switcher */}
+        <button
+          type="button"
+          onClick={handleToggleTheme}
+          title={mapTheme === 'dark' ? 'Switch to Street View (Light Mode)' : 'Switch to Dark Mode'}
+          className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
+        >
+          {mapTheme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-indigo-400" />
+          )}
+        </button>
+
+        {/* Maximize / Zoom Fullscreen Map Button */}
+        {onToggleFullscreen && (
+          <button
+            type="button"
+            onClick={handleFullscreenClick}
+            title={isFullscreen ? 'Exit Fullscreen' : 'Expand / Zoom Map Fullscreen'}
+            className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
+          >
+            {isFullscreen ? (
+              <Minimize2 className="w-4 h-4 text-white" />
+            ) : (
+              <Maximize2 className="w-4 h-4 text-white" />
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function InteractiveMap({
-  pickupCoords = [37.7749, -122.4194],
+  pickupCoords = [22.6113, 88.4202],
   dropoffCoords = null,
   routeCoordinates = [],
   nearbyDrivers = [],
-  height = '560px'
+  height = '560px',
+  allowFullscreen = true
 }) {
   const [mounted, setMounted] = useState(false);
+  const [mapTheme, setMapTheme] = useState('dark'); // 'dark' | 'street'
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle ESC key for exiting fullscreen modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
   if (!mounted) {
     return (
@@ -82,31 +348,68 @@ export default function InteractiveMap({
     );
   }
 
-  const defaultCenter = pickupCoords || [37.7749, -122.4194];
+  const defaultCenter = pickupCoords || [22.6113, 88.4202];
 
-  return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl isolate z-0" style={{ height }}>
-      {/* Map Floating Status Pill */}
-      <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-neutral-700/60 flex items-center space-x-2 text-xs font-semibold text-white shadow-lg pointer-events-none">
-        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-        <span>Leaflet Live GPS</span>
-        <span className="text-neutral-400">·</span>
-        <span className="text-neutral-300">OpenStreetMap</span>
+  // Inner Map Content
+  const renderMapContent = (containerHeight) => (
+    <div
+      className="relative w-full rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl isolate z-0 transition-all"
+      style={{ height: containerHeight }}
+    >
+      {/* Top Left Floating Status Pill */}
+      <div className="absolute top-4 left-4 z-[1000] flex items-center space-x-2 pointer-events-none">
+        <div className="bg-black/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-neutral-700/70 flex items-center space-x-2 text-xs font-semibold text-white shadow-xl">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+          <span>Leaflet Live GPS</span>
+          <span className="text-neutral-400">·</span>
+          <span className="text-neutral-300">
+            {mapTheme === 'dark' ? 'Night View' : 'Street View'}
+          </span>
+        </div>
+
+        {/* Live Real Drivers Badge */}
+        {nearbyDrivers && nearbyDrivers.length > 0 ? (
+          <div className="hidden sm:flex bg-neutral-900/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-neutral-700/70 items-center space-x-1.5 text-xs font-medium text-emerald-400 shadow-xl">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>{nearbyDrivers.length} Driver{nearbyDrivers.length > 1 ? 's' : ''} Online Nearby</span>
+          </div>
+        ) : (
+          <div className="hidden sm:flex bg-neutral-900/85 backdrop-blur-md px-3 py-1.5 rounded-full border border-neutral-700/70 items-center space-x-1.5 text-xs font-medium text-neutral-400 shadow-xl">
+            <span className="w-2 h-2 rounded-full bg-neutral-600"></span>
+            <span>No Drivers Online</span>
+          </div>
+        )}
       </div>
 
+      {/* Map Tile Container */}
       <MapContainer
         center={defaultCenter}
-        zoom={13}
-        scrollWheelZoom={false}
-        className="w-full h-full dark-tiles"
+        zoom={14}
+        zoomControl={false}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        touchZoom={true}
+        className={`w-full h-full ${mapTheme === 'dark' ? 'dark-tiles' : 'light-tiles'}`}
       >
-        {/* OpenStreetMap Tile Layer with stylish dark mode invert */}
+        {/* OpenStreetMap Tile Layer */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
         />
 
-        {/* Auto fit map viewpoint */}
+        {/* Custom Dedicated Zoom & Navigation Controls */}
+        <MapZoomControls
+          pickupCoords={pickupCoords}
+          dropoffCoords={dropoffCoords}
+          routeCoordinates={routeCoordinates}
+          mapTheme={mapTheme}
+          setMapTheme={setMapTheme}
+          onToggleFullscreen={allowFullscreen ? () => setIsFullscreen(!isFullscreen) : null}
+          isFullscreen={isFullscreen}
+        />
+
+        {/* Auto fit viewpoint */}
         <AutoFitBounds
           pickup={pickupCoords}
           dropoff={dropoffCoords}
@@ -116,8 +419,11 @@ export default function InteractiveMap({
         {/* Pickup Marker */}
         {pickupCoords && (
           <Marker position={pickupCoords} icon={createCustomIcon('pickup')}>
-            <Popup className="text-black font-semibold">
-              Pickup Point
+            <Popup className="text-black font-semibold text-xs">
+              <div className="p-1">
+                <strong className="block text-sm">📍 Pickup Point</strong>
+                <span className="text-neutral-600 text-[11px]">Meet your driver here</span>
+              </div>
             </Popup>
           </Marker>
         )}
@@ -125,47 +431,154 @@ export default function InteractiveMap({
         {/* Dropoff Marker */}
         {dropoffCoords && (
           <Marker position={dropoffCoords} icon={createCustomIcon('dropoff')}>
-            <Popup className="text-black font-semibold">
-              Destination
+            <Popup className="text-black font-semibold text-xs">
+              <div className="p-1">
+                <strong className="block text-sm">🏁 Destination</strong>
+                <span className="text-neutral-600 text-[11px]">Dropoff location</span>
+              </div>
             </Popup>
           </Marker>
         )}
 
-        {/* Live Active Driving Route Polyline */}
+        {/* Route Polyline Background Glow */}
         {routeCoordinates && routeCoordinates.length > 0 && (
           <Polyline
             positions={routeCoordinates}
             color="#ffffff"
-            weight={5}
+            weight={6}
             opacity={0.9}
             dashArray="1, 8"
             lineCap="round"
           />
         )}
+        {/* Route Polyline Main Solid Drive Line */}
         {routeCoordinates && routeCoordinates.length > 0 && (
           <Polyline
             positions={routeCoordinates}
             color="#2563eb"
             weight={4}
-            opacity={0.85}
+            opacity={0.9}
           />
         )}
 
-        {/* Nearby Drivers Markers */}
-        {nearbyDrivers.map((driver, idx) => (
-          <Marker
-            key={driver.id || idx}
-            position={[driver.latitude || driver.current_latitude, driver.longitude || driver.current_longitude]}
-            icon={createCustomIcon('car', driver.heading || idx * 45)}
-          >
-            <Popup className="text-black font-sans text-xs">
-              <strong>{driver.vehicle_model || 'Uber Driver'}</strong>
-              <br />
-              Rating: ⭐ {driver.rating || '5.0'}
-            </Popup>
-          </Marker>
-        ))}
+        {/* Real Online Vehicles (Cars and Bikes) */}
+        {nearbyDrivers.map((vehicle, idx) => {
+          const lat = vehicle.latitude || vehicle.current_latitude;
+          const lng = vehicle.longitude || vehicle.current_longitude;
+          if (!lat || !lng) return null;
+
+          const isBike =
+            vehicle.type === 'bike' ||
+            vehicle.vehicle_type === 'bike' ||
+            (vehicle.vehicle_model && vehicle.vehicle_model.toLowerCase().includes('bike')) ||
+            (vehicle.vehicle_model && vehicle.vehicle_model.toLowerCase().includes('moto'));
+
+          const icon = isBike
+            ? createBikeIcon(vehicle.heading || 0)
+            : createCarIcon(vehicle.heading || 0);
+
+          return (
+            <Marker
+              key={vehicle.id || idx}
+              position={[lat, lng]}
+              icon={icon}
+            >
+              <Popup className="text-black font-sans text-xs">
+                <div className="p-1.5 space-y-1 min-w-[150px]">
+                  <div className="flex items-center space-x-1.5 font-bold text-neutral-900 text-xs">
+                    <span>{isBike ? '🏍️' : '🚗'}</span>
+                    <span>{vehicle.vehicle_model || (isBike ? 'Bike' : 'Uber Driver')}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-neutral-600">
+                    <span>⭐ {vehicle.rating || '5.0'}</span>
+                    <span className="font-semibold text-emerald-600">Online & Ready</span>
+                  </div>
+                  <div className="pt-1 border-t border-neutral-200 flex items-center justify-between text-[10px]">
+                    <span className="text-neutral-500 font-medium">
+                      {vehicle.driver_name || vehicle.fullName || 'Verified Driver'}
+                    </span>
+                    <span className="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
+                      Live
+                    </span>
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
     </div>
+  );
+
+  return (
+    <>
+      {/* Standard Inline Map View */}
+      {renderMapContent(height)}
+
+      {/* Expanded Fullscreen Zoom Modal */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-xl flex flex-col p-4 sm:p-6 animate-in fade-in zoom-in-95 duration-200 select-none">
+          {/* Fullscreen Header with Controls */}
+          <div className="flex items-center justify-between mb-3 bg-neutral-900/90 border border-neutral-800 px-5 py-3 rounded-2xl shadow-2xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-neutral-800 flex items-center justify-center text-white">
+                <Navigation className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-extrabold text-sm sm:text-base flex items-center space-x-2">
+                  <span>Uber Live GPS Fleet Radar</span>
+                  {nearbyDrivers.length > 0 && (
+                    <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      Live
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-neutral-400">
+                  {nearbyDrivers.length > 0
+                    ? `${nearbyDrivers.length} active driver${nearbyDrivers.length > 1 ? 's' : ''} online in this zone · Scroll or use +/− to zoom in/out`
+                    : 'No drivers currently online nearby · Scroll or use +/− to zoom in/out'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              {/* Map Theme Toggle */}
+              <button
+                type="button"
+                onClick={() => setMapTheme((t) => (t === 'dark' ? 'street' : 'dark'))}
+                className="px-3.5 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-neutral-700 cursor-pointer"
+              >
+                {mapTheme === 'dark' ? (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Street View</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>Dark View</span>
+                  </>
+                )}
+              </button>
+
+              {/* Close / Minimize Button */}
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(false)}
+                className="p-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-xl transition cursor-pointer border border-neutral-700 active:scale-95"
+                title="Close Fullscreen (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Fullscreen Map Canvas */}
+          <div className="flex-1 w-full relative rounded-2xl overflow-hidden border border-neutral-800">
+            {renderMapContent('100%')}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
