@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
@@ -9,6 +9,18 @@ import { SocketProvider, RideProvider } from './context';
 export default function App() {
   const [currentView, setCurrentView] = useState('ride'); // 'ride' | 'drive' | 'tracking'
   const [activeRide, setActiveRide] = useState(null);
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'drive' || hash === 'ride' || hash === 'tracking') {
+        setCurrentView(hash);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   const handleNavigate = (tab) => {
     setCurrentView(tab);

@@ -13,6 +13,7 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
   const [aboutDropdown, setAboutDropdown] = useState(false);
 
   const handleNav = (tab) => {
+    window.location.hash = `#${tab}`;
     if (onSelectTab) {
       onSelectTab(tab);
     }
@@ -36,6 +37,7 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
 
             <nav className="hidden md:flex items-center space-x-1">
               <button
+                id="nav-ride-tab"
                 onClick={() => handleNav('ride')}
                 className={`px-3.5 py-2 text-sm font-medium rounded-full transition cursor-pointer ${
                   activeTab === 'ride'
@@ -46,6 +48,7 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
                 Ride
               </button>
               <button
+                id="nav-drive-tab"
                 onClick={() => handleNav('drive')}
                 className={`px-3.5 py-2 text-sm font-medium rounded-full transition cursor-pointer flex items-center space-x-1.5 ${
                   activeTab === 'drive'
