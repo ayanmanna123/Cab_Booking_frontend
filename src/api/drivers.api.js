@@ -2,6 +2,24 @@ import { apiClient } from './apiClient';
 
 export const driversApi = {
   /**
+   * Register or update driver profile
+   */
+  registerDriver: async (driverData, token = 'rider_official_user') => {
+    return apiClient.post('/drivers/register', driverData, {
+      Authorization: `Bearer ${token}`
+    });
+  },
+
+  /**
+   * Get current driver profile
+   */
+  getMyProfile: async (token = 'rider_official_user') => {
+    return apiClient.get('/drivers/me', {
+      Authorization: `Bearer ${token}`
+    });
+  },
+
+  /**
    * Find nearby online drivers within a given radius
    */
   getNearbyDrivers: async (latitude, longitude, radiusKm = 5) => {

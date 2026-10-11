@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RideBookingWidget from '../components/booking/RideBookingWidget';
 import HeroVisual from '../components/home/HeroVisual';
 import SuggestionsRow from '../components/home/SuggestionsRow';
@@ -6,19 +6,115 @@ import FeaturesShowcase from '../components/home/FeaturesShowcase';
 import DriverEarningsCalculator from '../components/home/DriverEarningsCalculator';
 import SafetySection from '../components/home/SafetySection';
 import AppDownloadBanner from '../components/home/AppDownloadBanner';
-
-const INITIAL_NEARBY_DRIVERS = [
-  { id: 'd1', vehicle_model: 'Toyota Camry (UberX)', latitude: 37.7780, longitude: -122.4170, rating: 4.95, heading: 45 },
-  { id: 'd2', vehicle_model: 'Tesla Model Y (Comfort)', latitude: 37.7720, longitude: -122.4230, rating: 4.98, heading: 90 },
-  { id: 'd3', vehicle_model: 'Chevy Suburban (UberXL)', latitude: 37.7810, longitude: -122.4120, rating: 4.91, heading: 180 },
-  { id: 'd4', vehicle_model: 'Mercedes-Benz E-Class (Black)', latitude: 37.7690, longitude: -122.4150, rating: 5.0, heading: 270 }
-];
+import { driversApi } from '../api';
+import { useSocketContext } from '../context/SocketContext';
+import { SOCKET_EVENTS } from '../constants/socketEvents';
 
 export default function HomePage() {
   const [pickupCoords, setPickupCoords] = useState([37.7749, -122.4194]);
   const [dropoffCoords, setDropoffCoords] = useState(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [hasActiveRoute, setHasActiveRoute] = useState(false);
+  const [nearbyDrivers, setNearbyDrivers] = useState([]);
+
+  const { socket } = useSocketContext();
+
+  // Fetch real online drivers from backend & sync local live driver
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchDrivers = async () => {
+      try {
+        const res = await driversApi.getNearbyDrivers(pickupCoords[0], pickupCoords[1]);
+        if (res && res.data && isMounted) {
+          const formatted = (res.data || []).map((d) => ({
+            id: d.id,
+            vehicle_model: `${d.vehicle_make || 'Uber'} ${d.vehicle_model || 'Driver'}`,
+            latitude: Number(d.current_latitude || d.latitude),
+            longitude: Number(d.current_longitude || d.longitude),
+            rating: Number(d.rating || 5.0),
+            heading: Number(d.heading || 0)
+          }));
+
+          // Merge local driver if currently marked online in this browser
+          try {
+            const isOnline = localStorage.getItem('driver_is_online') === 'true';
+            const saved = JSON.parse(localStorage.getItem('registered_driver') || 'null');
+            if (isOnline && saved) {
+              const coords = JSON.parse(localStorage.getItem('driver_last_coords') || 'null') || pickupCoords;
+              formatted.push({
+                id: 'my_live_driver',
+                vehicle_model: `${saved.fullName} (${saved.vehicleMake} ${saved.vehicleModel})`,
+                latitude: coords[0],
+                longitude: coords[1],
+                rating: 5.0,
+                heading: 0
+              });
+            }
+          } catch {}
+
+          setNearbyDrivers(formatted);
+        }
+      } catch (err) {
+        // If error or no drivers online, fallback to empty array
+        if (isMounted) setNearbyDrivers([]);
+      }
+    };
+
+    fetchDrivers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pickupCoords]);
+
+  // Listen to live driver location updates over WebSocket
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleLocationUpdate = (data) => {
+      if (!data || !data.driverId) return;
+
+      if (data.isOffline) {
+        // Remove driver if they went offline
+        setNearbyDrivers((prev) => prev.filter((d) => d.id !== data.driverId));
+        return;
+      }
+
+      setNearbyDrivers((prev) => {
+        const existingIdx = prev.findIndex((d) => d.id === data.driverId);
+        if (existingIdx >= 0) {
+          const updated = [...prev];
+          updated[existingIdx] = {
+            ...updated[existingIdx],
+            latitude: data.latitude,
+            longitude: data.longitude,
+            heading: data.heading || 0,
+            vehicle_model: data.vehicleModel || updated[existingIdx].vehicle_model
+          };
+          return updated;
+        } else {
+          return [
+            ...prev,
+            {
+              id: data.driverId,
+              vehicle_model: data.vehicleModel || 'Uber Driver',
+              latitude: data.latitude,
+              longitude: data.longitude,
+              heading: data.heading || 0,
+              rating: 5.0
+            }
+          ];
+        }
+      });
+    };
+
+    socket.on(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, handleLocationUpdate);
+
+    return () => {
+      socket.off(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, handleLocationUpdate);
+    };
+  }, [socket]);
 
   const handleRouteCalculated = ({ pickup, dropoff, coordinates }) => {
     setPickupCoords(pickup);
@@ -46,7 +142,7 @@ export default function HomePage() {
                 pickupCoords={pickupCoords}
                 dropoffCoords={dropoffCoords}
                 routeCoordinates={routeCoordinates}
-                nearbyDrivers={INITIAL_NEARBY_DRIVERS}
+                nearbyDrivers={nearbyDrivers}
                 hasActiveRoute={hasActiveRoute}
               />
             </div>

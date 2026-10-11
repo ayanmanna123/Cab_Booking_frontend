@@ -85,9 +85,9 @@ export default function InteractiveMap({
   const defaultCenter = pickupCoords || [37.7749, -122.4194];
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl" style={{ height }}>
+    <div className="relative w-full rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl isolate z-0" style={{ height }}>
       {/* Map Floating Status Pill */}
-      <div className="absolute top-4 left-4 z-[400] bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-neutral-700/60 flex items-center space-x-2 text-xs font-semibold text-white shadow-lg pointer-events-none">
+      <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-neutral-700/60 flex items-center space-x-2 text-xs font-semibold text-white shadow-lg pointer-events-none">
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
         <span>Leaflet Live GPS</span>
         <span className="text-neutral-400">·</span>
