@@ -108,8 +108,13 @@ export default function DriverEarningsCalculator() {
 
             <div>
               <a
-                href="#drive"
-                className="w-full inline-flex items-center justify-center space-x-2 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm rounded-xl transition"
+                href="/driver"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/driver');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="w-full inline-flex items-center justify-center space-x-2 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm rounded-xl transition cursor-pointer"
               >
                 <span>Start driving with {tier}</span>
                 <ArrowRight className="w-4 h-4" />

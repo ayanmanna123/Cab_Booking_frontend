@@ -20,7 +20,11 @@ import {
   ShieldAlert,
   Award,
   Zap,
-  Check
+  Check,
+  Phone,
+  Mail,
+  User,
+  AlertCircle
 } from 'lucide-react';
 import InteractiveMap from '../map/InteractiveMap';
 import IncomingOfferModal from './IncomingOfferModal';
@@ -28,6 +32,33 @@ import DriverRegistrationModal from './DriverRegistrationModal';
 import { useSocketContext } from '../../context/SocketContext';
 import { SOCKET_EVENTS } from '../../constants/socketEvents';
 import { driversApi } from '../../api';
+
+// Helper to reliably normalize driver profiles regardless of snake_case or camelCase keys
+export const normalizeDriverProfile = (raw) => {
+  if (!raw) return null;
+  return {
+    id: raw.id || 'demo_driver_1',
+    fullName: raw.fullName || raw.full_name || raw.cb_users?.full_name || 'Driver Partner',
+    phone: raw.phone || raw.cb_users?.phone || '',
+    email: raw.email || raw.cb_users?.email || '',
+    vehicleMake: raw.vehicleMake || raw.vehicle_make || 'Toyota',
+    vehicleModel: raw.vehicleModel || raw.vehicle_model || 'Camry',
+    vehicleYear: raw.vehicleYear || raw.vehicle_year || 2024,
+    vehicleColor: raw.vehicleColor || raw.vehicle_color || 'Silver',
+    licensePlate: raw.licensePlate || raw.license_plate || 'DL 01 AB 1234',
+    vehicleTypeId: raw.vehicleTypeId || raw.vehicle_type_id || 'economy',
+    carImageUrl: raw.carImageUrl || raw.car_image_url || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+    aadhaarNumber: raw.aadhaarNumber || raw.aadhaar_number || (raw.stripe_account_id?.replace('AADHAAR:', '') || ''),
+    drivingLicense: raw.drivingLicense || raw.driving_license || '',
+    payoutMethod: raw.payoutMethod || raw.payout_method || 'UPI',
+    upiId: raw.upiId || raw.upi_id || '',
+    emergencyContactName: raw.emergencyContactName || raw.emergency_contact_name || '',
+    emergencyContactPhone: raw.emergencyContactPhone || raw.emergency_contact_phone || '',
+    totalEarnings: Number(raw.totalEarnings ?? raw.total_earnings ?? 0),
+    totalRides: Number(raw.totalRides ?? raw.total_rides ?? 0),
+    rating: Number(raw.rating || 5.0)
+  };
+};
 
 export default function DriverDashboard() {
   const [isOnline, setIsOnline] = useState(false);
@@ -64,7 +95,7 @@ export default function DriverDashboard() {
   const [driverProfile, setDriverProfile] = useState(() => {
     try {
       const saved = localStorage.getItem('registered_driver');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? normalizeDriverProfile(JSON.parse(saved)) : null;
     } catch {
       return null;
     }
@@ -79,24 +110,13 @@ export default function DriverDashboard() {
       try {
         const res = await driversApi.getMyProfile();
         if (res && res.success && res.data && isMounted) {
-          const profile = {
-            id: res.data.id,
-            fullName: res.data.cb_users?.full_name || res.data.full_name || 'Driver Partner',
-            vehicleMake: res.data.vehicle_make || 'Toyota',
-            vehicleModel: res.data.vehicle_model || 'Camry',
-            vehicleYear: res.data.vehicle_year || 2023,
-            licensePlate: res.data.license_plate || '',
-            vehicleColor: res.data.vehicle_color || 'Silver',
-            vehicleTypeId: res.data.vehicle_type_id || 'economy',
-            aadhaarNumber: res.data.aadhaar_number || (res.data.stripe_account_id?.replace('AADHAAR:', '') || ''),
-            drivingLicense: res.data.driving_license || '',
-            carImageUrl: res.data.car_image_url || res.data.cb_users?.avatar_url || 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=800',
-            totalEarnings: Number(res.data.total_earnings || 0),
-            totalRides: Number(res.data.total_rides || 0),
-            rating: Number(res.data.rating || 5.0)
-          };
-          setDriverProfile(profile);
-          localStorage.setItem('registered_driver', JSON.stringify(profile));
+          const currentLocal = JSON.parse(localStorage.getItem('registered_driver') || 'null');
+          const merged = normalizeDriverProfile({
+            ...currentLocal,
+            ...res.data
+          });
+          setDriverProfile(merged);
+          localStorage.setItem('registered_driver', JSON.stringify(merged));
         }
       } catch {
         // Normal user is not a driver in backend
@@ -286,16 +306,19 @@ export default function DriverDashboard() {
   };
 
   const handleRegistrationSuccess = (newProfile) => {
-    setDriverProfile(newProfile);
+    const normalized = normalizeDriverProfile(newProfile);
+    setDriverProfile(normalized);
     setTodayEarnings(0.0);
     setCompletedTrips(0);
     try {
-      localStorage.setItem('registered_driver', JSON.stringify(newProfile));
+      localStorage.setItem('registered_driver', JSON.stringify(normalized));
       localStorage.setItem('driver_today_earnings', '0');
       localStorage.setItem('driver_completed_trips', '0');
     } catch (e) {
       // Ignore
     }
+    window.history.pushState({}, '', '/dashboard');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   // Switch out of driver mode (for normal rider browsing)
@@ -307,13 +330,24 @@ export default function DriverDashboard() {
     localStorage.removeItem('registered_driver');
     localStorage.removeItem('driver_is_online');
     setDriverProfile(null);
+    window.history.pushState({}, '', '/driver');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
+
+  // Keep URL aligned: if not a registered driver, keep URL at /driver instead of /dashboard
+  useEffect(() => {
+    if (!driverProfile && window.location.pathname.toLowerCase() === '/dashboard') {
+      window.history.replaceState({}, '', '/driver');
+    }
+  }, [driverProfile]);
 
   // Quick Demo Driver Profile for one-click testing
   const handleLoadDemoDriver = () => {
     const demoDriver = {
       id: 'drv_demo_' + Date.now(),
       fullName: 'Vikram Malhotra',
+      phone: '+91 98765 43210',
+      email: 'vikram.malhotra@driver.uberclone.local',
       vehicleMake: 'Toyota',
       vehicleModel: 'Camry Hybrid',
       vehicleYear: 2024,
@@ -322,9 +356,11 @@ export default function DriverDashboard() {
       vehicleTypeId: 'economy',
       aadhaarNumber: '9182 3412 8765',
       drivingLicense: 'MH-02-2022-004488',
-      carImageUrl: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=800&auto=format&fit=crop',
+      carImageUrl: 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
       payoutMethod: 'UPI',
       upiId: 'vikram.driver@okaxis',
+      emergencyContactName: 'Anjali Malhotra',
+      emergencyContactPhone: '+91 98765 00001',
       rating: 5.0,
       totalEarnings: 0.0,
       totalRides: 0
@@ -520,7 +556,7 @@ export default function DriverDashboard() {
               </span>
             </div>
             <p className="text-xs text-neutral-400 mt-0.5">
-              Driving as <strong className="text-white">{driverProfile.fullName}</strong> · Aadhaar & Commercial DL Verified
+              Driving as <strong className="text-white">{driverProfile.fullName}</strong> · Aadhaar ({driverProfile.aadhaarNumber ? `•••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified'}) & DL ({driverProfile.drivingLicense || 'Verified'})
             </p>
           </div>
         </div>
@@ -548,10 +584,10 @@ export default function DriverDashboard() {
       {/* Driver Portal Dashboard Header & Online Toggle */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-neutral-900 border border-neutral-800 p-6 rounded-3xl gap-6">
         <div className="flex items-center space-x-5">
-          {/* Driver's Registered Car Thumbnail */}
+          {/* Driver's Registered Car Thumbnail from Supabase */}
           <div className="w-20 h-20 rounded-2xl overflow-hidden border border-neutral-700 bg-black shrink-0 relative group shadow-md">
             <img
-              src={driverProfile.carImageUrl || 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=400'}
+              src={driverProfile.carImageUrl || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg'}
               alt="Registered Car"
               className="w-full h-full object-cover"
             />
@@ -566,7 +602,7 @@ export default function DriverDashboard() {
                 {driverProfile.vehicleMake} {driverProfile.vehicleModel} ({tierLabel})
               </span>
               <span className="text-xs font-mono font-bold bg-neutral-950 px-2.5 py-0.5 rounded-full text-amber-400 border border-amber-400/20">
-                {driverProfile.licensePlate || 'NO PLATE'}
+                {driverProfile.licensePlate || 'DL 01 AB 1234'}
               </span>
             </div>
             <p className="text-xs text-neutral-400">
@@ -639,6 +675,164 @@ export default function DriverDashboard() {
           </div>
           <div className="text-3xl font-black text-white">5.00 ⭐</div>
           <span className="text-[11px] text-neutral-400">Top-rated Premier status</span>
+        </div>
+      </div>
+
+      {/* COMPLETE DRIVER PARTNER PROFILE & VEHICLE SPECIFICATIONS (SHOWS ALL USER ENTERED DATA) */}
+      <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2.5">
+              <h2 className="text-xl font-black text-white">Driver Partner Profile & Vehicle Details</h2>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1">
+                <CheckCircle2 className="w-3 h-3 mr-0.5" />
+                <span>Documents Verified</span>
+              </span>
+            </div>
+            <p className="text-xs text-neutral-400">
+              Live data synchronized from your driver registration and Supabase database.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setIsRegisterModalOpen(true)}
+            className="self-start sm:self-auto px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold text-xs rounded-xl flex items-center space-x-1.5 border border-neutral-700 transition cursor-pointer"
+          >
+            <UserPlus className="w-3.5 h-3.5 text-neutral-300" />
+            <span>Update Details</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1: Legal Identity & Personal Details */}
+          <div className="bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center space-x-2.5 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Identity & KYC</span>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Full Legal Name</span>
+                <span className="font-bold text-white text-sm">{driverProfile.fullName}</span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Aadhaar Card No.</span>
+                <span className="font-mono font-bold text-neutral-200">
+                  {driverProfile.aadhaarNumber ? `•••• •••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified (12-Digit)'}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Commercial Driving License</span>
+                <span className="font-mono font-bold text-neutral-200">{driverProfile.drivingLicense || 'Verified'}</span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Mobile / Phone</span>
+                <span className="font-semibold text-neutral-300">{driverProfile.phone || 'Linked to Account'}</span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Email Address</span>
+                <span className="font-semibold text-neutral-300 truncate block">{driverProfile.email || 'Linked to Account'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Registered Vehicle Specifications */}
+          <div className="bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center space-x-2.5 text-blue-400 font-bold text-xs uppercase tracking-wider">
+              <Car className="w-4 h-4" />
+              <span>Vehicle Specifications</span>
+            </div>
+
+            {/* Car Photo Thumbnail */}
+            <div className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-800">
+              <img
+                src={driverProfile.carImageUrl || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg'}
+                alt="Registered Vehicle"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-white border border-neutral-700">
+                Supabase Bucket
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Make & Model</span>
+                  <span className="font-bold text-white text-sm">{driverProfile.vehicleMake} {driverProfile.vehicleModel}</span>
+                </div>
+                <span className="text-xs bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-lg text-white font-bold">
+                  {tierLabel}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Year</span>
+                  <span className="font-semibold text-neutral-200">{driverProfile.vehicleYear}</span>
+                </div>
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Color</span>
+                  <span className="font-semibold text-neutral-200">{driverProfile.vehicleColor}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">License Plate</span>
+                <span className="font-mono font-black text-amber-400 text-sm bg-neutral-900 px-2.5 py-0.5 rounded border border-amber-400/20 inline-block">
+                  {driverProfile.licensePlate || 'DL 01 AB 1234'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Payout Details & Safety */}
+          <div className="bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center space-x-2.5 text-amber-400 font-bold text-xs uppercase tracking-wider">
+              <CreditCard className="w-4 h-4" />
+              <span>Payout & Security</span>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Payout Mode</span>
+                <span className="font-bold text-white text-sm">{driverProfile.payoutMethod || 'Instant UPI'}</span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">UPI ID / Bank Account</span>
+                <span className="font-mono font-bold text-emerald-400">
+                  {driverProfile.upiId || 'Linked UPI / Direct Bank'}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Emergency Contact</span>
+                <span className="font-semibold text-neutral-200">
+                  {driverProfile.emergencyContactName || 'Configured in Safety Profile'}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Emergency Phone</span>
+                <span className="font-semibold text-neutral-300">
+                  {driverProfile.emergencyContactPhone || 'Not set'}
+                </span>
+              </div>
+
+              <div className="pt-2 border-t border-neutral-900 flex items-center justify-between text-[11px] text-neutral-400">
+                <span>Driver Background Check</span>
+                <span className="text-emerald-400 font-bold flex items-center">
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Cleared
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

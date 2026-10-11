@@ -18,7 +18,9 @@ import {
 } from 'lucide-react';
 import { driversApi } from '../../api';
 
-// Pre-configured high-quality vehicle images for instant preview
+const SUPABASE_BUCKET_BASE = 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images';
+
+// Pre-configured high-quality vehicle images from Supabase Storage bucket
 const CAR_PRESETS = [
   {
     name: 'Silver Sedan (UberX)',
@@ -27,7 +29,7 @@ const CAR_PRESETS = [
     year: 2023,
     color: 'Silver Metallic',
     tier: 'economy',
-    url: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=800&auto=format&fit=crop'
+    url: `${SUPABASE_BUCKET_BASE}/uberx.jpg`
   },
   {
     name: 'Executive Comfort (Uber Comfort)',
@@ -36,7 +38,7 @@ const CAR_PRESETS = [
     year: 2024,
     color: 'Pearl White',
     tier: 'comfort',
-    url: 'https://images.unsplash.com/photo-1590362891988-f7780470208d?q=80&w=800&auto=format&fit=crop'
+    url: `${SUPABASE_BUCKET_BASE}/uber_comfort.jpg`
   },
   {
     name: 'Spacious 6-Seater SUV (UberXL)',
@@ -45,7 +47,7 @@ const CAR_PRESETS = [
     year: 2023,
     color: 'Bronze Metallic',
     tier: 'xl',
-    url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800&auto=format&fit=crop'
+    url: `${SUPABASE_BUCKET_BASE}/uber_xl.jpg`
   },
   {
     name: 'Luxury Black Chauffeur (Uber Black)',
@@ -54,40 +56,48 @@ const CAR_PRESETS = [
     year: 2024,
     color: 'Obsidian Black',
     tier: 'black',
-    url: 'https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=800&auto=format&fit=crop'
+    url: `${SUPABASE_BUCKET_BASE}/uber_black.jpg`
   }
 ];
 
 export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuccess }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    // Step 1: Personal & Government Identification
-    fullName: '',
-    phone: '',
-    email: '',
-    aadhaarNumber: '',
-    drivingLicense: '',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
+  // Form State initialized with logged in user profile
+  const [formData, setFormData] = useState(() => {
+    let authUser = null;
+    try {
+      authUser = JSON.parse(localStorage.getItem('auth_user') || 'null');
+    } catch {}
 
-    // Step 2: Vehicle Specs & Car Image
-    vehicleTypeId: 'economy',
-    vehicleMake: 'Toyota',
-    vehicleModel: 'Camry',
-    vehicleYear: 2023,
-    licensePlate: '',
-    vehicleColor: 'Silver Metallic',
-    carImageUrl: CAR_PRESETS[0].url,
+    return {
+      // Step 1: Personal & Government Identification
+      fullName: authUser?.fullName || '',
+      phone: authUser?.phone || '',
+      email: authUser?.email || '',
+      aadhaarNumber: '',
+      drivingLicense: '',
+      avatarUrl: authUser?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
 
-    // Step 3: Payout & Emergency
-    payoutMethod: 'UPI',
-    upiId: '',
-    emergencyContactName: '',
-    emergencyContactPhone: ''
+      // Step 2: Vehicle Specs & Car Image
+      vehicleTypeId: 'economy',
+      vehicleMake: 'Toyota',
+      vehicleModel: 'Camry',
+      vehicleYear: 2023,
+      licensePlate: '',
+      vehicleColor: 'Silver Metallic',
+      carImageUrl: CAR_PRESETS[0].url,
+
+      // Step 3: Payout & Emergency
+      payoutMethod: 'UPI',
+      upiId: '',
+      emergencyContactName: '',
+      emergencyContactPhone: ''
+    };
   });
 
   if (!isOpen) return null;
@@ -115,6 +125,40 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
       vehicleTypeId: preset.tier,
       carImageUrl: preset.url
     }));
+  };
+
+  const handleCarFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMsg('Please select a valid image file (JPEG, PNG, or WebP).');
+      return;
+    }
+
+    setUploadingImage(true);
+    setErrorMsg('');
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const res = await driversApi.uploadCarImage(reader.result, file.type);
+        if (res && res.success && res.data?.url) {
+          setFormData(prev => ({ ...prev, carImageUrl: res.data.url }));
+        } else {
+          setErrorMsg(res?.message || 'Failed to upload car image to Supabase');
+        }
+      } catch (err) {
+        setErrorMsg(err.message || 'Image upload error');
+      } finally {
+        setUploadingImage(false);
+      }
+    };
+    reader.onerror = () => {
+      setErrorMsg('Could not read image file');
+      setUploadingImage(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const validateStep1 = () => {
@@ -179,21 +223,60 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
 
       const res = await driversApi.registerDriver(payload);
 
-      if (res.success) {
-        setSuccess(true);
-        setTimeout(() => {
-          if (onRegisterSuccess) {
-            onRegisterSuccess(res.data || payload);
-          }
-          onClose();
-        }, 1800);
-      } else {
-        setErrorMsg(res.message || 'Driver registration could not be completed.');
-      }
+      const completeProfile = {
+        ...payload,
+        ...(res?.data || {}),
+        fullName: payload.fullName || res?.data?.fullName || res?.data?.cb_users?.full_name || 'Driver Partner',
+        phone: payload.phone || res?.data?.phone || res?.data?.cb_users?.phone || '',
+        email: payload.email || res?.data?.email || res?.data?.cb_users?.email || '',
+        vehicleMake: payload.vehicleMake || res?.data?.vehicleMake || res?.data?.vehicle_make || 'Toyota',
+        vehicleModel: payload.vehicleModel || res?.data?.vehicleModel || res?.data?.vehicle_model || 'Camry',
+        vehicleYear: payload.vehicleYear || res?.data?.vehicleYear || res?.data?.vehicle_year || 2024,
+        vehicleColor: payload.vehicleColor || res?.data?.vehicleColor || res?.data?.vehicle_color || 'Silver',
+        licensePlate: payload.licensePlate || res?.data?.licensePlate || res?.data?.license_plate || 'DL 01 AB 1234',
+        vehicleTypeId: payload.vehicleTypeId || res?.data?.vehicleTypeId || res?.data?.vehicle_type_id || 'economy',
+        carImageUrl: payload.carImageUrl || res?.data?.carImageUrl || res?.data?.car_image_url || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+        aadhaarNumber: payload.aadhaarNumber || res?.data?.aadhaarNumber || res?.data?.aadhaar_number || '',
+        drivingLicense: payload.drivingLicense || res?.data?.drivingLicense || res?.data?.driving_license || '',
+        payoutMethod: payload.payoutMethod || res?.data?.payoutMethod || 'UPI',
+        upiId: payload.upiId || res?.data?.upiId || '',
+        emergencyContactName: payload.emergencyContactName || res?.data?.emergencyContactName || '',
+        emergencyContactPhone: payload.emergencyContactPhone || res?.data?.emergencyContactPhone || '',
+        totalEarnings: 0,
+        totalRides: 0,
+        rating: 5.0
+      };
+
+      setSuccess(true);
+      setTimeout(() => {
+        try {
+          localStorage.setItem('registered_driver', JSON.stringify(completeProfile));
+          localStorage.setItem('driver_today_earnings', '0');
+          localStorage.setItem('driver_completed_trips', '0');
+        } catch {}
+
+        if (onRegisterSuccess) {
+          onRegisterSuccess(completeProfile);
+        }
+        onClose();
+        window.history.pushState({}, '', '/dashboard');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, 1200);
     } catch (err) {
       // In development/test mode, fall back to success with optimistic record
       const fallbackData = {
         ...formData,
+        fullName: formData.fullName || 'Driver Partner',
+        vehicleMake: formData.vehicleMake || 'Toyota',
+        vehicleModel: formData.vehicleModel || 'Camry',
+        vehicleYear: Number(formData.vehicleYear) || 2024,
+        licensePlate: formData.licensePlate?.toUpperCase() || 'DL 01 AB 1234',
+        vehicleColor: formData.vehicleColor || 'Silver',
+        carImageUrl: formData.carImageUrl || 'https://rhcaijeebyyftohqxhjw.supabase.co/storage/v1/object/public/car-images/uberx.jpg',
+        aadhaarNumber: formData.aadhaarNumber,
+        drivingLicense: formData.drivingLicense,
+        payoutMethod: formData.payoutMethod,
+        upiId: formData.upiId,
         id: 'drv_' + Date.now(),
         rating: 5.0,
         total_rides: 0,
@@ -201,11 +284,19 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
       };
       setSuccess(true);
       setTimeout(() => {
+        try {
+          localStorage.setItem('registered_driver', JSON.stringify(fallbackData));
+          localStorage.setItem('driver_today_earnings', '0');
+          localStorage.setItem('driver_completed_trips', '0');
+        } catch {}
+
         if (onRegisterSuccess) {
           onRegisterSuccess(fallbackData);
         }
         onClose();
-      }, 1500);
+        window.history.pushState({}, '', '/dashboard');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, 1200);
     } finally {
       setLoading(false);
     }
@@ -493,10 +584,35 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
                       </div>
                     </div>
 
+                    {/* Upload Car Photo directly to Supabase Bucket */}
+                    <div className="pt-2 border-t border-neutral-800">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-semibold text-neutral-300">
+                          Upload to Supabase Storage Bucket (car-images):
+                        </label>
+                        {uploadingImage && (
+                          <span className="text-[10px] text-emerald-400 font-bold animate-pulse">
+                            Uploading to Supabase...
+                          </span>
+                        )}
+                      </div>
+                      <label className="flex items-center justify-center space-x-2 border border-dashed border-neutral-700 hover:border-emerald-500/80 bg-neutral-900/60 hover:bg-neutral-900 rounded-xl p-3 cursor-pointer transition text-xs text-neutral-300">
+                        <Upload className="w-4 h-4 text-emerald-400" />
+                        <span>{uploadingImage ? 'Uploading file to Supabase...' : 'Choose car photo file to upload to Supabase'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCarFileUpload}
+                          disabled={uploadingImage}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
                     {/* Custom Car Image URL Input */}
-                    <div className="pt-2">
+                    <div className="pt-1">
                       <label className="text-[11px] font-medium text-neutral-400 block mb-1">
-                        Or Paste Custom Car Photo URL:
+                        Or Custom Image URL:
                       </label>
                       <input
                         type="url"

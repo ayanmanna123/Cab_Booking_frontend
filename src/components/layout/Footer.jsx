@@ -33,8 +33,8 @@ export default function Footer() {
           <div className="space-y-3">
             <h4 className="font-bold text-base text-white">Products</h4>
             <ul className="space-y-2.5 text-neutral-400 text-xs">
-              <li><a href="#ride" className="hover:text-white transition">Ride</a></li>
-              <li><a href="#drive" className="hover:text-white transition">Drive</a></li>
+              <li><a href="/" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-white transition cursor-pointer">Ride</a></li>
+              <li><a href="/driver" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/driver'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-white transition cursor-pointer">Drive</a></li>
               <li><a href="#deliver" className="hover:text-white transition">Deliver</a></li>
               <li><a href="#eats" className="hover:text-white transition">Eat</a></li>
               <li><a href="#business" className="hover:text-white transition">Uber for Business</a></li>

@@ -114,7 +114,15 @@ export default function FeaturesShowcase() {
                 Make money with rides. Use your car or rent one through partner fleets. Instant earnings to Stripe.
               </p>
               <div>
-                <a href="#drive" className="inline-block text-sm font-semibold text-black underline underline-offset-4 hover:opacity-75">
+                <a
+                  href="/driver"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', '/driver');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }}
+                  className="inline-block text-sm font-semibold text-black underline underline-offset-4 hover:opacity-75 cursor-pointer"
+                >
                   Sign up to drive
                 </a>
               </div>
@@ -134,7 +142,15 @@ export default function FeaturesShowcase() {
                 Turn your expertise into flexible earning opportunities with Uber partner programs.
               </p>
               <div>
-                <a href="#drive" className="inline-block text-sm font-semibold text-black underline underline-offset-4 hover:opacity-75">
+                <a
+                  href="/driver"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', '/driver');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }}
+                  className="inline-block text-sm font-semibold text-black underline underline-offset-4 hover:opacity-75 cursor-pointer"
+                >
                   Sign up
                 </a>
               </div>

@@ -1,21 +1,33 @@
 import { apiClient } from './apiClient';
 
+const getAuthToken = (explicitToken) => {
+  if (explicitToken && explicitToken !== 'rider_official_user') return explicitToken;
+  try {
+    const authUser = JSON.parse(localStorage.getItem('auth_user') || 'null');
+    return authUser?.id || 'guest_user';
+  } catch {
+    return 'guest_user';
+  }
+};
+
 export const driversApi = {
   /**
    * Register or update driver profile
    */
-  registerDriver: async (driverData, token = 'rider_official_user') => {
+  registerDriver: async (driverData, token) => {
+    const resolvedToken = getAuthToken(token);
     return apiClient.post('/drivers/register', driverData, {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${resolvedToken}`
     });
   },
 
   /**
    * Get current driver profile
    */
-  getMyProfile: async (token = 'rider_official_user') => {
+  getMyProfile: async (token) => {
+    const resolvedToken = getAuthToken(token);
     return apiClient.get('/drivers/me', {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${resolvedToken}`
     });
   },
 
@@ -52,5 +64,12 @@ export const driversApi = {
       longitude,
       heading
     });
+  },
+
+  /**
+   * Upload custom car image directly into Supabase car-images bucket
+   */
+  uploadCarImage: async (imageBase64, mimeType = 'image/jpeg') => {
+    return apiClient.post('/drivers/upload-car-image', { imageBase64, mimeType });
   }
 };

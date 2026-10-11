@@ -13,9 +13,18 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
   const [aboutDropdown, setAboutDropdown] = useState(false);
 
   const handleNav = (tab) => {
-    window.location.hash = `#${tab}`;
+    let path = '/';
+    if (tab === 'drive' || tab === 'driver') {
+      path = '/driver';
+    } else if (tab === 'ride') {
+      path = '/';
+    } else {
+      path = `/${tab}`;
+    }
+    window.history.pushState({}, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
     if (onSelectTab) {
-      onSelectTab(tab);
+      onSelectTab(tab === 'driver' ? 'drive' : tab);
     }
     setMobileMenuOpen(false);
   };

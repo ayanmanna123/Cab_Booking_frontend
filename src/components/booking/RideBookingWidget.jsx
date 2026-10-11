@@ -12,6 +12,7 @@ import {
   Tag
 } from 'lucide-react';
 import { CONFIG } from '../../constants/config';
+import { ridesApi } from '../../api';
 
 export default function RideBookingWidget({
   onRouteCalculated,
@@ -96,36 +97,29 @@ export default function RideBookingWidget({
     }
   };
 
-  // Handle booking the ride
+  // Handle booking the ride with active user identity
   const handleBookRide = async () => {
     setLoading(true);
+    setErrorMsg('');
     try {
-      const response = await fetch(`${CONFIG.BACKEND_URL}/rides/request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer rider_official_user'
-        },
-        body: JSON.stringify({
-          pickupAddress: pickup,
-          pickupLatitude: pickupCoords.lat,
-          pickupLongitude: pickupCoords.lng,
-          dropoffAddress: dropoff,
-          dropoffLatitude: dropoffCoords.lat,
-          dropoffLongitude: dropoffCoords.lng,
-          vehicleType: selectedTier,
-          promoCode: promoCode || undefined
-        })
+      const res = await ridesApi.requestRide({
+        pickupAddress: pickup,
+        pickupLatitude: pickupCoords.lat,
+        pickupLongitude: pickupCoords.lng,
+        dropoffAddress: dropoff,
+        dropoffLatitude: dropoffCoords.lat,
+        dropoffLongitude: dropoffCoords.lng,
+        vehicleType: selectedTier,
+        promoCode: promoCode || undefined
       });
 
-      const data = await response.json();
-      if (data.success) {
-        setBookingConfirmed(data.data);
+      if (res && res.success) {
+        setBookingConfirmed(res.data);
       } else {
-        setErrorMsg(data.message || 'Ride booking failed');
+        setErrorMsg(res?.message || 'Ride booking failed');
       }
     } catch (err) {
-      setErrorMsg('Connection error. Could not book ride.');
+      setErrorMsg(err.message || 'Connection error. Could not book ride.');
     } finally {
       setLoading(false);
     }

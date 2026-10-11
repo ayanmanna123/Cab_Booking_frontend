@@ -10,8 +10,28 @@ class ApiClient {
 
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+
+    // Extract logged in user credentials if present
+    let authHeaders = {};
+    try {
+      const authUser = JSON.parse(localStorage.getItem('auth_user') || 'null');
+      if (authUser && authUser.id) {
+        authHeaders = {
+          'Authorization': `Bearer ${authUser.id}`,
+          'x-user-id': authUser.id,
+          'x-user-email': authUser.email || '',
+          'x-user-name': authUser.fullName || '',
+          'x-user-phone': authUser.phone || '',
+          'x-user-avatar': authUser.avatarUrl || ''
+        };
+      }
+    } catch {
+      // Ignore
+    }
+
     const headers = {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...(options.headers || {})
     };
 
