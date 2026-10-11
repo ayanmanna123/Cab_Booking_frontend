@@ -24,7 +24,9 @@ import {
   Phone,
   Mail,
   User,
-  AlertCircle
+  AlertCircle,
+  Upload,
+  Camera
 } from 'lucide-react';
 import InteractiveMap from '../map/InteractiveMap';
 import IncomingOfferModal from './IncomingOfferModal';
@@ -33,9 +35,10 @@ import { useSocketContext } from '../../context/SocketContext';
 import { SOCKET_EVENTS } from '../../constants/socketEvents';
 import { driversApi } from '../../api';
 
-// Helper to reliably normalize driver profiles regardless of snake_case or camelCase keys
+// Helper to reliably normalize driver profiles and display the user's uploaded image
 export const getDriverCarImage = (url, typeId) => {
-  if (url && url.includes('cloudfront.net') && !url.endsWith('.jpg') && !url.includes('car-images')) {
+  // If the user uploaded an image (or provided a custom image URL/data URL/blob/Supabase URL), ALWAYS prioritize and display the user's uploaded image!
+  if (url && typeof url === 'string' && url.trim().length > 0) {
     return url;
   }
   const tid = (typeId || '').toLowerCase();
@@ -345,6 +348,44 @@ export default function DriverDashboard() {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
+  // Direct upload for vehicle photo from dashboard
+  const handleDashboardPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+      const updated = {
+        ...driverProfile,
+        carImageUrl: dataUrl,
+        car_image_url: dataUrl
+      };
+      setDriverProfile(updated);
+      try {
+        localStorage.setItem('registered_driver', JSON.stringify(updated));
+      } catch {}
+
+      try {
+        const res = await driversApi.uploadCarImage(dataUrl, file.type);
+        if (res?.success && res?.data?.url) {
+          const withRemote = {
+            ...updated,
+            carImageUrl: res.data.url,
+            car_image_url: res.data.url
+          };
+          setDriverProfile(withRemote);
+          try {
+            localStorage.setItem('registered_driver', JSON.stringify(withRemote));
+          } catch {}
+        }
+      } catch (err) {
+        console.warn('Dashboard upload warning:', err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Keep URL aligned: if not a registered driver, keep URL at /driver instead of /dashboard
   useEffect(() => {
     if (!driverProfile && window.location.pathname.toLowerCase() === '/dashboard') {
@@ -595,13 +636,24 @@ export default function DriverDashboard() {
       {/* Driver Portal Dashboard Header & Online Toggle */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-neutral-900 border border-neutral-800 p-6 rounded-3xl gap-6">
         <div className="flex items-center space-x-5">
-          {/* Driver's Registered Car Thumbnail */}
-          <div className="w-20 h-20 rounded-2xl overflow-hidden border border-neutral-700 bg-neutral-950 shrink-0 relative group shadow-md flex items-center justify-center p-1">
+          {/* Driver's Registered Car Thumbnail (Section 3) */}
+          <div className="w-20 h-20 rounded-2xl overflow-hidden border border-neutral-700 bg-neutral-950 shrink-0 relative group shadow-md flex items-center justify-center">
             <img
               src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
               alt="Registered Car"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
             />
+            {/* Quick change photo overlay */}
+            <label className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition text-[9px] font-bold text-white space-y-0.5">
+              <Camera className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Change</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleDashboardPhotoUpload}
+                className="hidden"
+              />
+            </label>
           </div>
 
           <div className="space-y-1">
@@ -758,16 +810,27 @@ export default function DriverDashboard() {
               <span>Vehicle Specifications</span>
             </div>
 
-            {/* Car Photo Thumbnail */}
-            <div className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-800 bg-neutral-900/60 flex items-center justify-center p-2">
+            {/* Car Photo Thumbnail (Section 2) */}
+            <div className="relative h-32 w-full rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-950 flex items-center justify-center group shadow-md">
               <img
                 src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
                 alt="Registered Vehicle"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-white border border-neutral-700">
-                Verified Vehicle
+              <div className="absolute top-2.5 right-2.5 bg-black/85 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span>Verified Vehicle</span>
               </div>
+              <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition text-xs font-bold text-white space-x-2">
+                <Upload className="w-4 h-4 text-emerald-400" />
+                <span>Upload Custom Photo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleDashboardPhotoUpload}
+                  className="hidden"
+                />
+              </label>
             </div>
 
             <div className="space-y-3 text-xs">

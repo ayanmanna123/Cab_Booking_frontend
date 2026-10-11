@@ -139,15 +139,17 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
 
     const reader = new FileReader();
     reader.onload = async () => {
+      const dataUrl = reader.result;
+      // Immediately set the uploaded image as the active car preview (Section 1)
+      setFormData(prev => ({ ...prev, carImageUrl: dataUrl }));
+
       try {
-        const res = await driversApi.uploadCarImage(reader.result, file.type);
+        const res = await driversApi.uploadCarImage(dataUrl, file.type);
         if (res && res.success && res.data?.url) {
           setFormData(prev => ({ ...prev, carImageUrl: res.data.url }));
-        } else {
-          setErrorMsg(res?.message || 'Failed to upload car image to Supabase');
         }
       } catch (err) {
-        setErrorMsg(err.message || 'Image upload error');
+        console.warn('Supabase storage upload background notice:', err);
       } finally {
         setUploadingImage(false);
       }
@@ -549,13 +551,17 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
                     </div>
 
                     {/* Live Car Image Preview */}
-                    <div className="relative h-44 w-full rounded-xl overflow-hidden border border-neutral-800 group">
+                    <div className="relative h-48 w-full rounded-2xl overflow-hidden border border-neutral-800 group bg-neutral-950 flex items-center justify-center shadow-lg">
                       <img
                         src={formData.carImageUrl}
                         alt="Selected Vehicle Preview"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-white border border-neutral-700">
+                      <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span>Active Photo</span>
+                      </div>
+                      <div className="absolute bottom-2.5 left-2.5 bg-black/80 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-white border border-neutral-700 shadow">
                         {formData.vehicleMake} {formData.vehicleModel} ({formData.vehicleColor})
                       </div>
                     </div>
