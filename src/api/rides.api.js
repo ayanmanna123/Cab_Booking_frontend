@@ -23,6 +23,13 @@ export const ridesApi = {
   },
 
   /**
+   * Update status of an ongoing ride (e.g. IN_PROGRESS with OTP verification, COMPLETED)
+   */
+  updateStatus: async (rideId, status, otp = undefined) => {
+    return apiClient.patch(`/rides/${rideId}/status`, { status, otp });
+  },
+
+  /**
    * Fetch ride history for current user
    */
   getRideHistory: async (userId, page = 1, limit = 10) => {

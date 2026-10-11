@@ -16,7 +16,14 @@ import {
   Loader2,
   Building2,
   Plane,
-  Train
+  Train,
+  Phone,
+  MessageSquare,
+  ShieldCheck,
+  Star,
+  Key,
+  Sparkles,
+  Check
 } from 'lucide-react';
 import { CONFIG } from '../../constants/config';
 import { ridesApi } from '../../api';
@@ -170,21 +177,37 @@ export default function RideBookingWidget({
   const [selectedTier, setSelectedTier] = useState('uber_go_ac');
   const [bookingConfirmed, setBookingConfirmed] = useState(null);
   const [acceptedDriver, setAcceptedDriver] = useState(null);
+  const [rideTripStatus, setRideTripStatus] = useState('ACCEPTED'); // 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED'
   const [errorMsg, setErrorMsg] = useState('');
 
   const { socket } = useSocketContext();
 
-  // Listen for driver acceptance via socket, cross-tab channel, or window events
+  // Listen for driver acceptance & trip progression via socket, cross-tab channel, storage, or window events
   useEffect(() => {
     const handleDriverAccepted = (driver) => {
       console.log('🎉 Driver accepted your ride request:', driver);
       setAcceptedDriver(driver);
+      setRideTripStatus('ACCEPTED');
+    };
+
+    const handleRideInProgress = () => {
+      console.log('🚀 Driver verified PIN, trip is in progress!');
+      setRideTripStatus('IN_PROGRESS');
+    };
+
+    const handleRideCompleted = () => {
+      console.log('🎉 Ride completed by driver!');
+      setRideTripStatus('COMPLETED');
     };
 
     if (socket) {
       const onStatusChange = (data) => {
         if (data && data.status === 'ACCEPTED' && data.driver) {
           handleDriverAccepted(data.driver);
+        } else if (data && (data.status === 'IN_PROGRESS' || data.type === 'RIDE_IN_PROGRESS')) {
+          handleRideInProgress();
+        } else if (data && (data.status === 'COMPLETED' || data.type === 'RIDE_COMPLETED')) {
+          handleRideCompleted();
         }
       };
       socket.on(SOCKET_EVENTS.RIDE_STATUS_CHANGE, onStatusChange);
@@ -195,16 +218,36 @@ export default function RideBookingWidget({
     try {
       channel = new BroadcastChannel('uber_dispatch_channel');
       channel.onmessage = (event) => {
-        if (event.data && event.data.type === 'RIDE_ACCEPTED') {
-          handleDriverAccepted(event.data);
+        if (event.data) {
+          if (event.data.type === 'RIDE_ACCEPTED') {
+            handleDriverAccepted(event.data);
+          } else if (event.data.type === 'RIDE_IN_PROGRESS') {
+            handleRideInProgress();
+          } else if (event.data.type === 'RIDE_COMPLETED') {
+            handleRideCompleted();
+          }
         }
       };
     } catch {}
 
-    const customListener = (e) => {
+    const customAccept = (e) => {
       if (e.detail) handleDriverAccepted(e.detail);
     };
-    window.addEventListener('uber_ride_accepted', customListener);
+    const customProgress = () => handleRideInProgress();
+    const customComplete = () => handleRideCompleted();
+
+    const handleStorageEvent = (e) => {
+      if (e.key === 'uber_active_accepted_driver' && e.newValue) {
+        try {
+          handleDriverAccepted(JSON.parse(e.newValue));
+        } catch {}
+      }
+    };
+
+    window.addEventListener('uber_ride_accepted', customAccept);
+    window.addEventListener('uber_ride_in_progress', customProgress);
+    window.addEventListener('uber_ride_completed', customComplete);
+    window.addEventListener('storage', handleStorageEvent);
 
     return () => {
       if (socket) {
@@ -212,7 +255,10 @@ export default function RideBookingWidget({
         socket.off('ride:accept', handleDriverAccepted);
       }
       if (channel) channel.close();
-      window.removeEventListener('uber_ride_accepted', customListener);
+      window.removeEventListener('uber_ride_accepted', customAccept);
+      window.removeEventListener('uber_ride_in_progress', customProgress);
+      window.removeEventListener('uber_ride_completed', customComplete);
+      window.removeEventListener('storage', handleStorageEvent);
     };
   }, [socket]);
 
@@ -474,38 +520,108 @@ export default function RideBookingWidget({
         /* Booking Dispatched & Accepted State */
         <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl space-y-5 animate-fadeIn shadow-2xl">
           {acceptedDriver ? (
-            /* State 1: Driver Accepted Ride */
-            <div className="bg-emerald-950/80 border border-emerald-600/80 p-5 rounded-2xl space-y-4 animate-in zoom-in-95">
-              <div className="flex items-center space-x-3 text-emerald-400">
-                <CheckCircle2 className="w-8 h-8 shrink-0 text-emerald-400" />
-                <div>
-                  <h4 className="text-lg font-black text-white">Driver Assigned!</h4>
-                  <p className="text-xs text-emerald-300">
-                    A verified {selectedTierName} driver accepted your ride.
-                  </p>
+            /* State 1: Driver Assigned & En Route */
+            <div className="bg-emerald-950/80 border-2 border-emerald-500/80 p-5 sm:p-6 rounded-3xl space-y-4 animate-in zoom-in-95 shadow-2xl shadow-emerald-950/50 backdrop-blur-xl">
+              {/* Top Banner Status */}
+              <div className="flex items-center justify-between border-b border-emerald-800/60 pb-3">
+                <div className="flex items-center space-x-2.5">
+                  <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
+                    {rideTripStatus === 'IN_PROGRESS'
+                      ? 'Trip in Progress'
+                      : rideTripStatus === 'COMPLETED'
+                      ? 'Ride Completed'
+                      : 'Driver Assigned & On Route'}
+                  </span>
                 </div>
+                <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-900/60 px-2.5 py-0.5 rounded-full border border-emerald-700/60">
+                  {rideTripStatus === 'IN_PROGRESS' ? 'On Route' : 'Arriving in ~3 mins'}
+                </span>
               </div>
 
-              <div className="bg-black/90 p-4 rounded-xl border border-emerald-900/60 space-y-2.5 text-xs">
-                <div className="flex justify-between items-center">
-                  <span className="font-extrabold text-white text-sm">
-                    {acceptedDriver.driverName || 'Verified Driver'}
-                  </span>
-                  <span className="text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded">
-                    ⭐ {acceptedDriver.rating || '5.0'}
-                  </span>
+              {/* Driver Profile & Identity Card */}
+              <div className="bg-black/90 p-4 sm:p-5 rounded-2xl border border-neutral-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3.5">
+                    <div className="relative">
+                      <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-emerald-500/50 bg-neutral-900 shadow-md">
+                        <img
+                          src={acceptedDriver.driverPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'}
+                          alt={acceptedDriver.driverName || 'Driver'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-black flex items-center justify-center">
+                        <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="text-base font-extrabold text-white">
+                          {acceptedDriver.driverName || 'Ayan Manna'}
+                        </h4>
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          Verified
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
+                        <span className="text-amber-400 font-bold flex items-center">
+                          ⭐ {acceptedDriver.rating || '4.98'}
+                        </span>
+                        <span>·</span>
+                        <span>{acceptedDriver.totalTrips || '1,240'} trips</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Call / Contact Driver Button */}
+                  <a
+                    href={`tel:${acceptedDriver.driverPhone || '+919876543210'}`}
+                    className="p-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center cursor-pointer"
+                    title="Call Driver"
+                  >
+                    <Phone className="w-5 h-5 fill-black" />
+                  </a>
                 </div>
-                <div className="text-neutral-300 flex justify-between">
-                  <span>Vehicle:</span>
-                  <strong className="text-white">
-                    {acceptedDriver.vehicleMake} {acceptedDriver.vehicleModel}
-                  </strong>
-                </div>
-                <div className="text-neutral-400 flex justify-between items-center">
-                  <span>License Plate:</span>
-                  <span className="bg-neutral-800 text-amber-400 px-2 py-0.5 rounded font-mono font-bold">
-                    {acceptedDriver.licensePlate}
-                  </span>
+
+                {/* Car Details & Prominent Last 4 Digits Card */}
+                <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">
+                        Vehicle Model
+                      </span>
+                      <span className="text-sm font-bold text-white">
+                        {acceptedDriver.vehicleMake} {acceptedDriver.vehicleModel}
+                      </span>
+                      <span className="text-xs text-neutral-400 block">
+                        Color: {acceptedDriver.vehicleColor || 'Silver Metallic'}
+                      </span>
+                    </div>
+
+                    {/* Spotlight: LAST 4 DIGITS OF CAR PLATE */}
+                    <div className="text-right">
+                      <span className="text-[10px] text-amber-400 uppercase font-black tracking-wider block">
+                        Last 4 Digits
+                      </span>
+                      <span className="font-mono text-2xl font-black text-amber-400 bg-amber-400/10 px-3.5 py-1 rounded-xl border border-amber-400/40 inline-block shadow-lg shadow-amber-400/10">
+                        {acceptedDriver.carLast4 || (acceptedDriver.licensePlate || '4488').replace(/[^a-zA-Z0-9]/g, '').slice(-4)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-xs">
+                    <span className="text-neutral-400">Full Number Plate:</span>
+                    <span className="font-mono font-bold text-neutral-200 bg-neutral-900 px-2.5 py-0.5 rounded border border-neutral-800">
+                      {acceptedDriver.licensePlate || 'MH 02 CZ 4488'}
+                    </span>
+                  </div>
+
+                  <div className="bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl text-[11px] text-amber-300 flex items-center space-x-2">
+                    <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
+                    <span>Always verify the <strong>last 4 digits ({acceptedDriver.carLast4 || (acceptedDriver.licensePlate || '4488').replace(/[^a-zA-Z0-9]/g, '').slice(-4)})</strong> before boarding.</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -530,14 +646,19 @@ export default function RideBookingWidget({
             </div>
           )}
 
-          {/* Ride Details Card */}
+          {/* Ride Details & Shareable PIN Card */}
           <div className="bg-black border border-neutral-800 p-4 rounded-2xl space-y-3">
             <div className="flex justify-between items-center pb-2.5 border-b border-neutral-800">
-              <span className="text-xs text-neutral-400 uppercase tracking-wider font-bold">
-                Your Ride PIN (Share with driver)
-              </span>
-              <span className="text-2xl font-mono font-black text-amber-400 tracking-widest bg-amber-400/10 px-3 py-1 rounded-xl border border-amber-400/20">
-                {bookingConfirmed.otp}
+              <div>
+                <span className="text-xs text-neutral-400 uppercase tracking-wider font-bold block">
+                  Your Ride Start PIN
+                </span>
+                <span className="text-[10px] text-neutral-500">
+                  Share with driver upon pickup
+                </span>
+              </div>
+              <span className="text-3xl font-mono font-black text-amber-400 tracking-widest bg-amber-400/10 px-4 py-1.5 rounded-2xl border-2 border-amber-400/30 shadow-lg shadow-amber-400/10">
+                {bookingConfirmed.otp || '4829'}
               </span>
             </div>
             <div className="text-xs space-y-2 text-neutral-300 pt-1">
@@ -575,6 +696,9 @@ export default function RideBookingWidget({
             onClick={() => {
               setBookingConfirmed(null);
               setAcceptedDriver(null);
+              try {
+                localStorage.removeItem('uber_active_accepted_driver');
+              } catch {}
             }}
             className="w-full py-3.5 bg-white text-black font-extrabold text-sm rounded-xl hover:bg-neutral-200 transition cursor-pointer active:scale-95 shadow-md"
           >
