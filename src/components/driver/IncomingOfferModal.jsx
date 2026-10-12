@@ -34,11 +34,11 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs font-black tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30">
+            <span className="text-xs font-black tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md border border-emerald-500/30">
               New Ride Request
             </span>
           </div>
-          <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-neutral-200 bg-neutral-800 px-2.5 py-1 rounded-full border border-neutral-700">
+          <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-neutral-200 bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-700">
             <Clock className="w-3.5 h-3.5 text-amber-400" />
             <span>{timeLeft}s remaining</span>
           </div>

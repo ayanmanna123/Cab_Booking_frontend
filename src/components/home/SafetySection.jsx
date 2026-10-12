@@ -29,7 +29,7 @@ export default function SafetySection() {
     <section id="safety" className="py-20 bg-neutral-950 text-white border-t border-neutral-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center space-x-2 bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-full text-red-400 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center space-x-2 bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-md text-red-400 text-xs font-bold uppercase tracking-wider">
             <Shield className="w-3.5 h-3.5" />
             <span>Safety First</span>
           </div>
@@ -58,9 +58,10 @@ export default function SafetySection() {
               <button
                 onClick={handleTestSos}
                 disabled={loading}
-                className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                {loading ? 'Transmitting alert...' : '🚨 Test SOS Feature'}
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>{loading ? 'Transmitting alert...' : 'Test SOS Feature'}</span>
               </button>
               {sosStatus && (
                 <p className="text-[11px] text-emerald-400 mt-2 font-medium flex items-center">
@@ -79,7 +80,7 @@ export default function SafetySection() {
               </div>
               <h3 className="text-xl font-bold">Share Your Trip Status</h3>
               <p className="text-neutral-400 text-sm leading-relaxed">
-                Family and friends can follow your journey in real time on our Leaflet map—viewing the driver’s car model, license plate, and expected arrival time.
+                Family and friends can follow your journey in real time on our Leaflet map, viewing the driver’s car model, license plate, and expected arrival time.
               </p>
             </div>
 

@@ -317,7 +317,7 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
         <div className="p-6 border-b border-neutral-800/80 flex items-center justify-between bg-neutral-950">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center font-black text-lg">
-              🚗
+              <Car className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white tracking-tight">Join as an Uber Driver</h2>
@@ -326,7 +326,7 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-white rounded-full hover:bg-neutral-800 transition cursor-pointer"
+            className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -565,7 +565,7 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
                         alt="Selected Vehicle Preview"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
+                      <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
                         <Check className="w-3 h-3 text-emerald-400" />
                         <span>Active Photo</span>
                       </div>

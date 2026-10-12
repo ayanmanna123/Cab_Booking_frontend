@@ -974,7 +974,7 @@ export default function DriverDashboard() {
         <div className="relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-800 p-8 sm:p-12 lg:p-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center space-x-2 bg-neutral-800 border border-neutral-700/80 px-3.5 py-1.5 rounded-full text-xs font-semibold text-neutral-300">
+              <div className="inline-flex items-center space-x-2 bg-neutral-800 border border-neutral-700/80 px-3.5 py-1.5 rounded-md text-xs font-semibold text-neutral-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Driver Partner Program</span>
               </div>
@@ -1003,7 +1003,7 @@ export default function DriverDashboard() {
                   className="px-5 py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm rounded-2xl flex items-center space-x-2 transition cursor-pointer border border-neutral-700 active:scale-95"
                 >
                   <Zap className="w-4 h-4 text-amber-400" />
-                  <span>⚡ Quick Demo Driver Mode</span>
+                  <span>Quick Demo Driver Mode</span>
                 </button>
               </div>
             </div>
@@ -1132,12 +1132,12 @@ export default function DriverDashboard() {
       <div className="bg-gradient-to-r from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 p-5 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center font-black text-xl shadow-md shrink-0">
-            🚕
+            <Car className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <h2 className="text-base font-bold text-white">Driver Partner Program</h2>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1">
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center space-x-1">
                 <ShieldCheck className="w-3 h-3 mr-0.5" />
                 <span>Verified Partner</span>
               </span>
@@ -1195,18 +1195,18 @@ export default function DriverDashboard() {
             <div className="flex flex-wrap items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${isOnline ? 'bg-emerald-500 animate-ping' : 'bg-neutral-600'}`} />
               <h1 className="text-2xl font-black text-white">Driver Portal</h1>
-              <span className="text-xs bg-neutral-800 px-2.5 py-0.5 rounded-full text-white font-bold border border-neutral-700">
+              <span className="text-xs bg-neutral-800 px-2.5 py-0.5 rounded-md text-white font-bold border border-neutral-700">
                 {driverProfile.vehicleMake} {driverProfile.vehicleModel} ({tierLabel})
               </span>
-              <span className="text-xs font-mono font-bold bg-neutral-950 px-2.5 py-0.5 rounded-full text-amber-400 border border-amber-400/20">
+              <span className="text-xs font-mono font-bold bg-neutral-950 px-2.5 py-0.5 rounded-md text-amber-400 border border-amber-400/20">
                 {driverProfile.licensePlate || 'DL 01 AB 1234'}
               </span>
             </div>
             <p className="text-xs text-neutral-400">
               {isLocating
-                ? '📡 Accessing device GPS sensors to pinpoint your live location...'
+                ? 'Accessing device GPS sensors to pinpoint your live location...'
                 : isOnline
-                ? `🟢 You are live and transmitting GPS coordinates (${locationLabel}) across the driver radar network.`
+                ? `You are live and transmitting GPS coordinates (${locationLabel}) across the driver radar network.`
                 : 'You are currently offline. Click Go Live to acquire live GPS and receive trip requests.'}
             </p>
           </div>
@@ -1281,7 +1281,7 @@ export default function DriverDashboard() {
           <div className="space-y-1">
             <div className="flex items-center space-x-2.5">
               <h2 className="text-xl font-black text-white">Driver Partner Profile & Vehicle Details</h2>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1">
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-md border border-emerald-500/30 flex items-center space-x-1">
                 <CheckCircle2 className="w-3 h-3 mr-0.5" />
                 <span>Documents Verified</span>
               </span>
@@ -1352,7 +1352,7 @@ export default function DriverDashboard() {
                 alt="Registered Vehicle"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-2.5 right-2.5 bg-black/85 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
+              <div className="absolute top-2.5 right-2.5 bg-black/85 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
                 <Check className="w-3 h-3 text-emerald-400" />
                 <span>Verified Vehicle</span>
               </div>
@@ -1455,7 +1455,7 @@ export default function DriverDashboard() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
               </span>
               <div>
-                <span className="text-xs font-black uppercase tracking-wider text-amber-300 bg-amber-950/80 border border-amber-600/50 px-3 py-1 rounded-full">
+                <span className="text-xs font-black uppercase tracking-wider text-amber-300 bg-amber-950/80 border border-amber-600/50 px-3 py-1 rounded-md">
                   Step 1: En Route to Pickup
                 </span>
                 <span className="text-xs text-neutral-400 ml-2 font-medium">
@@ -1553,7 +1553,7 @@ export default function DriverDashboard() {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </span>
               <div>
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 border border-emerald-600/50 px-3 py-1 rounded-full">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 border border-emerald-600/50 px-3 py-1 rounded-md">
                   Step 2: Enter Rider PIN
                 </span>
                 <span className="text-xs text-neutral-400 ml-2 font-medium">
@@ -1661,7 +1661,7 @@ export default function DriverDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center space-x-2.5">
                 <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-900/80 border border-emerald-600/60 px-3.5 py-1 rounded-full">
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-900/80 border border-emerald-600/60 px-3.5 py-1 rounded-md">
                   Live Trip in Progress • On Route
                 </span>
               </div>
@@ -1752,17 +1752,18 @@ export default function DriverDashboard() {
               <span className="font-bold text-white">Live Road Heatmap & Navigation</span>
               <span className="text-xs text-neutral-400">· OpenStreetMap GPS</span>
               {activeRide?.isVerified && (
-                <span className="text-[10px] font-extrabold text-emerald-300 bg-emerald-950 border border-emerald-600 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-extrabold text-emerald-300 bg-emerald-950 border border-emerald-600 px-2 py-0.5 rounded-md">
                   TURN-BY-TURN ACTIVE
                 </span>
               )}
             </div>
 
             {/* GPS Coordinates pill */}
-            <div className="flex items-center space-x-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-full text-xs">
+            <div className="flex items-center space-x-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-md text-xs">
               <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-neutral-500'}`} />
+              <MapPin className="w-3.5 h-3.5 text-neutral-400" />
               <span className="text-neutral-300 font-mono font-medium">
-                📍 {locationLabel}
+                {locationLabel}
               </span>
               {gpsAccuracy && (
                 <span className="text-[10px] text-neutral-500">
@@ -1770,7 +1771,7 @@ export default function DriverDashboard() {
                 </span>
               )}
               {isOnline && (
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
                   LIVE
                 </span>
               )}

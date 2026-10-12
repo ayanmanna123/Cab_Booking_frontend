@@ -4,12 +4,14 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import DriverDashboardPage from './pages/DriverDashboardPage';
 import RideTrackingPage from './pages/RideTrackingPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsConditionsPage from './pages/TermsConditionsPage';
 import { SocketProvider, RideProvider } from './context';
 
 import UserAuthSync from './components/auth/UserAuthSync';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('ride'); // 'ride' | 'drive' | 'tracking'
+  const [currentView, setCurrentView] = useState('ride'); // 'ride' | 'drive' | 'tracking' | 'privacy' | 'terms'
   const [activeRide, setActiveRide] = useState(null);
 
   useEffect(() => {
@@ -23,6 +25,8 @@ export default function App() {
         if (hash === 'drive' || hash === 'driver') cleanPath = '/driver';
         else if (hash === 'dashboard') cleanPath = '/dashboard';
         else if (hash === 'tracking') cleanPath = '/tracking';
+        else if (hash === 'privacy') cleanPath = '/privacy';
+        else if (hash === 'terms') cleanPath = '/terms';
         window.history.replaceState({}, '', cleanPath);
         path = cleanPath;
       }
@@ -31,6 +35,10 @@ export default function App() {
         setCurrentView('drive');
       } else if (path === '/tracking') {
         setCurrentView('tracking');
+      } else if (path === '/privacy') {
+        setCurrentView('privacy');
+      } else if (path === '/terms') {
+        setCurrentView('terms');
       } else {
         setCurrentView('ride');
       }
@@ -50,6 +58,8 @@ export default function App() {
     if (tab === 'drive' || tab === 'driver') path = '/driver';
     else if (tab === 'dashboard') path = '/dashboard';
     else if (tab === 'tracking') path = '/tracking';
+    else if (tab === 'privacy') path = '/privacy';
+    else if (tab === 'terms') path = '/terms';
     else path = '/';
 
     window.history.pushState({}, '', path);
@@ -73,6 +83,12 @@ export default function App() {
                 ride={activeRide}
                 onBackToHome={() => handleNavigate('ride')}
               />
+            )}
+            {currentView === 'privacy' && (
+              <PrivacyPolicyPage onBackToHome={() => handleNavigate('ride')} />
+            )}
+            {currentView === 'terms' && (
+              <TermsConditionsPage onBackToHome={() => handleNavigate('ride')} />
             )}
           </main>
 

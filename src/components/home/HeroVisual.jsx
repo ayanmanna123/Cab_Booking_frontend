@@ -20,13 +20,13 @@ export default function HeroVisual({
 
   return (
     <div className="relative w-full">
-      {/* View Mode Toggle Pill */}
+      {/* View Mode Toggle */}
       <div className="flex justify-end mb-3">
-        <div className="bg-neutral-900 border border-neutral-800 p-1 rounded-full flex items-center space-x-1 text-xs">
+        <div className="bg-neutral-900 border border-neutral-800 p-1 rounded-lg flex items-center space-x-1 text-xs">
           <button
             type="button"
             onClick={() => setViewMode('gallery')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full font-semibold transition cursor-pointer ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
               viewMode === 'gallery'
                 ? 'bg-white text-black shadow-sm'
                 : 'text-neutral-400 hover:text-white'
@@ -38,7 +38,7 @@ export default function HeroVisual({
           <button
             type="button"
             onClick={() => setViewMode('map')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full font-semibold transition cursor-pointer ${
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer ${
               viewMode === 'map'
                 ? 'bg-white text-black shadow-sm'
                 : 'text-neutral-400 hover:text-white'
@@ -121,7 +121,7 @@ export default function HeroVisual({
             </div>
             <button
               onClick={() => setViewMode('map')}
-              className="px-4 py-2 bg-white text-black font-bold text-xs rounded-full hover:bg-neutral-200 transition shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer"
+              className="px-4 py-2 bg-white text-black font-bold text-xs rounded-lg hover:bg-neutral-200 transition shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer"
             >
               <span>Schedule ahead</span>
               <ArrowRight className="w-3.5 h-3.5 ml-1" />

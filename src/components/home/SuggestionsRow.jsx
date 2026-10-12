@@ -77,7 +77,7 @@ export default function SuggestionsRow() {
                 <div className="z-10 pt-4">
                   <a
                     href="#ride"
-                    className="inline-block px-5 py-2 bg-white text-black text-xs font-bold rounded-full hover:bg-neutral-200 transition shadow-sm active:scale-95"
+                    className="inline-block px-5 py-2 bg-white text-black text-xs font-bold rounded-lg hover:bg-neutral-200 transition shadow-sm active:scale-95"
                   >
                     Details
                   </a>

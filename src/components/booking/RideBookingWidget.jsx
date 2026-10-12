@@ -19,6 +19,7 @@ import {
   Train,
   Phone,
   MessageSquare,
+  Shield,
   ShieldCheck,
   Star,
   Key,
@@ -725,7 +726,7 @@ export default function RideBookingWidget({
 
   return (
     <div className="w-full max-w-[500px] text-white">
-      {/* 1. City selector row matching official Uber: 📍 San Francisco, CA  Change city */}
+      {/* 1. City selector row matching official Uber: San Francisco, CA  Change city */}
       <div className="flex items-center space-x-2 text-xs font-medium text-neutral-300 mb-4">
         <MapPin className="w-3.5 h-3.5 text-white" />
         <span className="text-white font-semibold">{city}</span>
@@ -876,7 +877,7 @@ export default function RideBookingWidget({
                         : 'Your driver has accepted your ride • On the way'}
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-900/60 px-2.5 py-0.5 rounded-full border border-emerald-700/60">
+                  <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-900/60 px-2.5 py-0.5 rounded-md border border-emerald-700/60">
                     {rideTripStatus === 'IN_PROGRESS'
                       ? 'On Route'
                       : rideTripStatus === 'ARRIVED'
@@ -907,16 +908,21 @@ export default function RideBookingWidget({
                           <h4 className="text-base font-extrabold text-white">
                             {activeDriver.driverName || 'Driver'}
                           </h4>
-                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-md border border-emerald-500/30">
                             Verified
                           </span>
                         </div>
                         <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
                           <span className="text-amber-400 font-bold flex items-center">
-                            ⭐ {activeDriver.rating || '4.98'}
+                            <Star className="w-3.5 h-3.5 fill-amber-400 mr-1 inline" />
+                            {activeDriver.rating || '5.0'}
                           </span>
-                          <span>·</span>
-                          <span>{activeDriver.totalTrips || '1,240'} trips</span>
+                          {activeDriver.totalTrips != null && (
+                            <>
+                              <span>·</span>
+                              <span>{activeDriver.totalTrips} trips</span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -987,8 +993,9 @@ export default function RideBookingWidget({
                         {bookingConfirmed.otp || '4829'}
                       </span>
                     </div>
-                    <p className="text-[11px] text-neutral-400 leading-normal border-t border-neutral-800 pt-2">
-                      🛡️ <em>Share this PIN with your driver when they arrive. Never share it before verifying the driver and vehicle.</em>
+                    <p className="text-[11px] text-neutral-400 leading-normal border-t border-neutral-800 pt-2 flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <em>Share this PIN with your driver when they arrive. Never share it before verifying the driver and vehicle.</em>
                     </p>
                   </div>
                 ) : (
@@ -1155,12 +1162,12 @@ export default function RideBookingWidget({
       ) : (
         /* Official Uber Search Form */
         <form onSubmit={handleCalculateFare} className="space-y-4">
-          {/* Pickup now pill button */}
+          {/* Pickup time selector button */}
           <div className="relative inline-block">
             <button
               type="button"
               onClick={() => setShowTimeModal(!showTimeModal)}
-              className="inline-flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-full font-semibold text-sm hover:bg-neutral-200 transition shadow-sm cursor-pointer"
+              className="inline-flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg font-semibold text-sm hover:bg-neutral-200 transition shadow-sm cursor-pointer"
             >
               <Clock className="w-4 h-4" />
               <span>{pickupTime}</span>

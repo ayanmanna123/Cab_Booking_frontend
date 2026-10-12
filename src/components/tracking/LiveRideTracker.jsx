@@ -407,7 +407,7 @@ export default function LiveRideTracker({
               }`}
             >
               <ShieldAlert className="w-4 h-4" />
-              <span>{sosActive ? '🚨 SOS Alert Dispatched' : 'Emergency SOS'}</span>
+              <span>{sosActive ? 'SOS Alert Dispatched' : 'Emergency SOS'}</span>
             </button>
           )}
         </div>
@@ -455,7 +455,7 @@ export default function LiveRideTracker({
                   <div className="flex items-center space-x-1.5 text-xs text-neutral-400">
                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                     <span className="font-bold text-white">{ride?.driverRating || 5.0}</span>
-                    <span>· {ride?.driverTrips || '1,240'} trips</span>
+                    {ride?.driverTrips != null && <span>· {ride.driverTrips} trips</span>}
                   </div>
                 </div>
               </div>
@@ -549,7 +549,7 @@ export default function LiveRideTracker({
                       <span className="text-sm font-extrabold text-white block">
                         {paymentCompleted ? 'Payment Completed' : 'Trip Payment'}
                       </span>
-                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${
                         paymentCompleted
                           ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40'
                           : 'bg-amber-950/80 text-amber-300 border-amber-500/40'
@@ -696,7 +696,7 @@ export default function LiveRideTracker({
               <button
                 type="button"
                 onClick={() => setShowPaymentModal(false)}
-                className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -735,7 +735,7 @@ export default function LiveRideTracker({
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <div className="w-9 h-9 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-300">
                       <Smartphone className="w-4 h-4" />
                     </div>
                     <div>
@@ -1064,7 +1064,7 @@ export default function LiveRideTracker({
               <button
                 type="button"
                 onClick={() => setShowReceiptModal(false)}
-                className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>

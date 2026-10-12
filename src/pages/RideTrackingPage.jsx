@@ -46,8 +46,8 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
         vehicleModel: `${dp.vehicle_make || dp.vehicleMake || 'Toyota'} ${dp.vehicle_model || dp.vehicleModel || 'Camry'}`,
         vehicleColor: dp.vehicle_color || dp.vehicleColor || 'Silver Metallic',
         driverAvatar: du.avatar_url || d.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
-        driverRating: Number(dp.rating || d.rating || 4.98),
-        driverTrips: dp.total_trips || dp.total_rides || '1,240',
+        driverRating: Number(dp.rating || d.rating || 5.0),
+        driverTrips: dp.total_trips || dp.total_rides || null,
         fare: r.final_fare || r.estimated_fare || r.estimatedFare || '185.00'
       };
     };
@@ -60,7 +60,7 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
           setRide(parsed);
           return;
         }
-      } catch {}
+      } catch { }
 
       // Fallback to local storage if API request is pending or mock mode
       if (isMounted) {
@@ -73,7 +73,7 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
               driver: savedDriver || savedActive.driver
             }));
           }
-        } catch {}
+        } catch { }
       }
     };
 

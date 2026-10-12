@@ -63,11 +63,11 @@ export default function Footer() {
 
         {/* Global Selectors */}
         <div className="flex flex-wrap gap-4 pt-4 text-xs font-semibold text-neutral-300">
-          <button className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-full transition cursor-pointer">
+          <button className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-md transition cursor-pointer">
             <Globe className="w-4 h-4" />
             <span>English</span>
           </button>
-          <button className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-full transition cursor-pointer">
+          <button className="flex items-center space-x-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-md transition cursor-pointer">
             <MapPin className="w-4 h-4" />
             <span>San Francisco</span>
           </button>
@@ -77,9 +77,29 @@ export default function Footer() {
         <div className="pt-8 border-t border-neutral-900 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
           <p>© 2026 Uber Technologies Inc.</p>
           <div className="flex space-x-6">
-            <a href="#privacy" className="hover:text-neutral-400">Privacy</a>
+            <a
+              href="/privacy"
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', '/privacy');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="hover:text-neutral-400 cursor-pointer"
+            >
+              Privacy Policy
+            </a>
             <a href="#accessibility" className="hover:text-neutral-400">Accessibility</a>
-            <a href="#terms" className="hover:text-neutral-400">Terms</a>
+            <a
+              href="/terms"
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', '/terms');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="hover:text-neutral-400 cursor-pointer"
+            >
+              Terms & Conditions
+            </a>
           </div>
         </div>
       </div>
