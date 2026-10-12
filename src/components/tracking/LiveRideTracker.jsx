@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   XCircle,
   Navigation,
+  Shield,
   ShieldCheck,
   Check,
   CreditCard,
@@ -374,22 +375,23 @@ export default function LiveRideTracker({
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(upiPayUrl)}`;
 
   return (
-    <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 select-none">
-      {/* Header & Status Stepper */}
-      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <div>
-              <h2 className="text-2xl font-black text-white">
+    <div className="py-4 sm:py-6 max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4 select-none">
+      {/* 1. Compact Header & Status Stepper */}
+      <div className="bg-neutral-950 border border-neutral-800 p-3.5 sm:p-4 rounded-2xl space-y-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
+          <div className="min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-white shrink-0 animate-pulse" />
+              <h2 className="text-base font-bold text-white tracking-tight">
                 {tripCompleted ? 'Trip Completed' : statusStep >= 3 ? 'On Trip to Destination' : 'Driver En Route'}
               </h2>
             </div>
-            <p className="text-xs text-neutral-400 mt-1">
+            <p className="text-[11px] text-neutral-400 mt-0.5 pl-4">
               {tripCompleted
-                ? 'You have safely arrived at your destination. Thank you for riding with Uber!'
+                ? 'You have safely arrived at your destination.'
                 : statusStep >= 3
-                ? `En route to ${ride?.dropoffAddress || 'destination'}. PIN verified.`
-                : 'Your driver has arrived at the pickup point.'}
+                ? `En route to ${ride?.dropoffAddress || 'destination'}.`
+                : 'Your driver has arrived at the pickup location.'}
             </p>
           </div>
 
@@ -397,29 +399,29 @@ export default function LiveRideTracker({
           {!tripCompleted && (
             <button
               onClick={handleSos}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center space-x-2 transition cursor-pointer ${
+              className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
                 sosActive
                   ? 'bg-red-700 text-white animate-pulse'
-                  : 'bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30'
+                  : 'bg-neutral-900 text-neutral-300 hover:text-white hover:bg-neutral-850 border border-neutral-800'
               }`}
             >
-              <ShieldAlert className="w-4 h-4" />
-              <span>{sosActive ? 'SOS Alert Dispatched' : 'Emergency SOS'}</span>
+              <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
+              <span>{sosActive ? 'SOS Dispatched' : 'Emergency SOS'}</span>
             </button>
           )}
         </div>
 
-        {/* Stepper */}
-        <div className="grid grid-cols-4 gap-2 pt-2">
+        {/* Compact Stepper */}
+        <div className="grid grid-cols-4 gap-2 pt-1 border-t border-neutral-850">
           {steps.map(step => (
-            <div key={step.id} className="space-y-2">
+            <div key={step.id} className="space-y-1">
               <div
-                className={`h-2 rounded-full transition-all ${
-                  step.id <= statusStep ? 'bg-emerald-400' : 'bg-neutral-800'
+                className={`h-1 rounded-full transition-all ${
+                  step.id <= statusStep ? 'bg-white' : 'bg-neutral-800'
                 }`}
               />
               <span
-                className={`text-[11px] font-semibold block truncate ${
+                className={`text-[10px] font-medium block truncate ${
                   step.id <= statusStep ? 'text-white' : 'text-neutral-500'
                 }`}
               >
@@ -430,221 +432,218 @@ export default function LiveRideTracker({
         </div>
       </div>
 
-      {/* Main Content: Driver Info + Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Driver Card, Payment, & Trip Details */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Driver Card */}
-          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
-              <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-neutral-700 bg-neutral-800">
+      {/* 2. Main Responsive Two-Column Layout: Driver Info (~38%) + Live Map (~62%) */}
+      <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
+        {/* Left Column: Driver Card, Verification PIN, & Payment */}
+        <div className="w-full lg:w-[38%] shrink-0">
+          <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
+            {/* Driver Profile Row */}
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="w-11 h-11 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0">
                   <img
                     src={ride?.driverAvatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"}
                     alt="Driver avatar"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg text-white">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm text-white truncate">
                     {ride?.driverName || 'Vikram Malhotra'}
                   </h3>
-                  <div className="flex items-center space-x-1.5 text-xs text-neutral-400">
-                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span className="font-bold text-white">{ride?.driverRating || 5.0}</span>
-                    {ride?.driverTrips != null && <span>· {ride.driverTrips} trips</span>}
+                  <div className="flex items-center space-x-1.5 text-xs text-neutral-400 mt-0.5">
+                    <span className="flex items-center space-x-0.5 text-neutral-200 font-medium">
+                      <Star className="w-3 h-3 text-white fill-white inline" />
+                      <span>{Number(ride?.driverRating || 5.0).toFixed(1)}</span>
+                    </span>
+                    <span>•</span>
+                    <span className="truncate">{ride?.driverTrips != null ? `${ride.driverTrips}+ trips` : '1,240+ trips'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="text-right">
-                <span className="text-xs text-neutral-400 block">
-                  {tripCompleted ? 'Status' : 'Est. Dropoff'}
-                </span>
-                <span className="text-2xl font-black text-emerald-400">
-                  {tripCompleted ? 'Done' : `${etaMinutes} min`}
-                </span>
+              {/* Small Phone-call Icon Button (36px) */}
+              <a
+                href={`tel:${ride?.driverPhone || '+919876543210'}`}
+                className="w-9 h-9 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white transition flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm"
+                title="Call Driver"
+              >
+                <Phone className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* Vehicle Details: Compact Two-Column Layout */}
+            <div className="space-y-2 pb-3 border-b border-neutral-800/80">
+              <div className="flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                    Vehicle
+                  </span>
+                  <span className="font-semibold text-white">
+                    {ride?.vehicleModel || 'Toyota Camry'}
+                  </span>
+                  <span className="text-[11px] text-neutral-400 block">
+                    {ride?.vehicleColor || 'Silver Metallic'}
+                  </span>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                    License Plate
+                  </span>
+                  <span className="font-mono text-xs font-bold text-white bg-black border border-neutral-800 px-2.5 py-1 rounded-md inline-block mt-0.5">
+                    {ride?.licensePlate || 'DL 01 AB 4488'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Subtle Safety Reminder */}
+              <div className="flex items-center space-x-1.5 text-[11px] text-neutral-500 pt-0.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                <span>Verify vehicle model and license plate before boarding.</span>
               </div>
             </div>
 
-            {/* Vehicle & Plate Info */}
-            <div className="bg-black p-4 rounded-2xl border border-neutral-800 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-neutral-400 block font-medium">
-                  {ride?.vehicleModel || 'Toyota'} · {ride?.vehicleColor || 'Silver Metallic'}
-                </span>
-                <span className="text-xl font-mono font-black text-white tracking-wider">
-                  {ride?.licensePlate || 'WB 02 AB 4488'}
-                </span>
-              </div>
-              <div className="bg-neutral-900 p-3 rounded-xl">
-                <Car className="w-6 h-6 text-neutral-300" />
-              </div>
-            </div>
-
-            {/* Status Step Badge */}
+            {/* Status or Ride Verification PIN */}
             {tripCompleted ? (
-              <div className="bg-emerald-950/50 border border-emerald-500/40 p-4 rounded-2xl space-y-2">
-                <div className="flex items-center space-x-2 text-emerald-400 font-extrabold text-sm">
-                  <CheckCircle2 className="w-5 h-5 shrink-0" />
+              <div className="p-3 bg-neutral-900/60 border border-neutral-800 rounded-xl space-y-2 text-xs">
+                <div className="flex items-center space-x-2 text-white font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
                   <span>Trip Successfully Completed</span>
                 </div>
-                <p className="text-xs text-neutral-300">
+                <p className="text-[11px] text-neutral-400">
                   Fare: <strong className="text-white">₹{fareFormatted}</strong> {paymentCompleted ? 'paid successfully.' : 'ready for payment.'}
                 </p>
                 {onComplete && (
                   <button
                     type="button"
                     onClick={onComplete}
-                    className="w-full mt-2 py-3 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-neutral-200 transition cursor-pointer"
+                    className="w-full h-8 bg-white text-black font-semibold text-xs rounded-lg hover:bg-neutral-200 transition cursor-pointer"
                   >
                     Back to Home
                   </button>
                 )}
               </div>
-            ) : statusStep >= 3 ? (
-              /* PIN Verified Badge - Clean display with NO OTP box */
-              <div className="bg-emerald-950/40 border border-emerald-500/30 p-4 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
+            ) : statusStep < 3 && ride?.otp ? (
+              /* Compact Ride Verification PIN */
+              <div className="space-y-2 pb-3 border-b border-neutral-800/80">
+                <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-black uppercase tracking-wider text-emerald-400 block">
-                      PIN Verified · On Trip
+                    <span className="text-xs font-semibold text-white block">
+                      Ride verification PIN
                     </span>
-                    <span className="text-xs text-neutral-300 truncate max-w-[200px] block">
-                      {ride?.dropoffAddress || 'Sector V, Bidhannagar'}
+                    <span className="text-[11px] text-neutral-400 block">
+                      Share with your driver before starting
                     </span>
+                  </div>
+
+                  <div className="flex items-center space-x-1">
+                    {(String(ride.otp || '5816').padStart(4, '0').slice(-4).split('')).map((digit, idx) => (
+                      <span
+                        key={idx}
+                        className="w-7 h-8 rounded-md bg-black border border-neutral-800 flex items-center justify-center font-mono text-sm font-bold text-white shadow-inner"
+                      >
+                        {digit}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold text-neutral-300 bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
+
+                <div className="flex items-center space-x-1.5 text-[10px] text-neutral-500">
+                  <Shield className="w-3 h-3 text-neutral-400 shrink-0" />
+                  <span>Never disclose this PIN before verifying driver and car.</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80 text-xs">
+                <div className="flex items-center space-x-2">
+                  <ShieldCheck className="w-4 h-4 text-white" />
+                  <span className="font-semibold text-white">PIN Verified • On Trip</span>
+                </div>
+                <span className="text-[11px] font-mono text-neutral-400">
+                  {etaMinutes} min to destination
+                </span>
+              </div>
+            )}
+
+            {/* Compact Trip Payment */}
+            <div className="space-y-2 pb-3 border-b border-neutral-800/80 text-xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-semibold text-white block">
+                    {paymentCompleted ? 'Payment Completed' : 'Trip Fare'}
+                  </span>
+                  <span className="text-[11px] text-neutral-400">
+                    {paymentCompleted ? `Paid via ${selectedPaymentMethod.toUpperCase()}` : 'Pay online or cash to driver'}
+                  </span>
+                </div>
+                <span className="font-mono font-bold text-white text-sm">
                   ₹{fareFormatted}
                 </span>
               </div>
-            ) : null}
-
-            {/* ========================================================================= */}
-            {/* OPTION TO COMPLETE PAYMENT */}
-            {/* ========================================================================= */}
-            <div className="bg-black border border-neutral-800 p-4 rounded-2xl space-y-3.5 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    paymentCompleted
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-inner'
-                      : 'bg-neutral-900 text-white border border-neutral-800'
-                  }`}>
-                    {paymentCompleted ? (
-                      <CheckCircle2 className="w-5 h-5" />
-                    ) : (
-                      <CreditCard className="w-5 h-5 text-emerald-400" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-extrabold text-white block">
-                        {paymentCompleted ? 'Payment Completed' : 'Trip Payment'}
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-neutral-400 mt-0.5 block">
-                      {paymentCompleted
-                        ? `Paid ₹${fareFormatted} via ${selectedPaymentMethod.toUpperCase()} · Verified`
-                        : 'Pay anytime online or cash to driver'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-base font-black text-white font-mono block">
-                    ₹{fareFormatted}
-                  </span>
-                  <span className="text-[10px] text-neutral-500">Total Fare</span>
-                </div>
-              </div>
 
               {!paymentCompleted ? (
-                /* Primary Complete Payment Action Button */
                 <button
                   type="button"
                   id="complete-payment-button"
                   onClick={() => setShowPaymentModal(true)}
-                  className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-black font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-[0.99] cursor-pointer"
+                  className="w-full h-9 bg-white text-black font-semibold text-xs rounded-lg hover:bg-neutral-200 transition flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 shadow-sm"
                 >
-                  <CreditCard className="w-4 h-4 stroke-[2.5]" />
+                  <CreditCard className="w-3.5 h-3.5" />
                   <span>Complete Payment · ₹{fareFormatted}</span>
-                  <ChevronRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               ) : (
-                /* Paid Confirmation Badge & Receipt Button */
-                <div className="bg-emerald-950/30 border border-emerald-500/30 p-3 rounded-xl flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-2 text-emerald-300">
-                    <Check className="w-4 h-4 text-emerald-400 shrink-0 stroke-[2.5]" />
-                    <span className="font-semibold">Payment Confirmed & Verified</span>
-                  </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-neutral-300 font-medium flex items-center space-x-1">
+                    <Check className="w-3.5 h-3.5 text-white" />
+                    <span>Verified</span>
+                  </span>
                   <button
                     type="button"
                     onClick={() => setShowReceiptModal(true)}
-                    className="text-xs font-bold text-white bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition cursor-pointer"
+                    className="h-7 px-2.5 bg-neutral-900 border border-neutral-800 text-white text-[11px] font-medium rounded-md hover:bg-neutral-800 transition cursor-pointer"
                   >
-                    <Receipt className="w-3.5 h-3.5 text-neutral-300" />
-                    <span>Receipt</span>
+                    View Receipt
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Contact buttons */}
-            {!tripCompleted && (
-              <div className="grid grid-cols-2 gap-3">
-                <a
-                  href={`tel:${ride?.driverPhone || '+919876543210'}`}
-                  className="py-3 px-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition cursor-pointer"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span>Call Driver</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => alert(`Messaging ${ride?.driverName || 'driver'}: +91 98765 43210`)}
-                  className="py-3 px-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition cursor-pointer"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Send Message</span>
-                </button>
+            {/* Trip Route Summary */}
+            <div className="space-y-1.5 text-xs">
+              <div className="flex items-start space-x-2 truncate">
+                <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                <span className="text-neutral-300 truncate text-[11px]">
+                  {ride?.pickupAddress || 'Pickup Point'}
+                </span>
               </div>
-            )}
-
-            {/* Trip Destination Details */}
-            <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-xs space-y-2">
-              <div>
-                <span className="text-[10px] text-neutral-500 uppercase font-bold block">Pickup</span>
-                <span className="text-neutral-200">{ride?.pickupAddress || 'Baguiati, South Dumdum'}</span>
-              </div>
-              <div className="pt-2 border-t border-neutral-900">
-                <span className="text-[10px] text-neutral-500 uppercase font-bold block">Destination</span>
-                <span className="text-neutral-200">{ride?.dropoffAddress || 'Sector V, Bidhannagar'}</span>
+              <div className="flex items-start space-x-2 truncate">
+                <MapPin className="w-3 h-3 text-neutral-400 mt-0.5 shrink-0" />
+                <span className="text-neutral-400 truncate text-[11px]">
+                  {ride?.dropoffAddress || 'Destination Point'}
+                </span>
               </div>
             </div>
 
-            {/* Cancel ride (disabled once trip is in progress) */}
+            {/* Cancel ride */}
             {onCancel && statusStep < 3 && !tripCompleted && (
               <button
+                type="button"
                 onClick={onCancel}
-                className="w-full py-2.5 text-xs font-semibold text-neutral-400 hover:text-red-400 transition cursor-pointer"
+                className="w-full h-8 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white font-medium text-xs rounded-lg transition cursor-pointer mt-1"
               >
-                Cancel ride
+                Cancel Ride
               </button>
             )}
           </div>
         </div>
 
-        {/* Right Column: Live Interactive Leaflet Map */}
-        <div className="lg:col-span-7">
+        {/* Right Column: Live Interactive Leaflet Map (~62%) */}
+        <div className="w-full lg:w-[62%] flex-1 min-w-0">
           <InteractiveMap
             pickupCoords={ride?.pickupCoords || [22.6113, 88.4202]}
             dropoffCoords={ride?.dropoffCoords || [22.5804, 88.4378]}
-            height="560px"
+            height="550px"
             nearbyDrivers={[
               {
                 id: 'active_driver',

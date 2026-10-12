@@ -881,153 +881,144 @@ const reverseGeocodeCoords = async (lat, lng) => {
               totalTrips: 1240
             };
             return (
-              /* Case 2: Driver Assigned (ACCEPTED, ARRIVED, IN_PROGRESS) */
-              <div className="bg-neutral-950 border border-neutral-800 p-5 sm:p-6 rounded-3xl space-y-4.5 shadow-2xl backdrop-blur-2xl relative overflow-hidden">
-                {/* Subtle Ambient Luxury Glow */}
-                <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-24 bg-white/5 blur-3xl pointer-events-none rounded-full" />
-
-                {/* Top Banner Status */}
-                <div className="flex items-center justify-between pb-3.5 border-b border-neutral-850">
-                  <div className="space-y-1">
-                    <span className="text-xs font-black uppercase tracking-wider text-white flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      <span>
+              /* Case 2: Driver Assigned (ACCEPTED, ARRIVED, IN_PROGRESS) - Minimalist & Compact */
+              <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
+                {/* 1. Slim Status Bar */}
+                <div className="pb-3 border-b border-neutral-800/80">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-white shrink-0 animate-pulse" />
+                      <span className="text-xs font-semibold text-white tracking-tight">
                         {rideTripStatus === 'IN_PROGRESS'
-                          ? 'Trip In Progress'
+                          ? 'Trip in progress'
                           : rideTripStatus === 'ARRIVED'
-                          ? 'Driver Has Arrived'
-                          : 'Driver On The Way'}
+                          ? 'Driver arrived'
+                          : 'Driver arriving'}
                       </span>
-                    </span>
-                    <p className="text-[11px] text-neutral-400">
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
                       {rideTripStatus === 'IN_PROGRESS'
-                        ? 'En route to your destination'
+                        ? 'On Route'
                         : rideTripStatus === 'ARRIVED'
-                        ? 'Your driver is waiting at the pickup location'
-                        : 'Your driver is heading to your pickup location'}
-                    </p>
+                        ? 'Arrived'
+                        : 'ETA ~3m'}
+                    </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-black bg-white px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-sm shrink-0">
+                  <p className="text-[11px] text-neutral-400 mt-1 pl-4">
                     {rideTripStatus === 'IN_PROGRESS'
-                      ? 'Live Route'
+                      ? 'En route to your destination'
                       : rideTripStatus === 'ARRIVED'
-                      ? 'Arrived'
-                      : 'ETA ~3m'}
-                  </span>
+                      ? 'Your driver is waiting at the pickup point'
+                      : 'Heading towards your pickup location'}
+                  </p>
                 </div>
 
-                {/* Driver Profile & Vehicle Details */}
-                <div className="bg-neutral-900/90 p-4 sm:p-5 rounded-2xl border border-neutral-800 space-y-4 shadow-lg">
+                {/* 2. Minimal Driver Card (Single clean container without nested bulky card backgrounds) */}
+                <div className="space-y-3 pb-3 border-b border-neutral-800/80">
+                  {/* Driver Profile Row */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3.5">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden border border-neutral-700 bg-neutral-800 shadow-md shrink-0">
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <div className="w-11 h-11 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0">
                         <img
                           src={activeDriver.driverPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'}
                           alt={activeDriver.driverName || 'Driver'}
                           className="w-full h-full object-cover"
                         />
                       </div>
-
-                      <div>
-                        <h4 className="text-base font-extrabold text-white tracking-tight">
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-semibold text-white truncate">
                           {activeDriver.driverName || 'Driver Partner'}
                         </h4>
-                        <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-1">
-                          <span className="text-neutral-200 font-bold bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700/60 flex items-center space-x-1">
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 inline" />
+                        <div className="flex items-center space-x-1.5 text-xs text-neutral-400 mt-0.5">
+                          <span className="flex items-center space-x-0.5 text-neutral-200 font-medium">
+                            <Star className="w-3 h-3 fill-white text-white inline" />
                             <span>{Number(activeDriver.rating || 5.0).toFixed(1)}</span>
                           </span>
                           <span>•</span>
-                          <span>{activeDriver.totalTrips ? `${activeDriver.totalTrips}+ trips` : '1,240+ trips'}</span>
+                          <span className="truncate">{activeDriver.totalTrips ? `${activeDriver.totalTrips}+ trips` : '1,240+ trips'}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Call Driver Button */}
+                    {/* Small Phone-call Icon Button (36px) */}
                     <a
                       href={`tel:${activeDriver.driverPhone || '+919876543210'}`}
-                      className="p-3 bg-white hover:bg-neutral-200 text-black rounded-xl transition shadow-md active:scale-95 flex items-center justify-center cursor-pointer"
+                      className="w-9 h-9 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white transition flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm"
                       title="Call Driver"
                     >
-                      <Phone className="w-4 h-4 fill-black" />
+                      <Phone className="w-3.5 h-3.5" />
                     </a>
                   </div>
 
-                  {/* Vehicle Model & License Plate Spotlight */}
-                  <div className="bg-black/90 p-4 rounded-xl border border-neutral-800 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">
-                          Vehicle Model
-                        </span>
-                        <span className="text-sm font-extrabold text-white">
-                          {activeDriver.vehicleMake} {activeDriver.vehicleModel}
-                        </span>
-                        <span className="text-xs text-neutral-400 block mt-0.5">
-                          Color: {activeDriver.vehicleColor || 'Silver Metallic'}
-                        </span>
-                      </div>
-
-                      {/* License Plate Spotlight */}
-                      <div className="text-right">
-                        <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider block">
-                          License Plate
-                        </span>
-                        <div className="mt-1 font-mono text-base font-black text-white bg-neutral-900 border border-neutral-700 px-3.5 py-1.5 rounded-xl inline-block shadow-inner tracking-widest">
-                          {activeDriver.licensePlate || 'DL 01 AB 4488'}
-                        </div>
-                      </div>
+                  {/* Vehicle Details: Compact Two-Column Layout */}
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <div>
+                      <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                        Vehicle
+                      </span>
+                      <span className="font-semibold text-white">
+                        {activeDriver.vehicleMake} {activeDriver.vehicleModel}
+                      </span>
+                      <span className="text-[11px] text-neutral-400 block">
+                        {activeDriver.vehicleColor || 'Silver Metallic'}
+                      </span>
                     </div>
 
-                    <div className="bg-neutral-900/60 border border-neutral-800/80 px-3.5 py-2 rounded-lg text-[11px] text-neutral-300 flex items-center space-x-2">
-                      <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
-                      <span>Always verify the vehicle model and license plate before boarding.</span>
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                        License Plate
+                      </span>
+                      <span className="font-mono text-xs font-bold text-white bg-black border border-neutral-800 px-2.5 py-1 rounded-md inline-block mt-0.5">
+                        {activeDriver.licensePlate || 'DL 01 AB 4488'}
+                      </span>
                     </div>
+                  </div>
+
+                  {/* Subtle Safety Reminder */}
+                  <div className="flex items-center space-x-1.5 text-[11px] text-neutral-500 pt-0.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                    <span>Verify vehicle model and license plate before boarding.</span>
                   </div>
                 </div>
 
-                {/* Ride PIN Card */}
+                {/* 3. Compact Ride Verification PIN */}
                 {rideTripStatus !== 'IN_PROGRESS' && bookingConfirmed?.status !== 'IN_PROGRESS' ? (
-                  <div className="bg-neutral-900/90 border border-neutral-800 p-4.5 rounded-2xl space-y-3 shadow-lg">
-                    <div className="flex justify-between items-center">
+                  <div className="space-y-2 pb-3 border-b border-neutral-800/80">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-xs text-white uppercase tracking-wider font-extrabold block">
-                          Ride Verification PIN
+                        <span className="text-xs font-semibold text-white block">
+                          Ride verification PIN
                         </span>
-                        <span className="text-[11px] text-neutral-400 mt-0.5 block">
-                          Share with driver to start your trip
+                        <span className="text-[11px] text-neutral-400 block">
+                          Share with your driver before starting
                         </span>
                       </div>
-                      <div className="flex items-center space-x-1.5">
+
+                      {/* Four PIN digits in a single horizontal row with compact square digit boxes */}
+                      <div className="flex items-center space-x-1">
                         {(String(bookingConfirmed.otp || '5816').padStart(4, '0').slice(-4).split('')).map((digit, idx) => (
                           <span
                             key={idx}
-                            className="w-8 h-10 rounded-lg bg-black border border-neutral-700 flex items-center justify-center font-mono text-lg font-black text-white shadow-inner"
+                            className="w-7 h-8 rounded-md bg-black border border-neutral-800 flex items-center justify-center font-mono text-sm font-bold text-white shadow-inner"
                           >
                             {digit}
                           </span>
                         ))}
                       </div>
                     </div>
-                    <div className="text-[11px] text-neutral-400 border-t border-neutral-800/80 pt-2 flex items-center space-x-1.5">
-                      <Shield className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                      <span>Only disclose this PIN once you have confirmed the driver and vehicle.</span>
+
+                    <div className="flex items-center space-x-1.5 text-[10px] text-neutral-500">
+                      <Shield className="w-3 h-3 text-neutral-400 shrink-0" />
+                      <span>Never disclose this PIN before verifying driver and car.</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-neutral-900/90 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between shadow-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-9 h-9 rounded-lg bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white">
-                        <ShieldCheck className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <span className="text-xs text-white font-extrabold uppercase tracking-wider block">
-                          PIN Verified • On Trip
-                        </span>
-                        <span className="text-[11px] text-neutral-400">
-                          En route to destination
-                        </span>
-                      </div>
+                  <div className="flex items-center justify-between py-1 pb-3 border-b border-neutral-800/80">
+                    <div className="flex items-center space-x-2">
+                      <ShieldCheck className="w-4 h-4 text-white" />
+                      <span className="text-xs font-semibold text-white">
+                        PIN Verified • On Trip
+                      </span>
                     </div>
                     <button
                       type="button"
@@ -1035,45 +1026,40 @@ const reverseGeocodeCoords = async (lat, lng) => {
                         window.history.pushState({}, '', '/tracking');
                         window.dispatchEvent(new PopStateEvent('popstate'));
                       }}
-                      className="px-3.5 py-1.5 bg-white text-black text-xs font-bold rounded-lg hover:bg-neutral-200 transition cursor-pointer"
+                      className="px-2.5 py-1 bg-white text-black text-xs font-semibold rounded-md hover:bg-neutral-200 transition cursor-pointer"
                     >
-                      View Live Map
+                      View Map
                     </button>
                   </div>
                 )}
 
-                {/* Ride Summary */}
-                <div className="bg-neutral-900/60 border border-neutral-800 p-4 rounded-2xl text-xs space-y-2 text-neutral-300">
-                  <div className="flex justify-between items-center text-[11px] text-neutral-500 pb-1.5 border-b border-neutral-800">
-                    <span>Trip Reference</span>
-                    <span className="font-mono font-bold text-neutral-300">{String(bookingConfirmed.id || '').slice(0, 12)}</span>
-                  </div>
-                  <div className="space-y-1.5 pt-0.5">
-                    <div className="flex items-start space-x-2">
-                      <div className="w-2 h-2 rounded bg-white mt-1 shrink-0" />
-                      <div className="truncate">
-                        <span className="text-neutral-500 text-[10px] uppercase font-bold block">Pickup</span>
-                        <span className="font-semibold text-white truncate block">{bookingConfirmed.pickup_address}</span>
-                      </div>
+                {/* 4. Compact Trip Summary */}
+                <div className="space-y-2 text-xs">
+                  <div className="space-y-1.5">
+                    <div className="flex items-start space-x-2 truncate">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                      <span className="text-neutral-300 truncate text-[11px]">
+                        {bookingConfirmed.pickup_address}
+                      </span>
                     </div>
-                    <div className="flex items-start space-x-2">
-                      <MapPin className="w-3 h-3 text-neutral-400 mt-1 shrink-0" />
-                      <div className="truncate">
-                        <span className="text-neutral-500 text-[10px] uppercase font-bold block">Dropoff</span>
-                        <span className="font-semibold text-white truncate block">{bookingConfirmed.dropoff_address}</span>
-                      </div>
+                    <div className="flex items-start space-x-2 truncate">
+                      <MapPin className="w-3 h-3 text-neutral-400 mt-0.5 shrink-0" />
+                      <span className="text-neutral-400 truncate text-[11px]">
+                        {bookingConfirmed.dropoff_address}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center pt-2.5 border-t border-neutral-800">
-                    <span className="text-neutral-400 font-medium">Estimated Fare:</span>
-                    <span className="font-black text-white text-base font-mono">
+
+                  <div className="flex items-center justify-between pt-2 border-t border-neutral-800/80 text-xs">
+                    <span className="text-neutral-400">Estimated Fare</span>
+                    <span className="font-mono font-bold text-white text-sm">
                       ₹{Number(bookingConfirmed.final_fare || bookingConfirmed.estimated_fare || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
-                {/* Primary Action Buttons */}
-                <div className="space-y-2 pt-1">
+                {/* 5. Compact Action Buttons (34–36px high) */}
+                <div className="space-y-1.5 pt-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -1090,17 +1076,17 @@ const reverseGeocodeCoords = async (lat, lng) => {
                       window.history.pushState({}, '', '/tracking');
                       window.dispatchEvent(new PopStateEvent('popstate'));
                     }}
-                    className="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-neutral-200 transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg active:scale-95"
+                    className="w-full h-9 bg-white text-black font-semibold text-xs rounded-lg hover:bg-neutral-200 transition flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95"
                   >
-                    <Navigation className="w-4 h-4" />
-                    <span>Track Live On Fullscreen Map</span>
+                    <Navigation className="w-3.5 h-3.5" />
+                    <span>Track Live on Fullscreen Map</span>
                   </button>
 
                   {rideTripStatus !== 'IN_PROGRESS' && (
                     <button
                       type="button"
                       onClick={handleCancelRide}
-                      className="w-full py-2.5 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800 font-bold text-xs rounded-xl transition cursor-pointer"
+                      className="w-full h-8 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-850 font-medium text-xs rounded-lg transition cursor-pointer"
                     >
                       Cancel Ride
                     </button>

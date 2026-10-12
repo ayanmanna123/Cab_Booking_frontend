@@ -5,6 +5,7 @@ import {
   TrendingUp,
   MapPin,
   Navigation,
+  Shield,
   ShieldCheck,
   Clock,
   Car,
@@ -1119,37 +1120,39 @@ export default function DriverDashboard() {
 
   // =========================================================================
   // VIEW 2: REGISTERED DRIVER COCKPIT (DYNAMIC FOR LOGGED IN DRIVER)
-  // Shows driver's actual car, actual name, actual plate, and dynamic stats
+  // Minimalist, modern, compact, and premium two-column live ride dashboard
   // =========================================================================
   return (
-    <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 select-none">
-      {/* Top Banner: Driver Partner Status & Vehicle Controls */}
-      <div className="bg-gradient-to-r from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 p-5 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center font-black text-xl shadow-md shrink-0">
-            <Car className="w-6 h-6" />
+    <div className="py-4 sm:py-6 max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4 select-none">
+      {/* 1. Slim Top Bar: Driver Partner Status & Vehicle Controls */}
+      <div className="bg-neutral-950 border border-neutral-800 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+        <div className="flex items-center space-x-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold text-sm shrink-0">
+            <Car className="w-4 h-4" />
           </div>
-          <div>
-            <h2 className="text-base font-bold text-white">Driver Partner Program</h2>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Driving as <strong className="text-white">{driverProfile.fullName}</strong> · Aadhaar ({driverProfile.aadhaarNumber ? `•••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified'}) & DL ({driverProfile.drivingLicense || 'Verified'})
+          <div className="min-w-0">
+            <h2 className="text-xs font-semibold text-white truncate">Driver Partner Program</h2>
+            <p className="text-[11px] text-neutral-400 mt-0.5 truncate">
+              Driving as <strong className="text-white font-medium">{driverProfile.fullName}</strong> · Aadhaar ({driverProfile.aadhaarNumber ? `•••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified'}) & DL ({driverProfile.drivingLicense || 'Verified'})
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
+        <div className="flex items-center space-x-2 shrink-0">
           <button
+            type="button"
             onClick={() => setIsRegisterModalOpen(true)}
-            className="px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs rounded-xl flex items-center space-x-1.5 transition cursor-pointer border border-neutral-700 active:scale-95"
+            className="h-8 px-3 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 font-medium text-xs rounded-lg flex items-center space-x-1.5 transition cursor-pointer border border-neutral-800 active:scale-95"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>Update Vehicle</span>
           </button>
 
           <button
+            type="button"
             onClick={handleLogOutDriver}
             title="Log out of driver mode"
-            className="px-3.5 py-2.5 bg-neutral-900 hover:bg-red-950/40 text-neutral-400 hover:text-red-400 font-bold text-xs rounded-xl flex items-center space-x-1 transition cursor-pointer border border-neutral-800 active:scale-95"
+            className="h-8 px-3 bg-neutral-900 hover:bg-neutral-850 text-neutral-400 hover:text-white font-medium text-xs rounded-lg flex items-center space-x-1 transition cursor-pointer border border-neutral-800 active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Exit Driver Mode</span>
@@ -1157,20 +1160,18 @@ export default function DriverDashboard() {
         </div>
       </div>
 
-      {/* Driver Portal Dashboard Header & Online Toggle */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-neutral-900 border border-neutral-800 p-6 rounded-3xl gap-6">
-        <div className="flex items-center space-x-5">
-          {/* Driver's Registered Car Thumbnail (Section 3) */}
-          <div className="w-20 h-20 rounded-2xl overflow-hidden border border-neutral-700 bg-neutral-950 shrink-0 relative group shadow-md flex items-center justify-center">
+      {/* 2. Driver Portal Status & Quick KPI Row */}
+      <div className="bg-neutral-950 border border-neutral-800 p-3.5 sm:p-4 rounded-2xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3.5 shadow-md">
+        <div className="flex items-center space-x-3.5 min-w-0">
+          {/* Driver's Car Avatar Thumbnail */}
+          <div className="w-11 h-11 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0 relative group shadow-sm flex items-center justify-center">
             <img
               src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
               alt="Registered Car"
               className="w-full h-full object-cover"
             />
-            {/* Quick change photo overlay */}
-            <label className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition text-[9px] font-bold text-white space-y-0.5">
-              <Camera className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Change</span>
+            <label className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition text-[9px] font-semibold text-white">
+              <Camera className="w-3.5 h-3.5 text-white" />
               <input
                 type="file"
                 accept="image/*"
@@ -1180,44 +1181,62 @@ export default function DriverDashboard() {
             </label>
           </div>
 
-          <div className="space-y-1">
-            <div>
-              <h1 className="text-2xl font-black text-white">Driver Portal</h1>
+          <div className="min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${isOnline ? 'bg-white animate-pulse' : 'bg-neutral-600'}`} />
+              <h1 className="text-sm font-semibold text-white tracking-tight">Driver Portal</h1>
             </div>
-            <p className="text-xs text-neutral-400">
+            <p className="text-[11px] text-neutral-400 truncate max-w-lg mt-0.5">
               {isLocating
-                ? 'Accessing device GPS sensors to pinpoint your live location...'
+                ? 'Acquiring GPS coordinates...'
                 : isOnline
-                ? `You are live and transmitting GPS coordinates (${locationLabel}) across the driver radar network.`
-                : 'You are currently offline. Click Go Live to acquire live GPS and receive trip requests.'}
+                ? `Live and transmitting GPS coordinates (${locationLabel}) across radar.`
+                : 'Offline. Click Go Live to acquire GPS and receive passenger ride requests.'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 w-full lg:w-auto justify-end">
+        {/* Compact KPI Metrics & Go Live Action Button */}
+        <div className="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-end">
+          <div className="flex items-center divide-x divide-neutral-850 px-2 py-1 bg-black border border-neutral-800 rounded-xl text-xs">
+            <div className="px-3 text-center">
+              <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Today's Payout</span>
+              <span className="font-mono font-bold text-white text-xs sm:text-sm">₹{todayEarnings.toFixed(2)}</span>
+            </div>
+            <div className="px-3 text-center">
+              <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Trips</span>
+              <span className="font-mono font-bold text-white text-xs sm:text-sm">{completedTrips}</span>
+            </div>
+            <div className="px-3 text-center">
+              <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Score</span>
+              <span className="font-bold text-white text-xs sm:text-sm">5.00 ⭐</span>
+            </div>
+          </div>
+
           <button
+            type="button"
             id="driver-go-live-btn"
             onClick={handleToggleOnline}
             disabled={isLocating}
-            className={`flex items-center space-x-2.5 px-7 py-3.5 rounded-2xl font-black text-sm transition cursor-pointer shadow-lg active:scale-95 disabled:opacity-60 ${
+            className={`h-9 px-4 rounded-lg font-semibold text-xs transition cursor-pointer shadow-sm active:scale-95 disabled:opacity-60 flex items-center space-x-1.5 shrink-0 ${
               isOnline
-                ? 'bg-red-600 hover:bg-red-500 text-white'
-                : 'bg-emerald-500 hover:bg-emerald-400 text-black'
+                ? 'bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-850'
+                : 'bg-white text-black hover:bg-neutral-200'
             }`}
           >
             {isLocating ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 <span>Acquiring GPS...</span>
               </>
             ) : isOnline ? (
               <>
-                <Power className="w-4 h-4" />
+                <Power className="w-3.5 h-3.5 text-red-400" />
                 <span>Go Offline</span>
               </>
             ) : (
               <>
-                <Radio className="w-4 h-4 text-black" />
+                <Radio className="w-3.5 h-3.5 text-black" />
                 <span>Go Live</span>
               </>
             )}
@@ -1225,499 +1244,509 @@ export default function DriverDashboard() {
         </div>
       </div>
 
-      {/* Dynamic KPI Stats Grid (Real figures, starting at ₹0.00) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-semibold">
-            <span>Today's Net Payout</span>
-            <span className="text-emerald-400 font-bold text-sm">₹</span>
-          </div>
-          <div className="text-3xl font-black text-white">₹{todayEarnings.toFixed(2)}</div>
-          <span className="text-[11px] text-emerald-400 font-medium">
-            {todayEarnings > 0 ? 'Live payout accumulated today' : 'No trips completed yet today'}
-          </span>
-        </div>
-
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-semibold">
-            <span>Completed Trips</span>
-            <Car className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="text-3xl font-black text-white">{completedTrips}</div>
-          <span className="text-[11px] text-neutral-400">100% acceptance rating today</span>
-        </div>
-
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
-          <div className="flex items-center justify-between text-neutral-400 text-xs font-semibold">
-            <span>Driver Score</span>
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="text-3xl font-black text-white">5.00 ⭐</div>
-          <span className="text-[11px] text-neutral-400">Top-rated Premier status</span>
-        </div>
-      </div>
-
-      {/* COMPLETE DRIVER PARTNER PROFILE & VEHICLE SPECIFICATIONS (SHOWS ALL USER ENTERED DATA) */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5">
-          <div className="space-y-1">
-            <h2 className="text-xl font-black text-white">Driver Partner Profile & Vehicle Details</h2>
-            <p className="text-xs text-neutral-400">
-              Live data synchronized from your driver registration and Supabase database.
-            </p>
-          </div>
-
-          <button
-            onClick={() => setIsRegisterModalOpen(true)}
-            className="self-start sm:self-auto px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold text-xs rounded-xl flex items-center space-x-1.5 border border-neutral-700 transition cursor-pointer"
-          >
-            <UserPlus className="w-3.5 h-3.5 text-neutral-300" />
-            <span>Update Details</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1: Legal Identity & Personal Details */}
-          <div className="bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center space-x-2.5 text-emerald-400 font-bold text-xs uppercase tracking-wider">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Identity & KYC</span>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Full Legal Name</span>
-                <span className="font-bold text-white text-sm">{driverProfile.fullName}</span>
-              </div>
-
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Aadhaar Card No.</span>
-                <span className="font-mono font-bold text-neutral-200">
-                  {driverProfile.aadhaarNumber ? `•••• •••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified (12-Digit)'}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Commercial Driving License</span>
-                <span className="font-mono font-bold text-neutral-200">{driverProfile.drivingLicense || 'Verified'}</span>
-              </div>
-
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Mobile / Phone</span>
-                <span className="font-semibold text-neutral-300">{driverProfile.phone || 'Linked to Account'}</span>
-              </div>
-
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Email Address</span>
-                <span className="font-semibold text-neutral-300 truncate block">{driverProfile.email || 'Linked to Account'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: Registered Vehicle Specifications */}
-          <div className="bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center space-x-2.5 text-blue-400 font-bold text-xs uppercase tracking-wider">
-              <Car className="w-4 h-4" />
-              <span>Vehicle Specifications</span>
-            </div>
-
-            {/* Car Photo Thumbnail (Section 2) */}
-            <div className="relative h-32 w-full rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-950 flex items-center justify-center group shadow-md">
-              <img
-                src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
-                alt="Registered Vehicle"
-                className="w-full h-full object-cover"
-              />
-              <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition text-xs font-bold text-white space-x-2">
-                <Upload className="w-4 h-4 text-emerald-400" />
-                <span>Upload Custom Photo</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleDashboardPhotoUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Make & Model</span>
-                  <span className="font-bold text-white text-sm">{driverProfile.vehicleMake} {driverProfile.vehicleModel}</span>
+      {/* 3. Responsive Two-Column Live Ride-Tracking & Map Dashboard (~38% Left, ~62% Right) */}
+      <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
+        {/* Left Column: Ride Details / Driver Card (~38% width) */}
+        <div className="w-full lg:w-[38%] shrink-0">
+          {activeRide ? (
+            /* Active Trip Assigned (ACCEPTED, ARRIVED, or IN_PROGRESS) */
+            <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
+              {/* Slim Ride Status Bar */}
+              <div className="pb-3 border-b border-neutral-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-white shrink-0 animate-pulse" />
+                    <span className="text-xs font-semibold text-white tracking-tight">
+                      {activeRide.status === 'IN_PROGRESS'
+                        ? 'Trip in progress'
+                        : activeRide.status === 'ARRIVED'
+                        ? 'Driver arrived at pickup'
+                        : 'Driver en route to pickup'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
+                    {activeRide.status === 'IN_PROGRESS'
+                      ? 'Navigating'
+                      : activeRide.status === 'ARRIVED'
+                      ? 'At Pickup'
+                      : 'On Route'}
+                  </span>
                 </div>
-                <span className="text-xs text-neutral-400 font-semibold">
-                  {tierLabel}
-                </span>
+                <p className="text-[11px] text-neutral-400 mt-1 pl-4">
+                  {activeRide.status === 'IN_PROGRESS'
+                    ? `Heading toward destination: ${activeRide.dropoffAddress || 'Destination'}`
+                    : activeRide.status === 'ARRIVED'
+                    ? 'Waiting for passenger at pickup location. Verify PIN to begin.'
+                    : `Approaching pickup: ${activeRide.pickupAddress || 'Pickup Point'}`}
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Year</span>
-                  <span className="font-semibold text-neutral-200">{driverProfile.vehicleYear}</span>
+              {/* Minimal Passenger Info Row */}
+              <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80">
+                <div className="flex items-center space-x-3 min-w-0">
+                  <div className="w-11 h-11 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0 flex items-center justify-center text-white font-bold text-sm">
+                    <User className="w-5 h-5 text-neutral-300" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-white truncate">
+                      {activeRide.riderName || 'Passenger Partner'}
+                    </h4>
+                    <div className="flex items-center space-x-1.5 text-xs text-neutral-400 mt-0.5">
+                      <span className="text-neutral-200 font-medium">5.0 ⭐</span>
+                      <span>•</span>
+                      <span>Verified Rider</span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Color</span>
-                  <span className="font-semibold text-neutral-200">{driverProfile.vehicleColor}</span>
+
+                {/* Small Phone-call Icon Button (36px) */}
+                <a
+                  href={`tel:${activeRide.riderPhone || '+919876543210'}`}
+                  className="w-9 h-9 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white transition flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm"
+                  title="Call Passenger"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              {/* Vehicle / Ride Fare: Compact Two-Column Layout */}
+              <div className="space-y-2 pb-3 border-b border-neutral-800/80">
+                <div className="flex items-center justify-between text-xs">
+                  <div>
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                      Ride Tier
+                    </span>
+                    <span className="font-semibold text-white">
+                      {tierLabel}
+                    </span>
+                    <span className="text-[11px] text-neutral-400 block">
+                      {driverProfile.vehicleMake} {driverProfile.vehicleModel}
+                    </span>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                      Est. Payout
+                    </span>
+                    <span className="font-mono text-xs font-bold text-white bg-black border border-neutral-800 px-2.5 py-1 rounded-md inline-block mt-0.5">
+                      ₹{activeRide.estimatedFare || '185.00'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-1.5 text-[11px] text-neutral-500 pt-0.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span>Verify passenger identity before starting the trip.</span>
                 </div>
               </div>
 
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">License Plate</span>
-                <span className="font-mono font-bold text-amber-400 text-sm block">
-                  {driverProfile.licensePlate || 'DL 01 AB 1234'}
-                </span>
-              </div>
-            </div>
-          </div>
+              {/* Compact Ride Verification PIN (ARRIVED state) */}
+              {activeRide.status === 'ARRIVED' && !activeRide.isVerified && (
+                <div className="space-y-2.5 pb-3 border-b border-neutral-800/80">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-semibold text-white block">
+                        Ride verification PIN
+                      </span>
+                      <span className="text-[11px] text-neutral-400 block">
+                        Ask passenger for the 4-digit PIN
+                      </span>
+                    </div>
 
-          {/* Card 3: Payout Details & Safety */}
-          <div className="bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center space-x-2.5 text-amber-400 font-bold text-xs uppercase tracking-wider">
-              <CreditCard className="w-4 h-4" />
-              <span>Payout & Security</span>
-            </div>
+                    {/* 4 Digit Boxes */}
+                    <div className="flex items-center space-x-1">
+                      {pinDigits.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          ref={pinInputRefs[idx]}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handlePinDigitChange(idx, e.target.value)}
+                          onKeyDown={(e) => handlePinKeyDown(idx, e)}
+                          placeholder="•"
+                          className="w-7 h-8 text-center font-mono text-sm font-bold bg-black border border-neutral-800 focus:border-white text-white rounded-md outline-none transition"
+                        />
+                      ))}
+                    </div>
+                  </div>
 
-            <div className="space-y-3 text-xs">
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Payout Mode</span>
-                <span className="font-bold text-white text-sm">{driverProfile.payoutMethod || 'Instant UPI'}</span>
-              </div>
+                  {pinError && (
+                    <div className="flex items-center space-x-1.5 text-[11px] text-red-400 bg-red-950/40 border border-red-900/50 px-2.5 py-1.5 rounded-lg">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{pinError}</span>
+                    </div>
+                  )}
 
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">UPI ID / Bank Account</span>
-                <span className="font-mono font-bold text-emerald-400">
-                  {driverProfile.upiId || 'Linked UPI / Direct Bank'}
-                </span>
-              </div>
+                  <div className="flex items-center space-x-1.5 text-[10px] text-neutral-500">
+                    <Shield className="w-3 h-3 text-neutral-400 shrink-0" />
+                    <span>Never start trip before passenger is safely seated.</span>
+                  </div>
 
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Emergency Contact</span>
-                <span className="font-semibold text-neutral-200">
-                  {driverProfile.emergencyContactName || 'Configured in Safety Profile'}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Emergency Phone</span>
-                <span className="font-semibold text-neutral-300">
-                  {driverProfile.emergencyContactPhone || 'Not set'}
-                </span>
-              </div>
-
-              <div className="pt-2 border-t border-neutral-900 flex items-center justify-between text-[11px] text-neutral-400">
-                <span>Driver Background Check</span>
-                <span className="text-emerald-400 font-bold flex items-center">
-                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Cleared
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Active Trip Section: En Route to Pickup (ACCEPTED) OR PIN Verification (ARRIVED) */}
-      {activeRide && !activeRide.isVerified && activeRide.status === 'ACCEPTED' && (
-        <div className="bg-neutral-900/90 border-2 border-amber-500/50 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl shadow-amber-950/30 backdrop-blur-xl animate-in fade-in duration-300">
-          {/* Header Badge & Trip details */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
-            <div>
-              <span className="text-sm font-bold text-white block">En Route to Pickup</span>
-              <span className="text-xs text-neutral-400 font-medium">Ride Accepted</span>
-            </div>
-
-            <div className="flex items-center space-x-2 text-xs">
-              <span className="text-neutral-400">Est. Payout:</span>
-              <span className="font-mono font-bold text-emerald-400 text-sm">
-                ₹{activeRide.estimatedFare || '185.00'}
-              </span>
-            </div>
-          </div>
-
-          {/* Rider Information & Contact Action */}
-          <div className="flex items-center justify-between bg-neutral-950/80 p-4 rounded-2xl border border-neutral-800">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
-                <User className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">Passenger</span>
-                <span className="text-sm font-extrabold text-white">{activeRide.riderName || 'Customer'}</span>
-              </div>
-            </div>
-            <a
-              href={`tel:${activeRide.riderPhone || '+919876543210'}`}
-              className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
-            >
-              <Phone className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Call Rider</span>
-            </a>
-          </div>
-
-          {/* Pickup and Destination summary with Coordinates */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-neutral-950/60 p-4 rounded-2xl border border-neutral-800 text-xs">
-            <div>
-              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
-              <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
-              <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
-                Coords: {activeRide.pickupCoords?.[0]?.toFixed(4)}°, {activeRide.pickupCoords?.[1]?.toFixed(4)}°
-              </span>
-            </div>
-            <div>
-              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
-              <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
-              <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
-                Coords: {activeRide.dropoffCoords?.[0]?.toFixed(4)}°, {activeRide.dropoffCoords?.[1]?.toFixed(4)}°
-              </span>
-            </div>
-          </div>
-
-          {/* Action Buttons: Navigate to Pickup & I've Arrived */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => {
-                const pickup = activeRide.pickupCoords || [22.6113, 88.4202];
-                window.open(`https://www.google.com/maps/dir/?api=1&destination=${pickup[0]},${pickup[1]}`, '_blank');
-              }}
-              className="w-full sm:flex-1 py-3.5 px-5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-white font-bold text-sm rounded-2xl transition flex items-center justify-center space-x-2 cursor-pointer"
-            >
-              <Compass className="w-4 h-4 text-emerald-400" />
-              <span>Navigate to Pickup (Google Maps)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleArriveAtPickup}
-              className="w-full sm:flex-1 py-3.5 px-5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-extrabold text-sm rounded-2xl shadow-xl shadow-amber-500/20 transition flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.99]"
-            >
-              <CheckCircle2 className="w-5 h-5" />
-              <span>I've Arrived at Pickup</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Arrived at Pickup State: PIN Verification */}
-      {activeRide && !activeRide.isVerified && activeRide.status === 'ARRIVED' && (
-        <div className="bg-neutral-900/90 border-2 border-emerald-500/50 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl shadow-emerald-950/30 backdrop-blur-xl animate-in fade-in duration-300">
-          {/* Header Badge */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
-            <div>
-              <span className="text-sm font-bold text-white block">Enter Rider PIN</span>
-              <span className="text-xs text-neutral-400 font-medium">Arrived at Pickup Location</span>
-            </div>
-
-            <div className="flex items-center space-x-2 text-xs">
-              <span className="text-neutral-400">Est. Payout:</span>
-              <span className="font-mono font-bold text-emerald-400 text-sm">
-                ₹{activeRide.estimatedFare || '185.00'}
-              </span>
-            </div>
-          </div>
-
-          {/* Pickup and Destination summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-neutral-950/60 p-4 rounded-2xl border border-neutral-800 text-xs">
-            <div>
-              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
-              <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
-            </div>
-            <div>
-              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
-              <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
-            </div>
-          </div>
-
-          {/* PIN Input Form Container */}
-          <div className="bg-neutral-950 border border-neutral-800/80 p-6 sm:p-7 rounded-2xl flex flex-col items-center text-center space-y-5">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
-              <Key className="w-6 h-6" />
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="text-lg font-extrabold text-white tracking-tight">
-                Enter 4-Digit Rider PIN
-              </h3>
-              <p className="text-xs text-neutral-400 max-w-md">
-                Ask passenger for the 4-digit start PIN displayed on their Uber screen to verify identity and unlock trip navigation.
-              </p>
-            </div>
-
-            {/* 4 Digit Boxes */}
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              {pinDigits.map((digit, idx) => (
-                <input
-                  key={idx}
-                  ref={pinInputRefs[idx]}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handlePinDigitChange(idx, e.target.value)}
-                  onKeyDown={(e) => handlePinKeyDown(idx, e)}
-                  placeholder="•"
-                  className="w-13 h-16 sm:w-16 sm:h-20 text-center font-mono text-2xl sm:text-3xl font-black bg-neutral-900 border-2 border-neutral-700 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/20 text-white rounded-2xl outline-none transition shadow-inner selection:bg-emerald-500"
-                />
-              ))}
-            </div>
-
-            {/* Error Message */}
-            {pinError && (
-              <div className="flex items-center space-x-2 text-rose-400 bg-rose-950/50 border border-rose-800/50 px-4 py-2 rounded-xl text-xs animate-shake">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{pinError}</span>
-              </div>
-            )}
-
-            {/* Verify & Start Trip Action Button */}
-            <button
-              type="button"
-              onClick={() => handleVerifyPinAndStart()}
-              disabled={isVerifyingPin}
-              className="w-full max-w-sm py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-black font-extrabold text-sm rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 transition flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.99] disabled:opacity-50"
-            >
-              {isVerifyingPin ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Verifying PIN with Server...</span>
-                </>
-              ) : (
-                <>
-                  <Unlock className="w-5 h-5" />
-                  <span>Start Trip</span>
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </>
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyPinAndStart()}
+                    disabled={isVerifyingPin}
+                    className="w-full h-9 bg-white text-black font-semibold text-xs rounded-lg hover:bg-neutral-200 transition flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    {isVerifyingPin ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Verifying PIN...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Unlock className="w-3.5 h-3.5" />
+                        <span>Verify PIN & Start Trip</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
-            </button>
-          </div>
-        </div>
-      )}
 
-      {/* Live Navigation & Interactive Road Map Section */}
-      <div ref={mapSectionRef} className="space-y-6 scroll-mt-20">
-        {/* Active Trip Banner: Verified & Navigating to Destination */}
-        {activeRide && activeRide.isVerified && (
-          <div className="bg-emerald-950/80 border-2 border-emerald-500/80 p-6 sm:p-7 rounded-3xl space-y-5 shadow-2xl shadow-emerald-950/40 backdrop-blur-xl animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-bold text-white">Trip in Progress · Navigating</h3>
+              {/* Status Action Buttons for ACCEPTED */}
+              {activeRide.status === 'ACCEPTED' && (
+                <div className="space-y-2 pb-3 border-b border-neutral-800/80 pt-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const pickup = activeRide.pickupCoords || [22.6113, 88.4202];
+                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${pickup[0]},${pickup[1]}`, '_blank');
+                      }}
+                      className="h-9 px-3 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-200 font-semibold text-xs rounded-lg transition flex items-center justify-center space-x-1.5 cursor-pointer"
+                    >
+                      <Compass className="w-3.5 h-3.5" />
+                      <span>Google Maps</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleArriveAtPickup}
+                      className="h-9 px-3 bg-white hover:bg-neutral-200 text-black font-semibold text-xs rounded-lg transition flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>I've Arrived</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Status Action Buttons for IN_PROGRESS */}
+              {activeRide.status === 'IN_PROGRESS' && (
+                <div className="space-y-2 pb-3 border-b border-neutral-800/80 pt-1">
+                  <div className="flex items-center justify-between text-xs py-1">
+                    <span className="text-neutral-400">Remaining</span>
+                    <span className="font-mono font-bold text-white text-xs">{activeRideDistance || '4.2 km'} · {activeRideDuration || '12 mins'}</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const dest = activeRide.dropoffCoords || [22.5804, 88.4378];
+                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest[0]},${dest[1]}`, '_blank');
+                      }}
+                      className="h-9 px-3 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-200 font-semibold text-xs rounded-lg transition flex items-center justify-center space-x-1.5 cursor-pointer"
+                    >
+                      <Compass className="w-3.5 h-3.5" />
+                      <span>GPS Maps</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleCompleteRide}
+                      className="h-9 px-3 bg-white hover:bg-neutral-200 text-black font-semibold text-xs rounded-lg transition flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Complete Trip</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Trip Route Details */}
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-start space-x-2 truncate">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                  <span className="text-neutral-300 truncate text-[11px]">
+                    {activeRide.pickupAddress || 'Pickup Point'}
+                  </span>
+                </div>
+                <div className="flex items-start space-x-2 truncate">
+                  <MapPin className="w-3 h-3 text-neutral-400 mt-0.5 shrink-0" />
+                  <span className="text-neutral-400 truncate text-[11px]">
+                    {activeRide.dropoffAddress || 'Destination Point'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Standby / Waiting for Rides State (Driver is Online or Offline) */
+            <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
+              {/* Slim Standby Status Bar */}
+              <div className="pb-3 border-b border-neutral-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${isOnline ? 'bg-white animate-pulse' : 'bg-neutral-600'}`} />
+                    <span className="text-xs font-semibold text-white tracking-tight">
+                      {isOnline ? 'Active on driver radar' : 'Driver currently offline'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
+                    {isOnline ? 'ONLINE' : 'OFFLINE'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-400 mt-1 pl-4">
+                  {isOnline
+                    ? 'Transmitting GPS to nearby riders. Trip requests will appear here.'
+                    : 'Click Go Live to connect your vehicle to the passenger network.'}
+                </p>
               </div>
 
-              <div className="flex items-center space-x-3">
+              {/* Minimal Driver & Vehicle Card */}
+              <div className="space-y-3 pb-3 border-b border-neutral-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div className="w-11 h-11 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0">
+                      <img
+                        src={getDriverCarImage(driverProfile.carImageUrl, driverProfile.vehicleTypeId)}
+                        alt="Vehicle"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-semibold text-white truncate">
+                        {driverProfile.fullName}
+                      </h4>
+                      <div className="flex items-center space-x-1.5 text-xs text-neutral-400 mt-0.5">
+                        <span className="text-neutral-200 font-medium">5.0 ⭐</span>
+                        <span>•</span>
+                        <span>{driverProfile.totalRides || 1240}+ trips</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsRegisterModalOpen(true)}
+                    className="w-9 h-9 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white transition flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm"
+                    title="Vehicle Settings"
+                  >
+                    <Car className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Two-Column Vehicle Details */}
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <div>
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                      Vehicle
+                    </span>
+                    <span className="font-semibold text-white">
+                      {driverProfile.vehicleMake} {driverProfile.vehicleModel}
+                    </span>
+                    <span className="text-[11px] text-neutral-400 block">
+                      {driverProfile.vehicleColor} · {driverProfile.vehicleYear}
+                    </span>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-500 block">
+                      License Plate
+                    </span>
+                    <span className="font-mono text-xs font-bold text-white bg-black border border-neutral-800 px-2.5 py-1 rounded-md inline-block mt-0.5">
+                      {driverProfile.licensePlate || 'DL 01 AB 1234'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-1.5 text-[11px] text-neutral-500 pt-0.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span>Aadhaar, Commercial License, & KYC Verified.</span>
+                </div>
+              </div>
+
+              {/* Standby Summary Details */}
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-neutral-400">Payout UPI ID</span>
+                  <span className="font-mono text-xs text-neutral-200 font-medium">
+                    {driverProfile.upiId || 'Linked to Account'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-neutral-800/80">
+                  <span className="text-neutral-400">Today's Accumulated</span>
+                  <span className="font-mono font-bold text-white text-sm">
+                    ₹{todayEarnings.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-1.5 pt-1">
                 <button
                   type="button"
-                  onClick={() => {
-                    const dest = activeRide.dropoffCoords || [22.5804, 88.4378];
-                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest[0]},${dest[1]}`, '_blank');
-                  }}
-                  className="px-3.5 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 hover:text-white font-bold text-xs rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
-                  title="Launch Google Maps Turn-by-Turn Navigation"
+                  onClick={() => setIsRegisterModalOpen(true)}
+                  className="w-full h-8 bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white font-medium text-xs rounded-lg transition cursor-pointer flex items-center justify-center space-x-1.5"
                 >
-                  <Compass className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Google Maps GPS</span>
-                </button>
-
-                <button
-                  onClick={handleCompleteRide}
-                  className="px-5 py-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-xs rounded-xl shadow-lg shadow-emerald-500/30 transition cursor-pointer flex items-center space-x-1.5"
-                >
-                  <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                  <span>Complete Trip</span>
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Update Vehicle & Payout Details</span>
                 </button>
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Turn-by-turn Navigation Instruction HUD */}
-            <div className="bg-neutral-950/90 border border-emerald-500/30 p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center space-x-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0 shadow-lg shadow-emerald-950">
-                  <CornerUpRight className="w-6 h-6 stroke-[2.5]" />
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                      Next Maneuver in 350m
-                    </span>
-                    <span className="text-[10px] text-neutral-500">· Turn right</span>
-                  </div>
-                  <h4 className="text-sm sm:text-base font-extrabold text-white">
-                    Head toward {activeRide.dropoffAddress}
-                  </h4>
-                </div>
-              </div>
-
-              {/* Live Metrics: ETA, Distance, Fare */}
-              <div className="flex items-center space-x-3 sm:space-x-4 divide-x divide-neutral-800 text-xs">
-                <div className="pr-3">
-                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Remaining</span>
-                  <span className="font-mono font-extrabold text-white text-sm">
-                    {activeRideDistance || '4.2 km'}
-                  </span>
-                </div>
-                <div className="px-3">
-                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Est. Arrival</span>
-                  <span className="font-mono font-extrabold text-emerald-400 text-sm">
-                    {activeRideDuration || '12 mins'}
-                  </span>
-                </div>
-                <div className="pl-3">
-                  <span className="text-neutral-500 block text-[10px] uppercase font-bold">Total Fare</span>
-                  <span className="font-mono font-extrabold text-amber-400 text-sm">
-                    ₹{activeRide.estimatedFare || '185.00'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-neutral-300">
-              <div className="bg-neutral-950/50 p-3 rounded-xl border border-neutral-900">
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Pickup Origin</span>
-                <span className="font-semibold text-neutral-200">{activeRide.pickupAddress}</span>
-              </div>
-              <div className="bg-neutral-950/50 p-3 rounded-xl border border-neutral-900">
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold">Dropoff Destination</span>
-                <span className="font-semibold text-neutral-200">{activeRide.dropoffAddress}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Leaflet GPS Radar Map */}
-        <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-sm gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="font-bold text-white">Live Road Heatmap & Navigation</span>
-              <span className="text-xs text-neutral-400">· OpenStreetMap GPS</span>
-            </div>
-
-            {/* GPS Coordinates pill */}
-            <div className="flex items-center space-x-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-md text-xs">
-              <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-              <span className="text-neutral-300 font-mono font-medium">
-                {locationLabel}
-              </span>
+        {/* Right Column: Live GPS Radar Map (~62% width) */}
+        <div className="w-full lg:w-[62%] flex-1 min-w-0">
+          <div className="relative w-full rounded-[18px] overflow-hidden border border-neutral-800 shadow-xl bg-neutral-950">
+            {/* Map GPS Coordinates Overlay (Top Left) */}
+            <div className="absolute top-3 left-3 z-20 bg-neutral-950/80 border border-neutral-800 backdrop-blur-md px-2.5 py-1 rounded-lg flex items-center space-x-1.5 text-xs text-neutral-300 shadow-lg">
+              <MapPin className="w-3 h-3 text-white" />
+              <span className="font-mono text-[11px] font-medium">{locationLabel}</span>
               {gpsAccuracy && (
                 <span className="text-[10px] text-neutral-500">
                   (±{Math.round(gpsAccuracy)}m)
                 </span>
               )}
             </div>
+
+            <InteractiveMap
+              pickupCoords={activeRide?.pickupCoords || driverLocation}
+              dropoffCoords={activeRide?.isVerified ? activeRide?.dropoffCoords : null}
+              routeCoordinates={activeRide?.isVerified ? activeRideRoute : []}
+              height="550px"
+              nearbyDrivers={[
+                {
+                  id: 'my_driver_marker',
+                  vehicle_model: `${driverProfile?.fullName || 'Driver'} (${driverProfile?.vehicleMake || 'Car'} ${driverProfile?.vehicleModel || ''})`,
+                  latitude: driverLocation[0],
+                  longitude: driverLocation[1],
+                  rating: 5.0
+                }
+              ]}
+            />
           </div>
-          <InteractiveMap
-            pickupCoords={activeRide?.pickupCoords || driverLocation}
-            dropoffCoords={activeRide?.isVerified ? activeRide?.dropoffCoords : null}
-            routeCoordinates={activeRide?.isVerified ? activeRideRoute : []}
-            height="520px"
-            nearbyDrivers={[
-              {
-                id: 'my_driver_marker',
-                vehicle_model: `${driverProfile?.fullName || 'Driver'} (${driverProfile?.vehicleMake || 'Car'} ${driverProfile?.vehicleModel || ''})`,
-                latitude: driverLocation[0],
-                longitude: driverLocation[1],
-                rating: 5.0
-              }
-            ]}
-          />
+
+          <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-400 px-1">
+            <span>
+              {isOnline
+                ? 'Transmitting live GPS telemetry to passenger network'
+                : 'Driver offline · Go Live to begin GPS beacon'}
+            </span>
+            <span className="text-neutral-500">Scroll wheel or + / − to zoom</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Compact Driver Partner Profile & Vehicle Specifications Grid */}
+      <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+          <div>
+            <h3 className="text-sm font-semibold text-white">Driver Partner Profile & Vehicle Details</h3>
+            <p className="text-[11px] text-neutral-400 mt-0.5">
+              Verified legal identity, specifications, and instant payout channels.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsRegisterModalOpen(true)}
+            className="h-7 px-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-[11px] rounded-md border border-neutral-800 transition cursor-pointer flex items-center space-x-1"
+          >
+            <UserPlus className="w-3 h-3" />
+            <span>Update Details</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          {/* Card 1: Identity & KYC */}
+          <div className="bg-neutral-900/40 border border-neutral-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
+            <div className="flex items-center space-x-2 text-white font-semibold text-[11px] uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Identity & KYC</span>
+            </div>
+
+            <div className="space-y-2">
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Full Legal Name</span>
+                <span className="font-semibold text-white">{driverProfile.fullName}</span>
+              </div>
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Aadhaar Card No.</span>
+                <span className="font-mono text-neutral-300">
+                  {driverProfile.aadhaarNumber ? `•••• •••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified (12-Digit)'}
+                </span>
+              </div>
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Commercial License</span>
+                <span className="font-mono text-neutral-300">{driverProfile.drivingLicense || 'Verified'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Vehicle Specifications */}
+          <div className="bg-neutral-900/40 border border-neutral-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
+            <div className="flex items-center space-x-2 text-white font-semibold text-[11px] uppercase tracking-wider">
+              <Car className="w-3.5 h-3.5" />
+              <span>Vehicle Specifications</span>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Make & Model</span>
+                  <span className="font-semibold text-white">{driverProfile.vehicleMake} {driverProfile.vehicleModel}</span>
+                </div>
+                <span className="font-mono text-xs font-bold text-white bg-black border border-neutral-800 px-2 py-0.5 rounded">
+                  {driverProfile.licensePlate || 'DL 01 AB 1234'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Year</span>
+                  <span className="text-neutral-300">{driverProfile.vehicleYear}</span>
+                </div>
+                <div>
+                  <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Color</span>
+                  <span className="text-neutral-300">{driverProfile.vehicleColor}</span>
+                </div>
+              </div>
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Tier Category</span>
+                <span className="text-neutral-300">{tierLabel}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Payout & Security */}
+          <div className="bg-neutral-900/40 border border-neutral-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
+            <div className="flex items-center space-x-2 text-white font-semibold text-[11px] uppercase tracking-wider">
+              <CreditCard className="w-3.5 h-3.5" />
+              <span>Payout & Security</span>
+            </div>
+
+            <div className="space-y-2">
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-semibold">Payout Channel</span>
+                <span className="font-semibold text-white">{driverProfile.payoutMethod || 'Instant UPI'}</span>
+              </div>
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-semibold">UPI ID / Account</span>
+                <span className="font-mono text-neutral-300 truncate block">
+                  {driverProfile.upiId || 'Linked UPI / Direct Bank'}
+                </span>
+              </div>
+              <div className="pt-1 border-t border-neutral-850 flex items-center justify-between text-[11px] text-neutral-400">
+                <span>Background Check</span>
+                <span className="text-white font-semibold flex items-center">
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Cleared
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1730,7 +1759,7 @@ export default function DriverDashboard() {
         />
       )}
 
-      {/* Comprehensive Driver Registration & Onboarding Modal */}
+      {/* Driver Registration & Onboarding Modal */}
       <DriverRegistrationModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}

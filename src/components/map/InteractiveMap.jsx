@@ -274,100 +274,102 @@ function MapZoomControls({
     <div
       ref={controlRef}
       className="leaflet-top leaflet-right pointer-events-auto"
-      style={{ margin: '14px', zIndex: 1000 }}
+      style={{ margin: '48px 12px 12px 12px', zIndex: 1000 }}
       onMouseDown={(e) => e.stopPropagation()}
       onDoubleClick={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
     >
-      <div className="flex flex-col items-center space-y-2 select-none">
-        {/* Zoom In & Out Pill with Level display */}
-        <div className="bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-2xl p-1 shadow-2xl flex flex-col items-center divide-y divide-neutral-800 text-white">
-          {/* Zoom In */}
+      {/* Grouped Minimalist Floating Map Toolbar */}
+      <div className="bg-neutral-950/85 backdrop-blur-md border border-neutral-800 rounded-lg p-0.5 shadow-lg flex flex-col items-center divide-y divide-neutral-850 select-none">
+        {/* Zoom In & Out */}
+        <div className="flex flex-col items-center pb-0.5">
           <button
             ref={zoomInRef}
             type="button"
             onClick={(e) => { e.stopPropagation(); map.zoomIn(); }}
             title="Zoom In (+)"
-            className="w-8 h-8 flex items-center justify-center hover:bg-neutral-800 active:scale-90 rounded-xl transition text-neutral-200 hover:text-white cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center hover:bg-neutral-800 active:scale-95 rounded-md transition text-neutral-300 hover:text-white cursor-pointer"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
           </button>
 
           {/* Zoom Level Indicator */}
-          <div className="py-1 px-1.5 text-[10px] font-mono font-bold text-neutral-400">
+          <div className="py-0.5 text-[9px] font-mono font-bold text-neutral-400">
             {zoomLevel}x
           </div>
 
-          {/* Zoom Out */}
           <button
             ref={zoomOutRef}
             type="button"
             onClick={(e) => { e.stopPropagation(); map.zoomOut(); }}
             title="Zoom Out (−)"
-            className="w-8 h-8 flex items-center justify-center hover:bg-neutral-800 active:scale-90 rounded-xl transition text-neutral-200 hover:text-white cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center hover:bg-neutral-800 active:scale-95 rounded-md transition text-neutral-300 hover:text-white cursor-pointer"
           >
-            <Minus className="w-4 h-4 stroke-[2.5]" />
+            <Minus className="w-3.5 h-3.5 stroke-[2.2]" />
           </button>
         </div>
 
-        {/* Re-center / Fit bounds */}
-        <button
-          ref={recenterRef}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (routeCoordinates && routeCoordinates.length > 0) {
-              map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [50, 50] });
-            } else if (pickupCoords && dropoffCoords) {
-              map.fitBounds(L.latLngBounds([pickupCoords, dropoffCoords]), { padding: [60, 60] });
-            } else if (pickupCoords) {
-              map.setView(pickupCoords, 14, { animate: true });
-            }
-          }}
-          title="Re-center on Pickup / Route"
-          className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
-        >
-          <Compass className="w-4 h-4 text-emerald-400" />
-        </button>
-
-        {/* Street Light / Night Dark Map Style Switcher */}
-        <button
-          ref={themeRef}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setMapTheme((prev) => (prev === 'dark' ? 'street' : 'dark'));
-          }}
-          title={mapTheme === 'dark' ? 'Switch to Street View (Light Mode)' : 'Switch to Dark Mode'}
-          className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
-        >
-          {mapTheme === 'dark' ? (
-            <Sun className="w-4 h-4 text-amber-400" />
-          ) : (
-            <Moon className="w-4 h-4 text-blue-400" />
-          )}
-        </button>
-
-        {/* Maximize / Zoom Fullscreen Map Button */}
-        {onToggleFullscreen && (
+        {/* Action Controls */}
+        <div className="pt-0.5 flex flex-col items-center space-y-0.5">
+          {/* Re-center / Fit bounds */}
           <button
-            ref={fullscreenRef}
+            ref={recenterRef}
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onToggleFullscreen();
+              if (routeCoordinates && routeCoordinates.length > 0) {
+                map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [40, 40] });
+              } else if (pickupCoords && dropoffCoords) {
+                map.fitBounds(L.latLngBounds([pickupCoords, dropoffCoords]), { padding: [50, 50] });
+              } else if (pickupCoords) {
+                map.setView(pickupCoords, 14, { animate: true });
+              }
             }}
-            title={isFullscreen ? 'Exit Fullscreen' : 'Expand / Zoom Map Fullscreen'}
-            className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
+            title="Re-center on Route"
+            className="w-7 h-7 flex items-center justify-center hover:bg-neutral-800 active:scale-95 rounded-md transition text-neutral-300 hover:text-white cursor-pointer"
           >
-            {isFullscreen ? (
-              <Minimize2 className="w-4 h-4 text-white" />
+            <Compass className="w-3.5 h-3.5 text-neutral-200" />
+          </button>
+
+          {/* Map Style Theme (Dark / Light) */}
+          <button
+            ref={themeRef}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMapTheme((prev) => (prev === 'dark' ? 'street' : 'dark'));
+            }}
+            title={mapTheme === 'dark' ? 'Street View' : 'Dark View'}
+            className="w-7 h-7 flex items-center justify-center hover:bg-neutral-800 active:scale-95 rounded-md transition text-neutral-300 hover:text-white cursor-pointer"
+          >
+            {mapTheme === 'dark' ? (
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
             ) : (
-              <Maximize2 className="w-4 h-4 text-white" />
+              <Moon className="w-3.5 h-3.5 text-blue-400" />
             )}
           </button>
-        )}
+
+          {/* Fullscreen Toggle */}
+          {onToggleFullscreen && (
+            <button
+              ref={fullscreenRef}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFullscreen();
+              }}
+              title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              className="w-7 h-7 flex items-center justify-center hover:bg-neutral-800 active:scale-95 rounded-md transition text-neutral-300 hover:text-white cursor-pointer"
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-3.5 h-3.5 text-white" />
+              ) : (
+                <Maximize2 className="w-3.5 h-3.5 text-white" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -475,7 +477,7 @@ export default function InteractiveMap({
   // Inner Map Content
   const renderMapContent = (containerHeight) => (
     <div
-      className="relative w-full rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl isolate z-0 transition-all"
+      className="relative w-full rounded-[18px] overflow-hidden border border-neutral-800 shadow-xl isolate z-0 transition-all"
       style={{ height: containerHeight }}
     >
       {/* Map Tile Container */}

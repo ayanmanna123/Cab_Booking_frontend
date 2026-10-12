@@ -179,14 +179,14 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
-      {/* 1. Hero Section: Official Uber Go Anywhere Layout */}
-      <section id="ride" className="relative py-8 lg:py-12 bg-black">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
+      {/* 1. Hero Section: Minimalist & Compact Live Ride-Tracking Layout */}
+      <section id="ride" className="relative py-6 lg:py-8 bg-black">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           {/* Header Row: City Selector & Main Headline */}
-          <div className="mb-6 lg:mb-8">
-            <div className="flex items-center space-x-2 text-xs font-medium text-neutral-300 mb-3">
+          <div className="mb-4 lg:mb-5">
+            <div className="flex items-center space-x-2 text-xs font-medium text-neutral-400 mb-2">
               <MapPin className="w-3.5 h-3.5 text-white" />
-              <span className="text-white font-semibold">{city}</span>
+              <span className="text-white font-medium">{city}</span>
               <button
                 type="button"
                 onClick={() => {
@@ -198,23 +198,23 @@ export default function HomePage() {
                 Change city
               </button>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-black tracking-[-0.03em] leading-[1.05] text-white">
+            <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-extrabold tracking-tight leading-tight text-white">
               Go anywhere
             </h1>
           </div>
 
-          {/* Perfectly Aligned Two-Column Grid: Details (Left) & Map (Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            {/* Left Column: Details Section / Ride Booking Widget */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-start z-10 w-full">
+          {/* Perfectly Aligned Two-Column Layout: Details (~38%) & Map (~62%) */}
+          <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
+            {/* Left Column: Details Section / Ride Booking Widget (~38% width) */}
+            <div className="w-full lg:w-[38%] shrink-0 z-10">
               <RideBookingWidget
                 onRouteCalculated={handleRouteCalculated}
                 hideHeadline={true}
               />
             </div>
 
-            {/* Right Column: Live Map / Visuals - Aligned with Left Details Section */}
-            <div className="lg:col-span-7 flex justify-center w-full">
+            {/* Right Column: Live Map / Visuals (~62% width) */}
+            <div className="w-full lg:w-[62%] flex-1 min-w-0">
               <HeroVisual
                 pickupCoords={pickupCoords}
                 dropoffCoords={dropoffCoords}
