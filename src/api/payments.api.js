@@ -4,11 +4,12 @@ export const paymentsApi = {
   /**
    * Create Stripe Payment Intent for a ride
    */
-  createPaymentIntent: async ({ rideId, amount, currency = 'usd' }) => {
+  createPaymentIntent: async ({ rideId, amount, currency = 'usd', paymentMethod = 'stripe' }) => {
     return apiClient.post('/payments/create-intent', {
       rideId,
       amount,
-      currency
+      currency,
+      paymentMethod
     });
   },
 
