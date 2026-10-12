@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import LiveRideTracker from '../components/tracking/LiveRideTracker';
 import { ridesApi } from '../api';
+import { useSocketContext } from '../context/SocketContext';
+import { SOCKET_EVENTS } from '../constants/socketEvents';
 
 export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
   const [ride, setRide] = useState(initialRide);
+  const { socket } = useSocketContext();
 
   useEffect(() => {
     let isMounted = true;
@@ -28,7 +31,10 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
         dropoffAddress: r.dropoff_address || r.dropoffAddress || 'Sector V, Bidhannagar',
         pickupCoords: [pLat, pLng],
         dropoffCoords: [dLat, dLng],
-        driverCoords: [pLat, pLng],
+        driverCoords: [
+          Number(dp.current_latitude || d.current_latitude || d.latitude || pLat),
+          Number(dp.current_longitude || d.current_longitude || d.longitude || pLng)
+        ],
         driverName: du.full_name || d.full_name || d.name || 'Verified Driver',
         driverPhone: du.phone || d.phone || '+91 98765 43210',
         driverUpiId: (
@@ -77,14 +83,67 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
       }
     };
 
+    // Initial load on mount to restore active ride state without continuous polling
     fetchRide();
-    const interval = setInterval(fetchRide, 2000);
+
+    // Listen for real-time WebSocket updates instead of polling
+    if (socket) {
+      const activeRideId = ride?.id || initialRide?.id;
+      if (activeRideId) {
+        socket.emit('ride:join_room', { rideId: activeRideId });
+      }
+
+      const handleStatusChange = (data) => {
+        if (!data || !isMounted) return;
+        const currentId = ride?.id || initialRide?.id;
+        if (currentId && data.rideId && data.rideId !== currentId) return;
+
+        if (data.ride) {
+          setRide(parseRideDetails(data.ride));
+        } else if (data.status) {
+          setRide((prev) => (prev ? { ...prev, status: data.status } : prev));
+        }
+      };
+
+      const handleDriverLocation = (data) => {
+        if (!data || !isMounted) return;
+        if (data.latitude && data.longitude) {
+          setRide((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              driverCoords: [Number(data.latitude), Number(data.longitude)]
+            };
+          });
+        }
+      };
+
+      socket.on(SOCKET_EVENTS.RIDE_STATUS_CHANGE, handleStatusChange);
+      socket.on(SOCKET_EVENTS.RIDE_ACCEPTED, handleStatusChange);
+      socket.on(SOCKET_EVENTS.RIDE_ARRIVED, handleStatusChange);
+      socket.on(SOCKET_EVENTS.RIDE_STARTED, handleStatusChange);
+      socket.on(SOCKET_EVENTS.RIDE_COMPLETED, handleStatusChange);
+      socket.on(SOCKET_EVENTS.RIDE_CANCELLED, handleStatusChange);
+      socket.on(SOCKET_EVENTS.RIDE_TRACK_LOCATION, handleDriverLocation);
+      socket.on(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, handleDriverLocation);
+
+      return () => {
+        isMounted = false;
+        socket.off(SOCKET_EVENTS.RIDE_STATUS_CHANGE, handleStatusChange);
+        socket.off(SOCKET_EVENTS.RIDE_ACCEPTED, handleStatusChange);
+        socket.off(SOCKET_EVENTS.RIDE_ARRIVED, handleStatusChange);
+        socket.off(SOCKET_EVENTS.RIDE_STARTED, handleStatusChange);
+        socket.off(SOCKET_EVENTS.RIDE_COMPLETED, handleStatusChange);
+        socket.off(SOCKET_EVENTS.RIDE_CANCELLED, handleStatusChange);
+        socket.off(SOCKET_EVENTS.RIDE_TRACK_LOCATION, handleDriverLocation);
+        socket.off(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, handleDriverLocation);
+      };
+    }
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
     };
-  }, [initialRide]);
+  }, [initialRide?.id, socket]);
 
   return (
     <div className="min-h-[calc(100vh-140px)] bg-black text-white">

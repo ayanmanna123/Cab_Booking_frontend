@@ -158,7 +158,8 @@ export default function RideBookingWidget({
   onRouteCalculated,
   onPickupChange,
   onDropoffChange,
-  onViewMapClick
+  onViewMapClick,
+  hideHeadline = false
 }) {
   const [city, setCity] = useState(CONFIG.DEFAULT_CITY);
   const [pickup, setPickup] = useState('Market St, San Francisco, CA');
@@ -259,63 +260,12 @@ export default function RideBookingWidget({
     return () => { isMounted = false; };
   }, []);
 
-  // Live Active Ride Sync Polling: updates rider immediately when driver accepts/arrives/starts/completes
-  useEffect(() => {
-    if (!bookingConfirmed?.id) return;
-    if (rideTripStatus === 'COMPLETED' || rideTripStatus === 'CANCELLED') return;
-
-    let isMounted = true;
-    const pollInterval = setInterval(async () => {
-      try {
-        const res = await ridesApi.getActiveRide();
-        if (res?.success && res.data && isMounted) {
-          const r = res.data;
-          if (r.id === bookingConfirmed.id) {
-            if (r.status !== rideTripStatus) {
-              setRideTripStatus(r.status);
-              if (r.status === 'IN_PROGRESS') {
-                window.history.pushState({}, '', '/tracking');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }
-            }
-            if (r.status !== 'SEARCHING' && r.status !== 'REQUESTED') {
-              setSearchingTimedOut(false);
-            }
-            if (r.driver && !acceptedDriver) {
-              const parsed = parseDriverDetails(r);
-              if (parsed) {
-                setAcceptedDriver(parsed);
-                setSearchingTimedOut(false);
-              }
-            }
-          }
-        }
-      } catch {}
-    }, 1500);
-
-    return () => {
-      isMounted = false;
-      clearInterval(pollInterval);
-    };
-  }, [bookingConfirmed?.id, rideTripStatus, acceptedDriver]);
-
-  // 30-second driver searching timeout
-  useEffect(() => {
-    let timer = null;
-    if (bookingConfirmed && !acceptedDriver && (rideTripStatus === 'SEARCHING' || rideTripStatus === 'REQUESTED')) {
-      timer = setTimeout(() => {
-        setSearchingTimedOut(true);
-      }, 30000);
-    } else {
-      setSearchingTimedOut(false);
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [bookingConfirmed?.id, acceptedDriver, rideTripStatus]);
-
   // Listen for driver acceptance & trip progression via socket, cross-tab channel, storage, or window events
   useEffect(() => {
+    if (socket && bookingConfirmed?.id) {
+      socket.emit('ride:join_room', { rideId: bookingConfirmed.id });
+    }
+
     const handleDriverAccepted = (driver) => {
       console.log('🎉 Driver accepted your ride request:', driver);
       setAcceptedDriver(driver);
@@ -790,26 +740,30 @@ const reverseGeocodeCoords = async (lat, lng) => {
 
   return (
     <div className="w-full max-w-[500px] text-white">
-      {/* 1. City selector row matching official Uber: San Francisco, CA  Change city */}
-      <div className="flex items-center space-x-2 text-xs font-medium text-neutral-300 mb-4">
-        <MapPin className="w-3.5 h-3.5 text-white" />
-        <span className="text-white font-semibold">{city}</span>
-        <button
-          type="button"
-          onClick={() => {
-            const newCity = prompt('Enter city name:', city);
-            if (newCity) setCity(newCity);
-          }}
-          className="underline text-neutral-400 hover:text-white transition cursor-pointer"
-        >
-          Change city
-        </button>
-      </div>
+      {!hideHeadline && (
+        <>
+          {/* 1. City selector row matching official Uber: San Francisco, CA  Change city */}
+          <div className="flex items-center space-x-2 text-xs font-medium text-neutral-300 mb-4">
+            <MapPin className="w-3.5 h-3.5 text-white" />
+            <span className="text-white font-semibold">{city}</span>
+            <button
+              type="button"
+              onClick={() => {
+                const newCity = prompt('Enter city name:', city);
+                if (newCity) setCity(newCity);
+              }}
+              className="underline text-neutral-400 hover:text-white transition cursor-pointer"
+            >
+              Change city
+            </button>
+          </div>
 
-      {/* 2. Official Headline */}
-      <h1 className="text-5xl sm:text-[56px] font-black tracking-[-0.03em] leading-[1.05] text-white mb-6">
-        Go anywhere
-      </h1>
+          {/* 2. Official Headline */}
+          <h1 className="text-5xl sm:text-[56px] font-black tracking-[-0.03em] leading-[1.05] text-white mb-6">
+            Go anywhere
+          </h1>
+        </>
+      )}
 
       {bookingConfirmed ? (
         /* Booking Lifecycle State Machine */
@@ -928,61 +882,63 @@ const reverseGeocodeCoords = async (lat, lng) => {
             };
             return (
               /* Case 2: Driver Assigned (ACCEPTED, ARRIVED, IN_PROGRESS) */
-              <div className="bg-emerald-950/80 border-2 border-emerald-500/80 p-5 sm:p-6 rounded-3xl space-y-4 animate-in zoom-in-95 shadow-2xl shadow-emerald-950/50 backdrop-blur-xl">
+              <div className="bg-neutral-950 border border-neutral-800 p-5 sm:p-6 rounded-3xl space-y-4.5 shadow-2xl backdrop-blur-2xl relative overflow-hidden">
+                {/* Subtle Ambient Luxury Glow */}
+                <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-24 bg-white/5 blur-3xl pointer-events-none rounded-full" />
+
                 {/* Top Banner Status */}
-                <div className="flex items-center justify-between border-b border-emerald-800/60 pb-3">
-                  <div>
-                    <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
-                      {rideTripStatus === 'IN_PROGRESS'
-                        ? 'Your trip has started • Live on route'
-                        : rideTripStatus === 'ARRIVED'
-                        ? 'Your driver has arrived at the pickup location'
-                        : 'Your driver has accepted your ride • On the way'}
+                <div className="flex items-center justify-between pb-3.5 border-b border-neutral-850">
+                  <div className="space-y-1">
+                    <span className="text-xs font-black uppercase tracking-wider text-white flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                      <span>
+                        {rideTripStatus === 'IN_PROGRESS'
+                          ? 'Trip In Progress'
+                          : rideTripStatus === 'ARRIVED'
+                          ? 'Driver Has Arrived'
+                          : 'Driver On The Way'}
+                      </span>
                     </span>
+                    <p className="text-[11px] text-neutral-400">
+                      {rideTripStatus === 'IN_PROGRESS'
+                        ? 'En route to your destination'
+                        : rideTripStatus === 'ARRIVED'
+                        ? 'Your driver is waiting at the pickup location'
+                        : 'Your driver is heading to your pickup location'}
+                    </p>
                   </div>
-                  <span className="text-xs font-mono font-bold text-emerald-400">
+                  <span className="text-xs font-mono font-bold text-black bg-white px-3 py-1.5 rounded-lg uppercase tracking-wider shadow-sm shrink-0">
                     {rideTripStatus === 'IN_PROGRESS'
-                      ? 'On Route'
+                      ? 'Live Route'
                       : rideTripStatus === 'ARRIVED'
-                      ? 'Driver Arrived'
-                      : 'ETA ~3 mins'}
+                      ? 'Arrived'
+                      : 'ETA ~3m'}
                   </span>
                 </div>
 
-                {/* Driver Profile & Contact */}
-                <div className="bg-black/90 p-4 sm:p-5 rounded-2xl border border-neutral-800 space-y-4">
+                {/* Driver Profile & Vehicle Details */}
+                <div className="bg-neutral-900/90 p-4 sm:p-5 rounded-2xl border border-neutral-800 space-y-4 shadow-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3.5">
-                      <div className="relative">
-                        <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-emerald-500/50 bg-neutral-900 shadow-md">
-                          <img
-                            src={activeDriver.driverPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'}
-                            alt={activeDriver.driverName || 'Driver'}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-black flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
-                        </span>
+                      <div className="w-14 h-14 rounded-2xl overflow-hidden border border-neutral-700 bg-neutral-800 shadow-md shrink-0">
+                        <img
+                          src={activeDriver.driverPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'}
+                          alt={activeDriver.driverName || 'Driver'}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
                       <div>
-                        <div className="flex items-center space-x-2">
-                          <h4 className="text-base font-extrabold text-white">
-                            {activeDriver.driverName || 'Driver'}
-                          </h4>
-                        </div>
-                        <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
-                          <span className="text-amber-400 font-bold flex items-center">
-                            <Star className="w-3.5 h-3.5 fill-amber-400 mr-1 inline" />
-                            {activeDriver.rating || '5.0'}
+                        <h4 className="text-base font-extrabold text-white tracking-tight">
+                          {activeDriver.driverName || 'Driver Partner'}
+                        </h4>
+                        <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-1">
+                          <span className="text-neutral-200 font-bold bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700/60 flex items-center space-x-1">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 inline" />
+                            <span>{Number(activeDriver.rating || 5.0).toFixed(1)}</span>
                           </span>
-                          {activeDriver.totalTrips != null && (
-                            <>
-                              <span>·</span>
-                              <span>{activeDriver.totalTrips} trips</span>
-                            </>
-                          )}
+                          <span>•</span>
+                          <span>{activeDriver.totalTrips ? `${activeDriver.totalTrips}+ trips` : '1,240+ trips'}</span>
                         </div>
                       </div>
                     </div>
@@ -990,85 +946,85 @@ const reverseGeocodeCoords = async (lat, lng) => {
                     {/* Call Driver Button */}
                     <a
                       href={`tel:${activeDriver.driverPhone || '+919876543210'}`}
-                      className="p-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl transition shadow-lg shadow-emerald-500/20 active:scale-95 flex items-center justify-center cursor-pointer"
+                      className="p-3 bg-white hover:bg-neutral-200 text-black rounded-xl transition shadow-md active:scale-95 flex items-center justify-center cursor-pointer"
                       title="Call Driver"
                     >
-                      <Phone className="w-5 h-5 fill-black" />
+                      <Phone className="w-4 h-4 fill-black" />
                     </a>
                   </div>
 
-                  {/* Car Details & License Plate */}
-                  <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 space-y-3">
+                  {/* Vehicle Model & License Plate Spotlight */}
+                  <div className="bg-black/90 p-4 rounded-xl border border-neutral-800 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">
                           Vehicle Model
                         </span>
-                        <span className="text-sm font-bold text-white">
+                        <span className="text-sm font-extrabold text-white">
                           {activeDriver.vehicleMake} {activeDriver.vehicleModel}
                         </span>
-                        <span className="text-xs text-neutral-400 block">
-                          Color: {activeDriver.vehicleColor || 'Silver'}
+                        <span className="text-xs text-neutral-400 block mt-0.5">
+                          Color: {activeDriver.vehicleColor || 'Silver Metallic'}
                         </span>
                       </div>
 
-                      {/* Spotlight: LAST 4 DIGITS OF CAR PLATE */}
+                      {/* License Plate Spotlight */}
                       <div className="text-right">
-                        <span className="text-[10px] text-amber-400 uppercase font-black tracking-wider block">
-                          Last 4 Digits
+                        <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider block">
+                          License Plate
                         </span>
-                        <span className="font-mono text-2xl font-black text-amber-400 bg-amber-400/10 px-3.5 py-1 rounded-xl border border-amber-400/40 inline-block shadow-lg shadow-amber-400/10">
-                          {activeDriver.carLast4 || (activeDriver.licensePlate || '4488').replace(/[^a-zA-Z0-9]/g, '').slice(-4)}
-                        </span>
+                        <div className="mt-1 font-mono text-base font-black text-white bg-neutral-900 border border-neutral-700 px-3.5 py-1.5 rounded-xl inline-block shadow-inner tracking-widest">
+                          {activeDriver.licensePlate || 'DL 01 AB 4488'}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-xs">
-                      <span className="text-neutral-400">Full Number Plate:</span>
-                      <span className="font-mono font-bold text-neutral-200 bg-neutral-900 px-2.5 py-0.5 rounded border border-neutral-800">
-                        {activeDriver.licensePlate || 'DL 01 AB 1234'}
-                      </span>
-                    </div>
-
-                    <div className="bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl text-[11px] text-amber-300 flex items-center space-x-2">
-                      <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
-                      <span>Always verify the <strong>last 4 digits ({activeDriver.carLast4 || (activeDriver.licensePlate || '4488').replace(/[^a-zA-Z0-9]/g, '').slice(-4)})</strong> before boarding.</span>
+                    <div className="bg-neutral-900/60 border border-neutral-800/80 px-3.5 py-2 rounded-lg text-[11px] text-neutral-300 flex items-center space-x-2">
+                      <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
+                      <span>Always verify the vehicle model and license plate before boarding.</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Ride PIN Card (Hidden once PIN is entered & verified) */}
+                {/* Ride PIN Card */}
                 {rideTripStatus !== 'IN_PROGRESS' && bookingConfirmed?.status !== 'IN_PROGRESS' ? (
-                  <div className="bg-black border-2 border-amber-500/40 p-4 rounded-2xl space-y-2.5 shadow-lg">
+                  <div className="bg-neutral-900/90 border border-neutral-800 p-4.5 rounded-2xl space-y-3 shadow-lg">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="text-xs text-amber-400 uppercase tracking-wider font-extrabold block">
+                        <span className="text-xs text-white uppercase tracking-wider font-extrabold block">
                           Ride Verification PIN
                         </span>
-                        <span className="text-[10px] text-neutral-400">
-                          Share with driver when they arrive
+                        <span className="text-[11px] text-neutral-400 mt-0.5 block">
+                          Share with driver to start your trip
                         </span>
                       </div>
-                      <span className="text-3xl font-mono font-black text-amber-400 tracking-widest bg-amber-400/10 px-4 py-1.5 rounded-2xl border-2 border-amber-400/30 shadow-lg shadow-amber-400/10">
-                        {bookingConfirmed.otp || '4829'}
-                      </span>
+                      <div className="flex items-center space-x-1.5">
+                        {(String(bookingConfirmed.otp || '5816').padStart(4, '0').slice(-4).split('')).map((digit, idx) => (
+                          <span
+                            key={idx}
+                            className="w-8 h-10 rounded-lg bg-black border border-neutral-700 flex items-center justify-center font-mono text-lg font-black text-white shadow-inner"
+                          >
+                            {digit}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-[11px] text-neutral-400 leading-normal border-t border-neutral-800 pt-2 flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <em>Share this PIN with your driver when they arrive. Never share it before verifying the driver and vehicle.</em>
-                    </p>
+                    <div className="text-[11px] text-neutral-400 border-t border-neutral-800/80 pt-2 flex items-center space-x-1.5">
+                      <Shield className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                      <span>Only disclose this PIN once you have confirmed the driver and vehicle.</span>
+                    </div>
                   </div>
                 ) : (
-                  <div className="bg-emerald-950/40 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-lg">
+                  <div className="bg-neutral-900/90 border border-neutral-800 p-4 rounded-2xl flex items-center justify-between shadow-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                        <ShieldCheck className="w-5 h-5" />
+                      <div className="w-9 h-9 rounded-lg bg-neutral-800 border border-neutral-700 flex items-center justify-center text-white">
+                        <ShieldCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="text-xs text-emerald-400 font-extrabold uppercase tracking-wider block">
-                          PIN Verified · On Trip
+                        <span className="text-xs text-white font-extrabold uppercase tracking-wider block">
+                          PIN Verified • On Trip
                         </span>
-                        <span className="text-[11px] text-neutral-300">
+                        <span className="text-[11px] text-neutral-400">
                           En route to destination
                         </span>
                       </div>
@@ -1079,7 +1035,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
                         window.history.pushState({}, '', '/tracking');
                         window.dispatchEvent(new PopStateEvent('popstate'));
                       }}
-                      className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg transition cursor-pointer"
+                      className="px-3.5 py-1.5 bg-white text-black text-xs font-bold rounded-lg hover:bg-neutral-200 transition cursor-pointer"
                     >
                       View Live Map
                     </button>
@@ -1087,36 +1043,69 @@ const reverseGeocodeCoords = async (lat, lng) => {
                 )}
 
                 {/* Ride Summary */}
-                <div className="bg-black border border-neutral-800 p-4 rounded-2xl text-xs space-y-2 text-neutral-300">
-                  <div className="flex justify-between items-center text-[11px] text-neutral-500 pb-1 border-b border-neutral-800">
-                    <span>Ride ID:</span>
-                    <span className="font-mono font-bold text-neutral-300">{bookingConfirmed.id}</span>
+                <div className="bg-neutral-900/60 border border-neutral-800 p-4 rounded-2xl text-xs space-y-2 text-neutral-300">
+                  <div className="flex justify-between items-center text-[11px] text-neutral-500 pb-1.5 border-b border-neutral-800">
+                    <span>Trip Reference</span>
+                    <span className="font-mono font-bold text-neutral-300">{String(bookingConfirmed.id || '').slice(0, 12)}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-500 block text-[10px] uppercase font-bold">Pickup</span>
-                    <span className="font-semibold text-white">{bookingConfirmed.pickup_address}</span>
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex items-start space-x-2">
+                      <div className="w-2 h-2 rounded bg-white mt-1 shrink-0" />
+                      <div className="truncate">
+                        <span className="text-neutral-500 text-[10px] uppercase font-bold block">Pickup</span>
+                        <span className="font-semibold text-white truncate block">{bookingConfirmed.pickup_address}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <MapPin className="w-3 h-3 text-neutral-400 mt-1 shrink-0" />
+                      <div className="truncate">
+                        <span className="text-neutral-500 text-[10px] uppercase font-bold block">Dropoff</span>
+                        <span className="font-semibold text-white truncate block">{bookingConfirmed.dropoff_address}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-neutral-500 block text-[10px] uppercase font-bold">Destination</span>
-                    <span className="font-semibold text-white">{bookingConfirmed.dropoff_address}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-neutral-800">
-                    <span className="text-neutral-400">Total Fare:</span>
-                    <span className="font-extrabold text-white text-base">
-                      ₹{Number(bookingConfirmed.final_fare || bookingConfirmed.estimated_fare).toFixed(2)}
+                  <div className="flex justify-between items-center pt-2.5 border-t border-neutral-800">
+                    <span className="text-neutral-400 font-medium">Estimated Fare:</span>
+                    <span className="font-black text-white text-base font-mono">
+                      ₹{Number(bookingConfirmed.final_fare || bookingConfirmed.estimated_fare || 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
-                {rideTripStatus !== 'IN_PROGRESS' && (
+                {/* Primary Action Buttons */}
+                <div className="space-y-2 pt-1">
                   <button
                     type="button"
-                    onClick={handleCancelRide}
-                    className="w-full py-3 bg-neutral-900 border border-neutral-700 text-neutral-300 hover:text-white hover:bg-neutral-800 font-bold text-xs rounded-xl transition cursor-pointer"
+                    onClick={() => {
+                      try {
+                        localStorage.setItem('driver_active_ride', JSON.stringify({
+                          ...bookingConfirmed,
+                          driver: activeDriver
+                        }));
+                        localStorage.setItem('active_tracking_ride', JSON.stringify({
+                          ...bookingConfirmed,
+                          driver: activeDriver
+                        }));
+                      } catch {}
+                      window.history.pushState({}, '', '/tracking');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
+                    className="w-full py-3.5 bg-white text-black font-extrabold text-xs rounded-xl hover:bg-neutral-200 transition flex items-center justify-center space-x-2 cursor-pointer shadow-lg active:scale-95"
                   >
-                    Cancel Ride
+                    <Navigation className="w-4 h-4" />
+                    <span>Track Live On Fullscreen Map</span>
                   </button>
-                )}
+
+                  {rideTripStatus !== 'IN_PROGRESS' && (
+                    <button
+                      type="button"
+                      onClick={handleCancelRide}
+                      className="w-full py-2.5 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800 font-bold text-xs rounded-xl transition cursor-pointer"
+                    >
+                      Cancel Ride
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })() : (

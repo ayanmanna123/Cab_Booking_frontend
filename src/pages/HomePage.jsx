@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MapPin } from 'lucide-react';
 import RideBookingWidget from '../components/booking/RideBookingWidget';
 import HeroVisual from '../components/home/HeroVisual';
 import SuggestionsRow from '../components/home/SuggestionsRow';
@@ -11,6 +12,7 @@ import { useSocketContext } from '../context/SocketContext';
 import { SOCKET_EVENTS } from '../constants/socketEvents';
 
 export default function HomePage() {
+  const [city, setCity] = useState('San Francisco, CA');
   const [pickupCoords, setPickupCoords] = useState([22.6113, 88.4202]);
   const [dropoffCoords, setDropoffCoords] = useState(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
@@ -178,18 +180,41 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       {/* 1. Hero Section: Official Uber Go Anywhere Layout */}
-      <section id="ride" className="relative py-10 lg:py-16 bg-black">
+      <section id="ride" className="relative py-8 lg:py-12 bg-black">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            {/* Left Column: Official Uber Request Engine */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-start z-10">
+          {/* Header Row: City Selector & Main Headline */}
+          <div className="mb-6 lg:mb-8">
+            <div className="flex items-center space-x-2 text-xs font-medium text-neutral-300 mb-3">
+              <MapPin className="w-3.5 h-3.5 text-white" />
+              <span className="text-white font-semibold">{city}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const newCity = prompt('Enter city name:', city);
+                  if (newCity) setCity(newCity);
+                }}
+                className="underline text-neutral-400 hover:text-white transition cursor-pointer"
+              >
+                Change city
+              </button>
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-black tracking-[-0.03em] leading-[1.05] text-white">
+              Go anywhere
+            </h1>
+          </div>
+
+          {/* Perfectly Aligned Two-Column Grid: Details (Left) & Map (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Left Column: Details Section / Ride Booking Widget */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-start z-10 w-full">
               <RideBookingWidget
                 onRouteCalculated={handleRouteCalculated}
+                hideHeadline={true}
               />
             </div>
 
-            {/* Right Column: Official Uber Photography Collage + Live Leaflet Toggle */}
-            <div className="lg:col-span-7 flex justify-center">
+            {/* Right Column: Live Map / Visuals - Aligned with Left Details Section */}
+            <div className="lg:col-span-7 flex justify-center w-full">
               <HeroVisual
                 pickupCoords={pickupCoords}
                 dropoffCoords={dropoffCoords}

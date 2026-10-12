@@ -1,11 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { CONFIG } from '../../constants/config';
+import { useSocketContext } from '../../context/SocketContext';
 
 export default function UserAuthSync() {
   const { isSignedIn, user } = useUser();
   const { getToken } = useAuth();
+  const { joinUserRoom } = useSocketContext();
   const lastSyncedUserRef = useRef(null);
+
+  useEffect(() => {
+    if (isSignedIn && user?.id && joinUserRoom) {
+      joinUserRoom(user.id);
+    }
+  }, [isSignedIn, user?.id, joinUserRoom]);
 
   useEffect(() => {
     if (!isSignedIn || !user) {
