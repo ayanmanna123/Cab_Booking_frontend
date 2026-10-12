@@ -71,7 +71,7 @@ export default function App() {
             {currentView === 'tracking' && (
               <RideTrackingPage
                 ride={activeRide}
-                onBackToHome={() => setCurrentView('ride')}
+                onBackToHome={() => handleNavigate('ride')}
               />
             )}
           </main>

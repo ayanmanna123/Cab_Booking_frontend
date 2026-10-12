@@ -225,6 +225,10 @@ export default function RideBookingWidget({
             setAcceptedDriver(driverParsed);
             setSearchingTimedOut(false);
           }
+          if (r.status === 'IN_PROGRESS') {
+            window.history.pushState({}, '', '/tracking');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }
         }
       } catch {
         // Not logged in or no active ride
@@ -249,6 +253,10 @@ export default function RideBookingWidget({
           if (r.id === bookingConfirmed.id) {
             if (r.status !== rideTripStatus) {
               setRideTripStatus(r.status);
+              if (r.status === 'IN_PROGRESS') {
+                window.history.pushState({}, '', '/tracking');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }
             }
             if (r.status !== 'SEARCHING' && r.status !== 'REQUESTED') {
               setSearchingTimedOut(false);
@@ -301,8 +309,10 @@ export default function RideBookingWidget({
     };
 
     const handleRideInProgress = () => {
-      console.log('🚀 Driver verified PIN, trip is in progress!');
+      console.log('🚀 Driver verified PIN, trip is in progress! Navigating to live map...');
       setRideTripStatus('IN_PROGRESS');
+      window.history.pushState({}, '', '/tracking');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     };
 
     const handleRideCompleted = () => {
@@ -942,25 +952,53 @@ export default function RideBookingWidget({
                   </div>
                 </div>
 
-                {/* Ride PIN Card */}
-                <div className="bg-black border-2 border-amber-500/40 p-4 rounded-2xl space-y-2.5 shadow-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-xs text-amber-400 uppercase tracking-wider font-extrabold block">
-                        Ride Verification PIN
-                      </span>
-                      <span className="text-[10px] text-neutral-400">
-                        Share with driver when they arrive
+                {/* Ride PIN Card (Hidden once PIN is entered & verified) */}
+                {rideTripStatus !== 'IN_PROGRESS' && bookingConfirmed?.status !== 'IN_PROGRESS' ? (
+                  <div className="bg-black border-2 border-amber-500/40 p-4 rounded-2xl space-y-2.5 shadow-lg">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-xs text-amber-400 uppercase tracking-wider font-extrabold block">
+                          Ride Verification PIN
+                        </span>
+                        <span className="text-[10px] text-neutral-400">
+                          Share with driver when they arrive
+                        </span>
+                      </div>
+                      <span className="text-3xl font-mono font-black text-amber-400 tracking-widest bg-amber-400/10 px-4 py-1.5 rounded-2xl border-2 border-amber-400/30 shadow-lg shadow-amber-400/10">
+                        {bookingConfirmed.otp || '4829'}
                       </span>
                     </div>
-                    <span className="text-3xl font-mono font-black text-amber-400 tracking-widest bg-amber-400/10 px-4 py-1.5 rounded-2xl border-2 border-amber-400/30 shadow-lg shadow-amber-400/10">
-                      {bookingConfirmed.otp || '4829'}
-                    </span>
+                    <p className="text-[11px] text-neutral-400 leading-normal border-t border-neutral-800 pt-2">
+                      🛡️ <em>Share this PIN with your driver when they arrive. Never share it before verifying the driver and vehicle.</em>
+                    </p>
                   </div>
-                  <p className="text-[11px] text-neutral-400 leading-normal border-t border-neutral-800 pt-2">
-                    🛡️ <em>Share this PIN with your driver when they arrive. Never share it before verifying the driver and vehicle.</em>
-                  </p>
-                </div>
+                ) : (
+                  <div className="bg-emerald-950/40 border border-emerald-500/40 p-4 rounded-2xl flex items-center justify-between shadow-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="text-xs text-emerald-400 font-extrabold uppercase tracking-wider block">
+                          PIN Verified · On Trip
+                        </span>
+                        <span className="text-[11px] text-neutral-300">
+                          En route to destination
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        window.history.pushState({}, '', '/tracking');
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                      }}
+                      className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg transition cursor-pointer"
+                    >
+                      View Live Map
+                    </button>
+                  </div>
+                )}
 
                 {/* Ride Summary */}
                 <div className="bg-black border border-neutral-800 p-4 rounded-2xl text-xs space-y-2 text-neutral-300">
