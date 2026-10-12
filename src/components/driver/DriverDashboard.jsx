@@ -20,7 +20,7 @@ import {
   ArrowRight,
   ShieldAlert,
   Award,
-  Zap,
+  Star,
   Check,
   Phone,
   Mail,
@@ -37,6 +37,7 @@ import {
   Maximize2,
   Minimize2
 } from 'lucide-react';
+import { useUser, SignInButton } from '@clerk/clerk-react';
 import InteractiveMap from '../map/InteractiveMap';
 import IncomingOfferModal from './IncomingOfferModal';
 import DriverRegistrationModal from './DriverRegistrationModal';
@@ -377,17 +378,63 @@ export default function DriverDashboard() {
   const [driverProfile, setDriverProfile] = useState(() => {
     try {
       const saved = localStorage.getItem('registered_driver');
-      return saved ? normalizeDriverProfile(JSON.parse(saved)) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Purge legacy demo driver if present
+        if (
+          parsed?.id?.startsWith('drv_demo_') ||
+          parsed?.id === 'demo_driver_1' ||
+          parsed?.email?.includes('driver.uberclone.local') ||
+          parsed?.fullName === 'Vikram Malhotra'
+        ) {
+          localStorage.removeItem('registered_driver');
+          return null;
+        }
+        return normalizeDriverProfile(parsed);
+      }
+      return null;
     } catch {
       return null;
     }
   });
 
+  const { isSignedIn, user, isLoaded } = useUser();
   const { socket, joinDriverRoom } = useSocketContext();
 
-  // Try fetching backend driver profile if registered
+  // Clean out legacy demo driver if stored in localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('registered_driver');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (
+          parsed?.id?.startsWith('drv_demo_') ||
+          parsed?.id === 'demo_driver_1' ||
+          parsed?.email?.includes('driver.uberclone.local') ||
+          parsed?.fullName === 'Vikram Malhotra'
+        ) {
+          localStorage.removeItem('registered_driver');
+          setDriverProfile(null);
+        }
+      }
+    } catch {}
+  }, []);
+
+  // When signed out of Clerk, ensure offline status and reset session
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      if (isOnline) {
+        setIsOnline(false);
+        localStorage.setItem('driver_is_online', 'false');
+      }
+    }
+  }, [isLoaded, isSignedIn, isOnline]);
+
+  // Try fetching backend driver profile if registered and signed in
   useEffect(() => {
     let isMounted = true;
+    if (!isSignedIn || !user) return;
+
     const fetchProfile = async () => {
       try {
         const res = await driversApi.getMyProfile();
@@ -395,19 +442,22 @@ export default function DriverDashboard() {
           const currentLocal = JSON.parse(localStorage.getItem('registered_driver') || 'null');
           const merged = normalizeDriverProfile({
             ...currentLocal,
-            ...res.data
+            ...res.data,
+            fullName: res.data.fullName || res.data.full_name || user.fullName || currentLocal?.fullName,
+            email: res.data.email || user.primaryEmailAddress?.emailAddress || currentLocal?.email,
+            phone: res.data.phone || user.primaryPhoneNumber?.phoneNumber || currentLocal?.phone
           });
           setDriverProfile(merged);
           localStorage.setItem('registered_driver', JSON.stringify(merged));
         }
       } catch {
-        // Normal user is not a driver in backend
+        // Normal user is not a driver in backend yet
       }
     };
 
     fetchProfile();
     return () => { isMounted = false; };
-  }, []);
+  }, [isSignedIn, user?.id]);
 
   // Restore active ride on mount if driver reloads the browser
   useEffect(() => {
@@ -607,6 +657,16 @@ export default function DriverDashboard() {
   }, []);
 
   const handleToggleOnline = async () => {
+    if (!isSignedIn) {
+      alert('Please sign in to your driver account before going live.');
+      return;
+    }
+
+    if (!driverProfile) {
+      setIsRegisterModalOpen(true);
+      return;
+    }
+
     if (isOnline) {
       // Driver going offline
       if (geoWatchIdRef.current !== null && 'geolocation' in navigator) {
@@ -617,7 +677,7 @@ export default function DriverDashboard() {
       setIsLocating(false);
       localStorage.setItem('driver_is_online', 'false');
 
-      const driverId = driverProfile?.id || 'demo_driver_1';
+      const driverId = driverProfile?.id || user?.id || 'registered_driver';
       try {
         await driversApi.toggleStatus(driverId, false);
       } catch (e) {
@@ -648,13 +708,13 @@ export default function DriverDashboard() {
       localStorage.setItem('driver_is_online', 'true');
       localStorage.setItem('driver_last_coords', JSON.stringify([lat, lng]));
 
-      const driverId = driverProfile?.id || 'demo_driver_1';
+      const driverId = driverProfile?.id || user?.id || 'registered_driver';
 
       // Broadcast location via WebSocket to riders
       if (socket) {
         socket.emit(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, {
           driverId,
-          driverName: driverProfile?.fullName,
+          driverName: driverProfile?.fullName || user?.fullName || 'Driver Partner',
           vehicleModel: `${driverProfile?.vehicleMake} ${driverProfile?.vehicleModel}`,
           latitude: lat,
           longitude: lng,
@@ -687,8 +747,8 @@ export default function DriverDashboard() {
 
               if (socket) {
                 socket.emit(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, {
-                  driverId: driverProfile?.id || 'demo_driver_1',
-                  driverName: driverProfile?.fullName,
+                  driverId: driverProfile?.id || user?.id || 'registered_driver',
+                  driverName: driverProfile?.fullName || user?.fullName || 'Driver Partner',
                   vehicleModel: `${driverProfile?.vehicleMake} ${driverProfile?.vehicleModel}`,
                   latitude: wLat,
                   longitude: wLng,
@@ -719,19 +779,19 @@ export default function DriverDashboard() {
 
   const handleAcceptOffer = async (offer) => {
     const currentProfile = driverProfile || {
-      id: 'demo_driver_1',
-      fullName: 'Ayan Manna',
-      phone: '+91 98765 43210',
+      id: user?.id || 'registered_driver',
+      fullName: user?.fullName || 'Driver Partner',
+      phone: user?.primaryPhoneNumber?.phoneNumber || '+91 98765 43210',
       vehicleMake: 'Toyota',
       vehicleModel: 'Camry',
       vehicleColor: 'Silver Metallic',
       licensePlate: 'MH 02 CZ 4488',
-      rating: 4.98,
-      totalRides: 1240
+      rating: 5.0,
+      totalRides: 0
     };
 
     const rideId = offer.id || offer.rideId;
-    const driverId = currentProfile.id || 'demo_driver_1';
+    const driverId = currentProfile.id || user?.id || 'registered_driver';
 
     const cleanPlate = (currentProfile.licensePlate || 'MH 02 CZ 4488').trim();
     const alphanumericOnly = cleanPlate.replace(/[^a-zA-Z0-9]/g, '');
@@ -957,33 +1017,6 @@ export default function DriverDashboard() {
     }
   }, [driverProfile]);
 
-  // Quick Demo Driver Profile for one-click testing
-  const handleLoadDemoDriver = () => {
-    const demoDriver = {
-      id: 'drv_demo_' + Date.now(),
-      fullName: 'Vikram Malhotra',
-      phone: '+91 98765 43210',
-      email: 'vikram.malhotra@driver.uberclone.local',
-      vehicleMake: 'Toyota',
-      vehicleModel: 'Camry Hybrid',
-      vehicleYear: 2024,
-      licensePlate: 'MH 02 CZ 4488',
-      vehicleColor: 'Pearl White',
-      vehicleTypeId: 'uber_go_ac',
-      aadhaarNumber: '9182 3412 8765',
-      drivingLicense: 'MH-02-2022-004488',
-      carImageUrl: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/HatchbackMini-Snowflake-520.png',
-      payoutMethod: 'UPI',
-      upiId: 'vikram.driver@okaxis',
-      emergencyContactName: 'Anjali Malhotra',
-      emergencyContactPhone: '+91 98765 00001',
-      rating: 5.0,
-      totalEarnings: 0.0,
-      totalRides: 0
-    };
-    handleRegistrationSuccess(demoDriver);
-  };
-
   const tierLabel = driverProfile?.vehicleTypeId === 'xl'
     ? 'UberXL'
     : driverProfile?.vehicleTypeId === 'comfort'
@@ -1003,33 +1036,72 @@ export default function DriverDashboard() {
         <div className="relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-800 p-8 sm:p-12 lg:p-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
             <div className="lg:col-span-7 space-y-6">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
-                Drive when you want, make what you need.
-              </h1>
+              {isSignedIn ? (
+                <>
+                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-neutral-300 text-xs font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Signed in as <strong className="text-white">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</strong></span>
+                  </div>
 
-              <p className="text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed">
-                Turn your vehicle into income. Set your own schedule, receive instant daily payouts, and access 24/7 dedicated in-app driver safety.
-              </p>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+                    Register your vehicle to go live.
+                  </h1>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <button
-                  id="join-as-driver-cta-btn"
-                  onClick={() => setIsRegisterModalOpen(true)}
-                  className="px-7 py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-2xl flex items-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  <span>Join as a Driver / Register Vehicle</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                  <p className="text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed">
+                    Complete your driver partner registration with your vehicle details and documents. Once registered, unlock your driver cockpit and click Go Live to receive trips.
+                  </p>
 
-                <button
-                  onClick={handleLoadDemoDriver}
-                  className="px-5 py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm rounded-2xl flex items-center space-x-2 transition cursor-pointer border border-neutral-700 active:scale-95"
-                >
-                  <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Quick Demo Driver Mode</span>
-                </button>
-              </div>
+                  <div className="flex flex-wrap items-center gap-4 pt-2">
+                    <button
+                      id="join-as-driver-cta-btn"
+                      onClick={() => setIsRegisterModalOpen(true)}
+                      className="px-7 py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-2xl flex items-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
+                    >
+                      <UserPlus className="w-5 h-5" />
+                      <span>Register Vehicle & Go Live</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-neutral-300 text-xs font-medium">
+                    <Shield className="w-4 h-4 text-white" />
+                    <span>Driver Account Authentication Required</span>
+                  </div>
+
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+                    Drive when you want, make what you need.
+                  </h1>
+
+                  <p className="text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed">
+                    Turn your vehicle into income. Set your own schedule, receive instant daily payouts, and access 24/7 dedicated in-app driver safety.
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-4 pt-2">
+                    <SignInButton mode="modal">
+                      <button
+                        id="driver-sign-in-btn"
+                        className="px-7 py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-2xl flex items-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
+                      >
+                        <User className="w-5 h-5" />
+                        <span>Sign In as Driver</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </SignInButton>
+
+                    <SignInButton mode="modal">
+                      <button
+                        id="join-as-driver-cta-btn"
+                        className="px-6 py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm rounded-2xl flex items-center space-x-2 transition cursor-pointer border border-neutral-700 active:scale-95"
+                      >
+                        <UserPlus className="w-5 h-5 text-neutral-300" />
+                        <span>Register as a Driver</span>
+                      </button>
+                    </SignInButton>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Right Hero Image */}
@@ -1237,7 +1309,10 @@ export default function DriverDashboard() {
             </div>
             <div className="px-3 text-center">
               <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Score</span>
-              <span className="font-bold text-white text-xs sm:text-sm">5.00 ⭐</span>
+              <span className="font-bold text-white text-xs sm:text-sm flex items-center justify-center space-x-1">
+                <span>5.00</span>
+                <Star className="w-3 h-3 text-amber-400 fill-amber-400 inline" />
+              </span>
             </div>
           </div>
 
@@ -1320,7 +1395,10 @@ export default function DriverDashboard() {
                       {activeRide.riderName || 'Passenger Partner'}
                     </h4>
                     <div className="flex items-center space-x-1.5 text-xs text-neutral-400 mt-0.5">
-                      <span className="text-neutral-200 font-medium">5.0 ⭐</span>
+                      <span className="text-neutral-200 font-medium flex items-center space-x-1">
+                        <span>5.0</span>
+                        <Star className="w-3 h-3 text-amber-400 fill-amber-400 inline" />
+                      </span>
                       <span>•</span>
                       <span>Verified Rider</span>
                     </div>
@@ -1549,7 +1627,10 @@ export default function DriverDashboard() {
                         {driverProfile.fullName}
                       </h4>
                       <div className="flex items-center space-x-1.5 text-xs text-neutral-400 mt-0.5">
-                        <span className="text-neutral-200 font-medium">5.0 ⭐</span>
+                        <span className="text-neutral-200 font-medium flex items-center space-x-1">
+                          <span>5.0</span>
+                          <Star className="w-3 h-3 text-amber-400 fill-amber-400 inline" />
+                        </span>
                         <span>•</span>
                         <span>{driverProfile.totalRides || 1240}+ trips</span>
                       </div>
