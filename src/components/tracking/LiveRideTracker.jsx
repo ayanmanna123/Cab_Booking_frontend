@@ -22,7 +22,10 @@ import {
   Smartphone,
   ChevronRight,
   Lock,
-  ExternalLink
+  ExternalLink,
+  Copy,
+  Edit2,
+  ArrowRight
 } from 'lucide-react';
 import InteractiveMap from '../map/InteractiveMap';
 import { sosApi, paymentsApi } from '../../api';
@@ -75,8 +78,24 @@ export default function LiveRideTracker({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card'); // default 'card' for Stripe test card
-  const [upiId, setUpiId] = useState('rider@okhdfcbank');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('upi'); // default 'upi' for Indian payment flow
+  const [upiSubMode, setUpiSubMode] = useState('qr'); // 'qr' | 'id'
+  const [driverUpiId, setDriverUpiId] = useState(() => {
+    try {
+      return localStorage.getItem('driver_custom_upi') || 'vikram.cab@okhdfcbank';
+    } catch {}
+    return 'vikram.cab@okhdfcbank';
+  });
+  const [riderUpiId, setRiderUpiId] = useState('rider@okaxis');
+  const [upiUtrNumber, setUpiUtrNumber] = useState('');
+  const [savedUtr, setSavedUtr] = useState(() => {
+    try {
+      if (ride?.id) return localStorage.getItem(`upi_utr_${ride.id}`) || '';
+    } catch {}
+    return '';
+  });
+  const [copiedUpi, setCopiedUpi] = useState(false);
+  const [isEditingDriverUpi, setIsEditingDriverUpi] = useState(false);
   const [paymentError, setPaymentError] = useState('');
 
   // Check saved payment state if ride id changes
@@ -87,6 +106,9 @@ export default function LiveRideTracker({
         setPaymentCompleted(true);
         setStripePaymentIntentId(localStorage.getItem(`stripe_pi_${ride.id}`) || '');
         setStripeReceiptUrl(localStorage.getItem(`stripe_receipt_${ride.id}`) || '');
+        setSavedUtr(localStorage.getItem(`upi_utr_${ride.id}`) || '');
+        const savedMethod = localStorage.getItem(`payment_method_${ride.id}`);
+        if (savedMethod) setSelectedPaymentMethod(savedMethod);
       }
     }
   }, [ride?.id]);
@@ -211,6 +233,7 @@ export default function LiveRideTracker({
 
     let confirmedIntentId = '';
     let confirmedReceiptUrl = '';
+    const finalUtr = upiUtrNumber.trim() || `UTR${Date.now().toString().slice(-10)}`;
 
     try {
       if (rideId) {
@@ -223,7 +246,7 @@ export default function LiveRideTracker({
           rideId,
           amount,
           currency: 'inr',
-          paymentMethod: methodMap[selectedPaymentMethod] || 'card'
+          paymentMethod: methodMap[selectedPaymentMethod] || 'stripe'
         });
 
         const intentId = intentRes?.data?.paymentIntentId;
@@ -248,6 +271,7 @@ export default function LiveRideTracker({
     if (confirmedReceiptUrl) {
       setStripeReceiptUrl(confirmedReceiptUrl);
     }
+    setSavedUtr(finalUtr);
 
     // Smooth UI transition
     setTimeout(() => {
@@ -261,6 +285,9 @@ export default function LiveRideTracker({
           localStorage.setItem(`payment_completed_${rideId}`, 'true');
           localStorage.setItem(`payment_method_${rideId}`, selectedPaymentMethod);
           localStorage.setItem(`stripe_pi_${rideId}`, confirmedIntentId);
+          localStorage.setItem(`upi_utr_${rideId}`, finalUtr);
+          localStorage.setItem('driver_custom_upi', driverUpiId);
+          localStorage.setItem('rider_upi', riderUpiId);
           if (confirmedReceiptUrl) {
             localStorage.setItem(`stripe_receipt_${rideId}`, confirmedReceiptUrl);
           }
@@ -275,6 +302,9 @@ export default function LiveRideTracker({
           rideId,
           amount,
           paymentMethod: selectedPaymentMethod,
+          driverUpiId,
+          riderUpiId,
+          utrNumber: finalUtr,
           stripePaymentIntentId: confirmedIntentId,
           timestamp: Date.now()
         });
@@ -286,6 +316,9 @@ export default function LiveRideTracker({
           rideId,
           amount,
           paymentMethod: selectedPaymentMethod,
+          driverUpiId,
+          riderUpiId,
+          utrNumber: finalUtr,
           stripePaymentIntentId: confirmedIntentId
         });
       }
@@ -300,6 +333,9 @@ export default function LiveRideTracker({
   ];
 
   const fareFormatted = Number(ride?.fare || 115.38).toFixed(2);
+  const driverName = ride?.driverName || 'Vikram Malhotra';
+  const upiPayUrl = `upi://pay?pa=${encodeURIComponent(driverUpiId)}&pn=${encodeURIComponent(driverName)}&am=${fareFormatted}&cu=INR&tn=${encodeURIComponent(`Uber_Ride_${(ride?.id || '123456').slice(0, 8)}`)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(upiPayUrl)}`;
 
   return (
     <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 select-none">
@@ -601,20 +637,21 @@ export default function LiveRideTracker({
       </div>
 
       {/* ========================================================================= */}
+      {/* ========================================================================= */}
       {/* COMPLETE PAYMENT MODAL */}
       {/* ========================================================================= */}
       {showPaymentModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-6 shadow-2xl relative text-white">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl relative text-white overflow-hidden">
+            {/* Modal Header (Fixed Top) */}
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-800 shrink-0 bg-neutral-900">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-white">Complete Payment</h3>
-                  <p className="text-xs text-neutral-400">Choose your preferred payment method</p>
+                  <h3 className="text-base font-black text-white">Complete Payment</h3>
+                  <p className="text-[11px] text-neutral-400">Choose your preferred payment method</p>
                 </div>
               </div>
 
@@ -627,145 +664,335 @@ export default function LiveRideTracker({
               </button>
             </div>
 
-            {/* Total Fare Amount Pill */}
-            <div className="bg-black border border-neutral-800 p-4 rounded-2xl flex items-center justify-between">
-              <div>
-                <span className="text-[11px] uppercase tracking-wider font-bold text-neutral-500 block">
-                  Trip Total Fare
-                </span>
-                <span className="text-xs text-neutral-300">
-                  Includes taxes, tolls & fees
-                </span>
-              </div>
-              <span className="font-mono text-3xl font-black text-emerald-400 tracking-tight">
-                ₹{fareFormatted}
-              </span>
-            </div>
-
-            {/* Payment Method Selector */}
-            <div className="space-y-3">
-              <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider block">
-                Select Payment Method
-              </span>
-
-              {/* Option 1: UPI / Instant Pay */}
-              <div
-                onClick={() => setSelectedPaymentMethod('upi')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                  selectedPaymentMethod === 'upi'
-                    ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                    : 'bg-black border-neutral-800 hover:border-neutral-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
-                    <Smartphone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-sm text-white">UPI / Google Pay / PhonePe</span>
-                      <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.2 rounded">
-                        FAST
-                      </span>
-                    </div>
-                    <span className="text-xs text-neutral-400">Instant UPI transfer · 0% fee</span>
-                  </div>
-                </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  selectedPaymentMethod === 'upi' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
-                }`}>
-                  {selectedPaymentMethod === 'upi' && <div className="w-2 h-2 rounded-full bg-black" />}
-                </div>
-              </div>
-
-              {/* Option 2: Credit / Debit Card */}
-              <div
-                onClick={() => setSelectedPaymentMethod('card')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                  selectedPaymentMethod === 'card'
-                    ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                    : 'bg-black border-neutral-800 hover:border-neutral-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
-                    <CreditCard className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-sm text-white block">Credit / Debit Card</span>
-                    <span className="text-xs text-neutral-400">Visa / Mastercard / RuPay ending in 4242</span>
-                  </div>
-                </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  selectedPaymentMethod === 'card' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
-                }`}>
-                  {selectedPaymentMethod === 'card' && <div className="w-2 h-2 rounded-full bg-black" />}
-                </div>
-              </div>
-
-              {/* Option 3: Cash to Driver */}
-              <div
-                onClick={() => setSelectedPaymentMethod('cash')}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                  selectedPaymentMethod === 'cash'
-                    ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                    : 'bg-black border-neutral-800 hover:border-neutral-700'
-                }`}
-              >
-                <div className="flex items-center space-x-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                    <Banknote className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-sm text-white block">Cash to Driver</span>
-                    <span className="text-xs text-neutral-400">Pay cash directly upon arriving at destination</span>
-                  </div>
-                </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                  selectedPaymentMethod === 'cash' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
-                }`}>
-                  {selectedPaymentMethod === 'cash' && <div className="w-2 h-2 rounded-full bg-black" />}
-                </div>
-              </div>
-            </div>
-
-            {/* Error Message if any */}
-            {paymentError && (
-              <div className="p-3 bg-red-950/60 border border-red-800 rounded-xl text-xs text-red-300">
-                {paymentError}
-              </div>
-            )}
-
-            {/* Security note */}
-            <div className="flex items-center justify-center space-x-1.5 text-[11px] text-neutral-500 pt-1">
-              <Lock className="w-3.5 h-3.5 text-neutral-400" />
-              <span>256-bit encrypted secure checkout · PCI-DSS Compliant</span>
-            </div>
-
-            {/* Pay Button */}
-            <button
-              type="button"
-              id="confirm-pay-now-btn"
-              disabled={isProcessingPayment}
-              onClick={handleProcessPayment}
-              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-emerald-500/25 active:scale-[0.98] cursor-pointer"
-            >
-              {isProcessingPayment ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Authorizing Payment...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
-                  <span>
-                    {selectedPaymentMethod === 'cash'
-                      ? `Confirm Cash Payment · ₹${fareFormatted}`
-                      : `Pay ₹${fareFormatted} Now`}
+            {/* Modal Scrollable Body */}
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
+              {/* Total Fare Amount Pill */}
+              <div className="bg-black border border-neutral-800 p-3.5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-500 block">
+                    Trip Total Fare
                   </span>
-                </>
+                  <span className="text-xs text-neutral-300">
+                    Includes taxes, tolls & fees
+                  </span>
+                </div>
+                <span className="font-mono text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight">
+                  ₹{fareFormatted}
+                </span>
+              </div>
+
+              {/* Payment Method Selector */}
+              <div className="space-y-2.5">
+                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider block">
+                  Select Payment Method
+                </span>
+
+                {/* Option 1: UPI / Instant Pay */}
+                <div
+                  onClick={() => setSelectedPaymentMethod('upi')}
+                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    selectedPaymentMethod === 'upi'
+                      ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
+                      : 'bg-black border-neutral-800 hover:border-neutral-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-xs sm:text-sm text-white">UPI / GPay / PhonePe</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.2 rounded">
+                          FAST
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-neutral-400">Instant scan or VPA transfer</span>
+                    </div>
+                  </div>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    selectedPaymentMethod === 'upi' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
+                  }`}>
+                    {selectedPaymentMethod === 'upi' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+                  </div>
+                </div>
+
+                {/* Option 2: Credit / Debit Card (Stripe) */}
+                <div
+                  onClick={() => setSelectedPaymentMethod('card')}
+                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    selectedPaymentMethod === 'card'
+                      ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
+                      : 'bg-black border-neutral-800 hover:border-neutral-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                      <CreditCard className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-xs sm:text-sm text-white block">Credit / Debit Card</span>
+                      <span className="text-[11px] text-neutral-400">Stripe gateway (Visa/Mastercard)</span>
+                    </div>
+                  </div>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    selectedPaymentMethod === 'card' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
+                  }`}>
+                    {selectedPaymentMethod === 'card' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+                  </div>
+                </div>
+
+                {/* Option 3: Cash to Driver */}
+                <div
+                  onClick={() => setSelectedPaymentMethod('cash')}
+                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    selectedPaymentMethod === 'cash'
+                      ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
+                      : 'bg-black border-neutral-800 hover:border-neutral-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                      <Banknote className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-xs sm:text-sm text-white block">Cash to Driver</span>
+                      <span className="text-[11px] text-neutral-400">Pay cash upon destination arrival</span>
+                    </div>
+                  </div>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    selectedPaymentMethod === 'cash' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
+                  }`}>
+                    {selectedPaymentMethod === 'cash' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
+                  </div>
+                </div>
+              </div>
+
+              {/* UPI Payment Detailed Flow (when UPI selected) */}
+              {selectedPaymentMethod === 'upi' && (
+                <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3.5 space-y-3 animate-in fade-in duration-200">
+                  {/* Sub-mode Tabs: Scan QR vs Enter UPI ID */}
+                  <div className="grid grid-cols-2 gap-2 bg-neutral-900 p-1 rounded-xl text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setUpiSubMode('qr')}
+                      className={`py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 transition cursor-pointer ${
+                        upiSubMode === 'qr'
+                          ? 'bg-emerald-500 text-black shadow'
+                          : 'text-neutral-400 hover:text-white'
+                      }`}
+                    >
+                      <QrCode className="w-3.5 h-3.5" />
+                      <span>Scan Dynamic QR</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUpiSubMode('id')}
+                      className={`py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 transition cursor-pointer ${
+                        upiSubMode === 'id'
+                          ? 'bg-emerald-500 text-black shadow'
+                          : 'text-neutral-400 hover:text-white'
+                      }`}
+                    >
+                      <Smartphone className="w-3.5 h-3.5" />
+                      <span>UPI ID / VPA</span>
+                    </button>
+                  </div>
+
+                  {upiSubMode === 'qr' ? (
+                    <div className="text-center space-y-2.5 pt-1">
+                      {/* Live Scannable Dynamic QR Code */}
+                      <div className="bg-white p-2.5 rounded-xl inline-block shadow-xl mx-auto border-2 border-emerald-500/40">
+                        <img
+                          src={qrCodeUrl}
+                          alt="UPI Payment QR Code"
+                          className="w-36 h-36 mx-auto block rounded-lg"
+                          loading="lazy"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-center space-x-1.5 text-[10px] text-neutral-400 font-medium">
+                        <span>Scan with:</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">GPay</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">PhonePe</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">Paytm</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">BHIM</span>
+                      </div>
+
+                      {/* Driver Payee UPI ID with Copy & Edit */}
+                      <div className="bg-neutral-900/90 border border-neutral-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                        <div className="text-left flex-1 min-w-0 pr-2">
+                          <span className="text-[9px] text-neutral-400 block uppercase font-bold tracking-wider">
+                            Driver Payee UPI ID
+                          </span>
+                          {isEditingDriverUpi ? (
+                            <input
+                              type="text"
+                              value={driverUpiId}
+                              onChange={(e) => setDriverUpiId(e.target.value)}
+                              className="bg-black border border-emerald-500 rounded px-2 py-0.5 text-xs text-emerald-400 font-mono mt-0.5 w-full outline-none"
+                              placeholder="driver@upi"
+                            />
+                          ) : (
+                            <span className="font-mono font-bold text-white text-xs truncate block">
+                              {driverUpiId}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center space-x-1 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingDriverUpi(!isEditingDriverUpi)}
+                            className="px-2 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded text-[10px] transition cursor-pointer"
+                          >
+                            {isEditingDriverUpi ? 'Save' : 'Edit'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(driverUpiId);
+                              setCopiedUpi(true);
+                              setTimeout(() => setCopiedUpi(false), 2000);
+                            }}
+                            className="px-2 py-1 bg-emerald-500/20 border border-emerald-500/40 hover:bg-emerald-500/30 text-emerald-400 rounded text-[10px] font-bold transition flex items-center space-x-1 cursor-pointer"
+                          >
+                            {copiedUpi ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedUpi ? 'Copied' : 'Copy'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 12-Digit UTR Input */}
+                      <div className="text-left space-y-1">
+                        <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                          <span>12-Digit UPI Ref / UTR No.</span>
+                          <span className="text-neutral-500 font-normal text-[9px]">Optional</span>
+                        </div>
+                        <input
+                          type="text"
+                          maxLength={16}
+                          value={upiUtrNumber}
+                          onChange={(e) => setUpiUtrNumber(e.target.value.replace(/[^0-9A-Za-z]/g, ''))}
+                          placeholder="e.g. 429188239014 (from GPay / PhonePe receipt)"
+                          className="w-full bg-black border border-neutral-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-600 font-mono outline-none"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5 text-xs pt-1">
+                      {/* Pay by UPI ID mode */}
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                          Driver UPI ID (Payee)
+                        </label>
+                        <input
+                          type="text"
+                          value={driverUpiId}
+                          onChange={(e) => setDriverUpiId(e.target.value)}
+                          className="w-full bg-black border border-neutral-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-emerald-400 font-mono outline-none"
+                          placeholder="driver@okhdfcbank"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                          Rider UPI ID (Your VPA)
+                        </label>
+                        <input
+                          type="text"
+                          value={riderUpiId}
+                          onChange={(e) => setRiderUpiId(e.target.value)}
+                          className="w-full bg-black border border-neutral-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none"
+                          placeholder="yourname@okaxis"
+                        />
+                      </div>
+
+                      <div className="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800 text-[11px] text-neutral-400 flex items-center justify-between">
+                        <span>Exact Fare to Transfer:</span>
+                        <span className="font-mono font-bold text-emerald-400 text-sm">₹{fareFormatted}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
-            </button>
+
+              {/* Card Payment Info (when Card selected) */}
+              {selectedPaymentMethod === 'card' && (
+                <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3.5 space-y-3 text-xs animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-2 border-b border-neutral-900">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      <span className="font-bold text-white text-xs">Stripe Test Gateway Active</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-neutral-500">pk_test_...55H</span>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                      Card Number
+                    </label>
+                    <div className="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono flex items-center justify-between">
+                      <span>4242 •••• •••• 4242</span>
+                      <span className="text-[9px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-1.5 py-0.5 rounded">VISA</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">Expiry</label>
+                      <div className="bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono">12 / 28</div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">CVC</label>
+                      <div className="bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono">123</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message if any */}
+              {paymentError && (
+                <div className="p-3 bg-red-950/60 border border-red-800 rounded-xl text-xs text-red-300">
+                  {paymentError}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer (Fixed Bottom) */}
+            <div className="p-4 sm:p-5 border-t border-neutral-800 bg-neutral-900 shrink-0 space-y-2">
+              <div className="flex items-center justify-center space-x-1.5 text-[10px] text-neutral-500">
+                <Lock className="w-3.5 h-3.5 text-neutral-400" />
+                <span>256-bit encrypted secure checkout · PCI-DSS Compliant</span>
+              </div>
+
+              {/* Pay Button */}
+              <button
+                type="button"
+                id="confirm-pay-now-btn"
+                disabled={isProcessingPayment}
+                onClick={handleProcessPayment}
+                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-emerald-500/25 active:scale-[0.98] cursor-pointer"
+              >
+                {isProcessingPayment ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Authorizing Payment...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                    <span>
+                      {selectedPaymentMethod === 'cash'
+                        ? `Confirm Cash Payment · ₹${fareFormatted}`
+                        : selectedPaymentMethod === 'upi'
+                        ? upiSubMode === 'qr'
+                          ? `I Have Scanned & Sent ₹${fareFormatted}`
+                          : `Send Request & Pay ₹${fareFormatted}`
+                        : `Pay ₹${fareFormatted} via Stripe Card`}
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -774,16 +1001,17 @@ export default function LiveRideTracker({
       {/* RECEIPT MODAL */}
       {/* ========================================================================= */}
       {showReceiptModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-6 shadow-2xl relative text-white">
-            <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl relative text-white overflow-hidden">
+            {/* Header (Fixed Top) */}
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-800 shrink-0 bg-neutral-900">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
                   <Receipt className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-white">Payment Receipt</h3>
-                  <p className="text-xs text-neutral-400">Uber Trip Invoice</p>
+                  <h3 className="text-base font-black text-white">Payment Receipt</h3>
+                  <p className="text-[11px] text-neutral-400">Uber Trip Tax Invoice</p>
                 </div>
               </div>
 
@@ -796,62 +1024,99 @@ export default function LiveRideTracker({
               </button>
             </div>
 
-            <div className="bg-black border border-neutral-800 p-5 rounded-2xl space-y-3 text-xs">
-              <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
-                <span>Receipt Number:</span>
-                <span className="font-mono text-white font-bold">#UBR-{(ride?.id || '982736').slice(0, 10).toUpperCase()}</span>
-              </div>
-              {stripePaymentIntentId && (
+            {/* Scrollable Receipt Body */}
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
+              <div className="bg-black border border-neutral-800 p-4 rounded-2xl space-y-3 text-xs">
                 <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Stripe Reference:</span>
-                  </div>
-                  <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
-                    {stripePaymentIntentId}
+                  <span>Receipt Number:</span>
+                  <span className="font-mono text-white font-bold">#UBR-{(ride?.id || '982736').slice(0, 10).toUpperCase()}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
+                  <span>Payment Method:</span>
+                  <span className="font-bold text-white uppercase">
+                    {selectedPaymentMethod === 'upi' ? 'UPI Instant Transfer' : selectedPaymentMethod === 'card' ? 'Stripe Card (Visa)' : 'Cash on Dropoff'}
                   </span>
                 </div>
+
+                {selectedPaymentMethod === 'upi' && (
+                  <>
+                    <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
+                      <span>Driver Payee UPI:</span>
+                      <span className="font-mono text-emerald-400 font-bold">{driverUpiId}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
+                      <span>Rider UPI / VPA:</span>
+                      <span className="font-mono text-white font-medium">{riderUpiId}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>UPI UTR / Ref No:</span>
+                      </div>
+                      <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
+                        #{savedUtr || 'UTR-829104829102'}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {selectedPaymentMethod === 'card' && stripePaymentIntentId && (
+                  <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>Stripe Reference:</span>
+                    </div>
+                    <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
+                      {stripePaymentIntentId}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center text-neutral-400">
+                  <span>Base Fare:</span>
+                  <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.75).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-neutral-400">
+                  <span>Distance & Time:</span>
+                  <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.20).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-neutral-400">
+                  <span>Taxes & GST (5%):</span>
+                  <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.05).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2.5 border-t border-neutral-800 text-sm">
+                  <span className="font-bold text-white">Total Paid:</span>
+                  <span className="font-black text-emerald-400 font-mono text-lg">₹{fareFormatted}</span>
+                </div>
+                <div className="pt-1 text-center text-[10px] text-neutral-500">
+                  Payment Status: <span className="text-emerald-400 font-semibold">SUCCEEDED (PAID)</span>
+                </div>
+              </div>
+
+              {selectedPaymentMethod === 'card' && stripeReceiptUrl && (
+                <a
+                  href={stripeReceiptUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-2.5 bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/60 text-emerald-400 hover:text-emerald-300 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2"
+                >
+                  <span>View Stripe Official Charge Receipt</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               )}
-              <div className="flex justify-between items-center text-neutral-400">
-                <span>Base Fare:</span>
-                <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.75).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center text-neutral-400">
-                <span>Distance & Time:</span>
-                <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.20).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center text-neutral-400">
-                <span>Taxes & GST (5%):</span>
-                <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.05).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center pt-3 border-t border-neutral-800 text-sm">
-                <span className="font-bold text-white">Total Paid:</span>
-                <span className="font-black text-emerald-400 font-mono text-lg">₹{fareFormatted}</span>
-              </div>
-              <div className="pt-2 text-center text-[11px] text-neutral-500">
-                Processed via Stripe · Status: <span className="text-emerald-400 font-semibold">SUCCEEDED</span>
-              </div>
             </div>
 
-            {stripeReceiptUrl && (
-              <a
-                href={stripeReceiptUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-3 bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/60 text-emerald-400 hover:text-emerald-300 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2"
+            {/* Footer (Fixed Bottom) */}
+            <div className="p-4 sm:p-5 border-t border-neutral-800 bg-neutral-900 shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowReceiptModal(false)}
+                className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs rounded-xl transition cursor-pointer"
               >
-                <span>View Stripe Official Charge Receipt</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowReceiptModal(false)}
-              className="w-full py-3.5 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs rounded-xl transition cursor-pointer"
-            >
-              Close Receipt
-            </button>
+                Close Receipt
+              </button>
+            </div>
           </div>
         </div>
       )}
