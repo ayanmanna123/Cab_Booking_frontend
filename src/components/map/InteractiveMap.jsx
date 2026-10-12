@@ -195,12 +195,13 @@ function MapZoomControls({
   const [zoomLevel, setZoomLevel] = useState(map.getZoom());
   const controlRef = useRef(null);
 
-  useEffect(() => {
-    if (controlRef.current) {
-      L.DomEvent.disableClickPropagation(controlRef.current);
-      L.DomEvent.disableScrollPropagation(controlRef.current);
-    }
+  const zoomInRef = useRef(null);
+  const zoomOutRef = useRef(null);
+  const recenterRef = useRef(null);
+  const themeRef = useRef(null);
+  const fullscreenRef = useRef(null);
 
+  useEffect(() => {
     const onZoom = () => {
       setZoomLevel(map.getZoom());
     };
@@ -210,55 +211,83 @@ function MapZoomControls({
     };
   }, [map]);
 
-  const handleZoomIn = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    map.zoomIn();
-  };
+  // Attach direct native event listeners to guarantee button execution in Leaflet
+  useEffect(() => {
+    const btnIn = zoomInRef.current;
+    const btnOut = zoomOutRef.current;
+    const btnRecenter = recenterRef.current;
+    const btnTheme = themeRef.current;
+    const btnFs = fullscreenRef.current;
 
-  const handleZoomOut = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    map.zoomOut();
-  };
+    const onZoomIn = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      map.zoomIn();
+    };
 
-  const handleRecenter = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (routeCoordinates && routeCoordinates.length > 0) {
-      map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [50, 50] });
-    } else if (pickupCoords && dropoffCoords) {
-      map.fitBounds(L.latLngBounds([pickupCoords, dropoffCoords]), { padding: [60, 60] });
-    } else if (pickupCoords) {
-      map.setView(pickupCoords, 14, { animate: true });
-    }
-  };
+    const onZoomOut = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      map.zoomOut();
+    };
 
-  const handleToggleTheme = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setMapTheme((prev) => (prev === 'dark' ? 'street' : 'dark'));
-  };
+    const onRecenter = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (routeCoordinates && routeCoordinates.length > 0) {
+        map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [50, 50] });
+      } else if (pickupCoords && dropoffCoords) {
+        map.fitBounds(L.latLngBounds([pickupCoords, dropoffCoords]), { padding: [60, 60] });
+      } else if (pickupCoords) {
+        map.setView(pickupCoords, 14, { animate: true });
+      }
+    };
 
-  const handleFullscreenClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (onToggleFullscreen) onToggleFullscreen();
-  };
+    const onTheme = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setMapTheme((prev) => (prev === 'dark' ? 'street' : 'dark'));
+    };
+
+    const onFs = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onToggleFullscreen) onToggleFullscreen();
+    };
+
+    btnIn?.addEventListener('click', onZoomIn);
+    btnOut?.addEventListener('click', onZoomOut);
+    btnRecenter?.addEventListener('click', onRecenter);
+    btnTheme?.addEventListener('click', onTheme);
+    btnFs?.addEventListener('click', onFs);
+
+    return () => {
+      btnIn?.removeEventListener('click', onZoomIn);
+      btnOut?.removeEventListener('click', onZoomOut);
+      btnRecenter?.removeEventListener('click', onRecenter);
+      btnTheme?.removeEventListener('click', onTheme);
+      btnFs?.removeEventListener('click', onFs);
+    };
+  }, [map, routeCoordinates, pickupCoords, dropoffCoords, setMapTheme, onToggleFullscreen]);
 
   return (
     <div
       ref={controlRef}
       className="leaflet-top leaflet-right pointer-events-auto"
       style={{ margin: '14px', zIndex: 1000 }}
+      onMouseDown={(e) => e.stopPropagation()}
+      onDoubleClick={(e) => e.stopPropagation()}
+      onWheel={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <div className="flex flex-col items-center space-y-2 select-none">
         {/* Zoom In & Out Pill with Level display */}
         <div className="bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-2xl p-1 shadow-2xl flex flex-col items-center divide-y divide-neutral-800 text-white">
           {/* Zoom In */}
           <button
+            ref={zoomInRef}
             type="button"
-            onClick={handleZoomIn}
+            onClick={(e) => { e.stopPropagation(); map.zoomIn(); }}
             title="Zoom In (+)"
             className="w-8 h-8 flex items-center justify-center hover:bg-neutral-800 active:scale-90 rounded-xl transition text-neutral-200 hover:text-white cursor-pointer"
           >
@@ -272,8 +301,9 @@ function MapZoomControls({
 
           {/* Zoom Out */}
           <button
+            ref={zoomOutRef}
             type="button"
-            onClick={handleZoomOut}
+            onClick={(e) => { e.stopPropagation(); map.zoomOut(); }}
             title="Zoom Out (−)"
             className="w-8 h-8 flex items-center justify-center hover:bg-neutral-800 active:scale-90 rounded-xl transition text-neutral-200 hover:text-white cursor-pointer"
           >
@@ -283,8 +313,18 @@ function MapZoomControls({
 
         {/* Re-center / Fit bounds */}
         <button
+          ref={recenterRef}
           type="button"
-          onClick={handleRecenter}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (routeCoordinates && routeCoordinates.length > 0) {
+              map.fitBounds(L.latLngBounds(routeCoordinates), { padding: [50, 50] });
+            } else if (pickupCoords && dropoffCoords) {
+              map.fitBounds(L.latLngBounds([pickupCoords, dropoffCoords]), { padding: [60, 60] });
+            } else if (pickupCoords) {
+              map.setView(pickupCoords, 14, { animate: true });
+            }
+          }}
           title="Re-center on Pickup / Route"
           className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
         >
@@ -293,8 +333,12 @@ function MapZoomControls({
 
         {/* Street Light / Night Dark Map Style Switcher */}
         <button
+          ref={themeRef}
           type="button"
-          onClick={handleToggleTheme}
+          onClick={(e) => {
+            e.stopPropagation();
+            setMapTheme((prev) => (prev === 'dark' ? 'street' : 'dark'));
+          }}
           title={mapTheme === 'dark' ? 'Switch to Street View (Light Mode)' : 'Switch to Dark Mode'}
           className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
         >
@@ -308,8 +352,12 @@ function MapZoomControls({
         {/* Maximize / Zoom Fullscreen Map Button */}
         {onToggleFullscreen && (
           <button
+            ref={fullscreenRef}
             type="button"
-            onClick={handleFullscreenClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFullscreen();
+            }}
             title={isFullscreen ? 'Exit Fullscreen' : 'Expand / Zoom Map Fullscreen'}
             className="w-9 h-9 bg-neutral-900/90 backdrop-blur-md border border-neutral-700/80 rounded-xl flex items-center justify-center hover:bg-neutral-800 active:scale-90 transition text-neutral-200 hover:text-white shadow-xl cursor-pointer"
           >

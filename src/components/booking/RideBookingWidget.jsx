@@ -1194,12 +1194,12 @@ export default function RideBookingWidget({
           {/* Connected Inputs with official light-gray background & icon connectors */}
           <div ref={inputsContainerRef} className="relative space-y-2">
             {/* Vertical connector line */}
-            <div className="absolute left-[20px] top-[26px] bottom-[26px] w-[2px] bg-neutral-400 z-10 pointer-events-none"></div>
+            <div className="absolute left-[21px] -translate-x-1/2 top-[24px] bottom-[24px] w-[2px] bg-neutral-400 z-10 pointer-events-none"></div>
 
             {/* Input 1: Pickup Location */}
             <div className="relative">
               <div className="flex items-center bg-[#f3f3f3] rounded-lg border border-transparent focus-within:border-black transition">
-                <div className="w-10 flex justify-center z-20">
+                <div className="w-10 shrink-0 flex items-center justify-center z-20">
                   {/* Official circle icon */}
                   <div className="w-3 h-3 rounded-full border-2 border-black flex items-center justify-center bg-transparent">
                     <div className="w-1 h-1 rounded-full bg-black"></div>
@@ -1309,7 +1309,7 @@ export default function RideBookingWidget({
             {/* Input 2: Dropoff Location */}
             <div className="relative">
               <div className="flex items-center bg-[#f3f3f3] rounded-lg border border-transparent focus-within:border-black transition">
-                <div className="w-10 flex justify-center z-20">
+                <div className="w-10 shrink-0 flex items-center justify-center z-20">
                   {/* Official solid square icon */}
                   <div className="w-2.5 h-2.5 bg-black"></div>
                 </div>
