@@ -109,11 +109,39 @@ export default function DriverDashboard() {
   const [activeRideDistance, setActiveRideDistance] = useState('4.2 km');
   const [activeRideDuration, setActiveRideDuration] = useState('12 mins');
   const mapSectionRef = useRef(null);
+  const leftCardRef = useRef(null);
+  const [syncedMapHeight, setSyncedMapHeight] = useState('440px');
   const pinInput0Ref = useRef(null);
   const pinInput1Ref = useRef(null);
   const pinInput2Ref = useRef(null);
   const pinInput3Ref = useRef(null);
   const pinInputRefs = [pinInput0Ref, pinInput1Ref, pinInput2Ref, pinInput3Ref];
+
+  // Synchronize map height exactly with left details card so both columns have matching heights
+  useEffect(() => {
+    if (!leftCardRef.current) return;
+    const updateSize = () => {
+      if (leftCardRef.current && window.innerWidth >= 1024) {
+        const leftH = leftCardRef.current.offsetHeight;
+        if (leftH > 200) {
+          // Account for the bottom telemetry status line (approx 26px = 16px text + mt-2)
+          setSyncedMapHeight(`${Math.max(380, leftH - 26)}px`);
+        }
+      } else {
+        setSyncedMapHeight('380px');
+      }
+    };
+
+    updateSize();
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(leftCardRef.current);
+    window.addEventListener('resize', updateSize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
+  }, [activeRide?.status, activeRide?.isVerified, isOnline, pinDigits, pinError]);
 
   // Fetch real road route geometry from OSRM when active ride is loaded
   useEffect(() => {
@@ -1247,7 +1275,7 @@ export default function DriverDashboard() {
       {/* 3. Responsive Two-Column Live Ride-Tracking & Map Dashboard (~38% Left, ~62% Right) */}
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
         {/* Left Column: Ride Details / Driver Card (~38% width) */}
-        <div className="w-full lg:w-[38%] shrink-0">
+        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0">
           {activeRide ? (
             /* Active Trip Assigned (ACCEPTED, ARRIVED, or IN_PROGRESS) */
             <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
@@ -1617,7 +1645,7 @@ export default function DriverDashboard() {
               pickupCoords={activeRide?.pickupCoords || driverLocation}
               dropoffCoords={activeRide?.isVerified ? activeRide?.dropoffCoords : null}
               routeCoordinates={activeRide?.isVerified ? activeRideRoute : []}
-              height="550px"
+              height={syncedMapHeight}
               nearbyDrivers={[
                 {
                   id: 'my_driver_marker',
@@ -1630,7 +1658,7 @@ export default function DriverDashboard() {
             />
           </div>
 
-          <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-400 px-1">
+          <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-400 px-1 shrink-0">
             <span>
               {isOnline
                 ? 'Transmitting live GPS telemetry to passenger network'

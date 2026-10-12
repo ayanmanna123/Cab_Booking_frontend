@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldAlert,
   Car,
@@ -103,6 +103,34 @@ export default function LiveRideTracker({
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [isEditingDriverUpi, setIsEditingDriverUpi] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const leftCardRef = useRef(null);
+  const [syncedMapHeight, setSyncedMapHeight] = useState('480px');
+
+  // Synchronize map height with left details card so both columns have matching heights
+  useEffect(() => {
+    if (!leftCardRef.current) return;
+    const updateSize = () => {
+      if (leftCardRef.current && window.innerWidth >= 1024) {
+        const leftH = leftCardRef.current.offsetHeight;
+        if (leftH > 200) {
+          // Subtract 24px for bottom telemetry line (18px text + mt-1.5)
+          setSyncedMapHeight(`${Math.max(380, leftH - 24)}px`);
+        }
+      } else {
+        setSyncedMapHeight('380px');
+      }
+    };
+
+    updateSize();
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(leftCardRef.current);
+    window.addEventListener('resize', updateSize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
+  }, [statusStep, paymentCompleted, tripCompleted, ride?.otp]);
 
   // Synchronize driverUpiId whenever assigned driver updates
   useEffect(() => {
@@ -375,69 +403,91 @@ export default function LiveRideTracker({
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(upiPayUrl)}`;
 
   return (
-    <div className="py-4 sm:py-6 max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4 select-none">
-      {/* 1. Compact Header & Status Stepper */}
-      <div className="bg-neutral-950 border border-neutral-800 p-3.5 sm:p-4 rounded-2xl space-y-3">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
-          <div className="min-w-0">
-            <div className="flex items-center space-x-2">
-              <span className="w-2 h-2 rounded-full bg-white shrink-0 animate-pulse" />
-              <h2 className="text-base font-bold text-white tracking-tight">
-                {tripCompleted ? 'Trip Completed' : statusStep >= 3 ? 'On Trip to Destination' : 'Driver En Route'}
-              </h2>
-            </div>
-            <p className="text-[11px] text-neutral-400 mt-0.5 pl-4">
-              {tripCompleted
-                ? 'You have safely arrived at your destination.'
-                : statusStep >= 3
-                ? `En route to ${ride?.dropoffAddress || 'destination'}.`
-                : 'Your driver has arrived at the pickup location.'}
-            </p>
-          </div>
-
-          {/* Emergency SOS button */}
-          {!tripCompleted && (
-            <button
-              onClick={handleSos}
-              className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer shrink-0 ${
-                sosActive
-                  ? 'bg-red-700 text-white animate-pulse'
-                  : 'bg-neutral-900 text-neutral-300 hover:text-white hover:bg-neutral-850 border border-neutral-800'
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-red-400" />
-              <span>{sosActive ? 'SOS Dispatched' : 'Emergency SOS'}</span>
-            </button>
-          )}
-        </div>
-
-        {/* Compact Stepper */}
-        <div className="grid grid-cols-4 gap-2 pt-1 border-t border-neutral-850">
-          {steps.map(step => (
-            <div key={step.id} className="space-y-1">
-              <div
-                className={`h-1 rounded-full transition-all ${
-                  step.id <= statusStep ? 'bg-white' : 'bg-neutral-800'
-                }`}
-              />
-              <span
-                className={`text-[10px] font-medium block truncate ${
-                  step.id <= statusStep ? 'text-white' : 'text-neutral-500'
-                }`}
-              >
-                {step.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 2. Main Responsive Two-Column Layout: Driver Info (~38%) + Live Map (~62%) */}
+    <div className="py-4 sm:py-6 max-w-[1200px] mx-auto px-4 sm:px-6 select-none">
+      {/* Main Responsive Two-Column Layout: Ride & Driver Details (~38%) + Live Map (~62%) */}
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
-        {/* Left Column: Driver Card, Verification PIN, & Payment */}
-        <div className="w-full lg:w-[38%] shrink-0">
-          <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
-            {/* Driver Profile Row */}
+        {/* Left Column: Ride & Driver Details (~38% width) */}
+        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0">
+          <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xl select-none">
+            {/* 1. Slim Ride Status Bar */}
+            <div className="pb-3 border-b border-neutral-800/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${tripCompleted ? 'bg-emerald-400' : 'bg-white animate-pulse'}`} />
+                  <span className="text-xs font-semibold text-white tracking-tight truncate">
+                    {tripCompleted
+                      ? 'Trip completed'
+                      : statusStep >= 3
+                      ? 'Trip in progress'
+                      : statusStep === 2
+                      ? 'Driver arrived at pickup'
+                      : 'Driver arriving'}
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-2 shrink-0">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
+                    {tripCompleted
+                      ? 'COMPLETED'
+                      : statusStep >= 3
+                      ? 'ON TRIP'
+                      : statusStep === 2
+                      ? 'AT PICKUP'
+                      : 'ARRIVING'}
+                  </span>
+
+                  {/* Compact Emergency SOS Button */}
+                  {!tripCompleted && (
+                    <button
+                      type="button"
+                      onClick={handleSos}
+                      title="Emergency Assistance"
+                      className={`h-5 px-1.5 rounded text-[10px] font-semibold flex items-center space-x-1 transition cursor-pointer ${
+                        sosActive
+                          ? 'bg-red-700 text-white animate-pulse'
+                          : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
+                      }`}
+                    >
+                      <ShieldAlert className="w-2.5 h-2.5 text-red-400" />
+                      <span>{sosActive ? 'SOS Dispatched' : 'SOS'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Supporting Text */}
+              <p className="text-[11px] text-neutral-400 pl-4 leading-relaxed">
+                {tripCompleted
+                  ? 'You have safely arrived at your destination.'
+                  : statusStep >= 3
+                  ? `En route to ${ride?.dropoffAddress || 'destination'}.`
+                  : statusStep === 2
+                  ? 'Your driver has arrived at the pickup location. Verify PIN to begin.'
+                  : 'Your driver is en route to meet you at pickup.'}
+              </p>
+
+              {/* Slim 4-Step Stepper Progress Bar */}
+              <div className="grid grid-cols-4 gap-1.5 pt-1">
+                {steps.map(step => (
+                  <div key={step.id} className="space-y-1">
+                    <div
+                      className={`h-1 rounded-full transition-all ${
+                        step.id <= statusStep ? 'bg-white' : 'bg-neutral-850'
+                      }`}
+                    />
+                    <span
+                      className={`text-[9px] font-medium block truncate text-center ${
+                        step.id <= statusStep ? 'text-white' : 'text-neutral-500'
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. Minimal Driver Card */}
             <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80">
               <div className="flex items-center space-x-3 min-w-0">
                 <div className="w-11 h-11 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900 shrink-0">
@@ -472,7 +522,7 @@ export default function LiveRideTracker({
               </a>
             </div>
 
-            {/* Vehicle Details: Compact Two-Column Layout */}
+            {/* 3. Vehicle Details: Compact Two-Column Layout */}
             <div className="space-y-2 pb-3 border-b border-neutral-800/80">
               <div className="flex items-center justify-between text-xs">
                 <div>
@@ -504,7 +554,7 @@ export default function LiveRideTracker({
               </div>
             </div>
 
-            {/* Status or Ride Verification PIN */}
+            {/* 4. Compact Ride Verification PIN */}
             {tripCompleted ? (
               <div className="p-3 bg-neutral-900/60 border border-neutral-800 rounded-xl space-y-2 text-xs">
                 <div className="flex items-center space-x-2 text-white font-semibold">
@@ -525,7 +575,6 @@ export default function LiveRideTracker({
                 )}
               </div>
             ) : statusStep < 3 && ride?.otp ? (
-              /* Compact Ride Verification PIN */
               <div className="space-y-2 pb-3 border-b border-neutral-800/80">
                 <div className="flex items-center justify-between">
                   <div>
@@ -566,7 +615,7 @@ export default function LiveRideTracker({
               </div>
             )}
 
-            {/* Compact Trip Payment */}
+            {/* 5. Compact Trip Payment */}
             <div className="space-y-2 pb-3 border-b border-neutral-800/80 text-xs">
               <div className="flex items-center justify-between">
                 <div>
@@ -609,7 +658,7 @@ export default function LiveRideTracker({
               )}
             </div>
 
-            {/* Trip Route Summary */}
+            {/* 6. Trip Route Summary */}
             <div className="space-y-1.5 text-xs">
               <div className="flex items-start space-x-2 truncate">
                 <div className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
@@ -625,7 +674,7 @@ export default function LiveRideTracker({
               </div>
             </div>
 
-            {/* Cancel ride */}
+            {/* 7. Cancel ride */}
             {onCancel && statusStep < 3 && !tripCompleted && (
               <button
                 type="button"
@@ -640,20 +689,42 @@ export default function LiveRideTracker({
 
         {/* Right Column: Live Interactive Leaflet Map (~62%) */}
         <div className="w-full lg:w-[62%] flex-1 min-w-0">
-          <InteractiveMap
-            pickupCoords={ride?.pickupCoords || [22.6113, 88.4202]}
-            dropoffCoords={ride?.dropoffCoords || [22.5804, 88.4378]}
-            height="550px"
-            nearbyDrivers={[
-              {
-                id: 'active_driver',
-                vehicle_model: `${ride?.driverName || 'Driver'} (${ride?.vehicleModel || 'Toyota'})`,
-                latitude: driverCoords[0],
-                longitude: driverCoords[1],
-                rating: ride?.driverRating || 4.98
-              }
-            ]}
-          />
+          <div className="relative w-full rounded-[18px] overflow-hidden border border-neutral-800 shadow-xl bg-neutral-950">
+            {/* Map Top Floating Overlay */}
+            <div className="absolute top-3 left-3 z-20 bg-neutral-950/80 border border-neutral-800 backdrop-blur-md px-2.5 py-1 rounded-lg flex items-center space-x-1.5 text-xs text-neutral-300 shadow-lg">
+              <MapPin className="w-3 h-3 text-white" />
+              <span className="font-mono text-[11px] font-medium">
+                {ride?.dropoffAddress ? ride.dropoffAddress.split(',')[0] : 'Live Trip Route'}
+              </span>
+              <span className="text-[10px] text-neutral-500">
+                · {etaMinutes} min away
+              </span>
+            </div>
+
+            <InteractiveMap
+              pickupCoords={ride?.pickupCoords || [22.6113, 88.4202]}
+              dropoffCoords={ride?.dropoffCoords || [22.5804, 88.4378]}
+              height={syncedMapHeight}
+              nearbyDrivers={[
+                {
+                  id: 'active_driver',
+                  vehicle_model: `${ride?.driverName || 'Driver'} (${ride?.vehicleModel || 'Toyota'})`,
+                  latitude: driverCoords[0],
+                  longitude: driverCoords[1],
+                  rating: ride?.driverRating || 4.98
+                }
+              ]}
+            />
+          </div>
+
+          <div className="mt-1.5 flex items-center justify-between text-[11px] text-neutral-400 px-1 shrink-0">
+            <span>
+              {tripCompleted
+                ? 'Trip complete'
+                : 'Live GPS telemetry stream active · Driver location synchronizing'}
+            </span>
+            <span className="text-neutral-500">Scroll wheel or + / − to zoom</span>
+          </div>
         </div>
       </div>
 

@@ -181,6 +181,28 @@ function AutoFitBounds({ pickup, dropoff, routeCoordinates }) {
   return null;
 }
 
+// Auto invalidates map container size when parent/viewport dimensions change
+function AutoResizeMap({ height }) {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+  }, [map, height]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      map.invalidateSize();
+    };
+    window.addEventListener('resize', handleResize);
+    const timer = setTimeout(() => map.invalidateSize(), 200);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
+  }, [map]);
+
+  return null;
+}
+
 // Dedicated sleek Zoom & Map Controls component inside MapContainer
 function MapZoomControls({
   pickupCoords,
@@ -496,6 +518,9 @@ export default function InteractiveMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
+
+        {/* Automatic Viewport & Dynamic Height Invalidation */}
+        <AutoResizeMap height={height} />
 
         {/* Custom Dedicated Zoom & Navigation Controls */}
         <MapZoomControls

@@ -58,15 +58,15 @@ export default function HeroVisual({
               dropoffCoords={dropoffCoords}
               routeCoordinates={routeCoordinates}
               nearbyDrivers={nearbyDrivers}
-              height="550px"
+              height="460px"
             />
           </div>
         ) : (
           /* Hero Photography Collage */
           <div className="relative rounded-[18px] overflow-hidden select-none">
-            <div className="grid grid-cols-2 gap-2 h-[550px]">
+            <div className="grid grid-cols-2 gap-2 h-[460px]">
               {/* Top Left */}
-              <div className="rounded-xl overflow-hidden h-[268px]">
+              <div className="rounded-xl overflow-hidden h-[224px]">
                 <img
                   src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=800&auto=format&fit=crop"
                   alt="Couple smiling at night"
@@ -75,7 +75,7 @@ export default function HeroVisual({
               </div>
 
               {/* Top Right */}
-              <div className="rounded-xl overflow-hidden h-[268px]">
+              <div className="rounded-xl overflow-hidden h-[224px]">
                 <img
                   src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop"
                   alt="Executive traveler with phone"
@@ -84,7 +84,7 @@ export default function HeroVisual({
               </div>
 
               {/* Bottom Left */}
-              <div className="rounded-xl overflow-hidden h-[272px]">
+              <div className="rounded-xl overflow-hidden h-[228px]">
                 <img
                   src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop"
                   alt="Urban street ride"
@@ -93,7 +93,7 @@ export default function HeroVisual({
               </div>
 
               {/* Bottom Right */}
-              <div className="rounded-xl overflow-hidden h-[272px]">
+              <div className="rounded-xl overflow-hidden h-[228px]">
                 <img
                   src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop"
                   alt="Friends traveling in city"
