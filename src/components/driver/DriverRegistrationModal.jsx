@@ -251,6 +251,10 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
       setTimeout(() => {
         try {
           localStorage.setItem('registered_driver', JSON.stringify(completeProfile));
+          if (formData.upiId) {
+            localStorage.setItem('driver_custom_upi', formData.upiId);
+            localStorage.setItem('driver_registered_upi', formData.upiId);
+          }
           localStorage.setItem('driver_today_earnings', '0');
           localStorage.setItem('driver_completed_trips', '0');
         } catch {}
@@ -286,6 +290,10 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
       setTimeout(() => {
         try {
           localStorage.setItem('registered_driver', JSON.stringify(fallbackData));
+          if (formData.upiId) {
+            localStorage.setItem('driver_custom_upi', formData.upiId);
+            localStorage.setItem('driver_registered_upi', formData.upiId);
+          }
           localStorage.setItem('driver_today_earnings', '0');
           localStorage.setItem('driver_completed_trips', '0');
         } catch {}

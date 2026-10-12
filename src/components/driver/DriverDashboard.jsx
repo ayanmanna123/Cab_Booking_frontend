@@ -714,6 +714,13 @@ export default function DriverDashboard() {
       driverName: currentProfile.fullName || 'Vikram Malhotra',
       driverPhone: currentProfile.phone || '+91 98765 43210',
       driverPhoto: currentProfile.carImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
+      driverUpiId: (
+        currentProfile.upiId ||
+        currentProfile.upi_id ||
+        localStorage.getItem('driver_registered_upi') ||
+        (localStorage.getItem('driver_custom_upi') && localStorage.getItem('driver_custom_upi') !== 'vikram.cab@okhdfcbank' ? localStorage.getItem('driver_custom_upi') : null) ||
+        'mannaayan777@oksbi'
+      ),
       vehicleMake: currentProfile.vehicleMake || 'Toyota',
       vehicleModel: currentProfile.vehicleModel || 'Camry',
       vehicleColor: currentProfile.vehicleColor || 'Silver Metallic',

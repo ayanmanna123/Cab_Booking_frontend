@@ -31,6 +31,17 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
         driverCoords: [pLat, pLng],
         driverName: du.full_name || d.full_name || d.name || 'Verified Driver',
         driverPhone: du.phone || d.phone || '+91 98765 43210',
+        driverUpiId: (
+          d.upi_id ||
+          dp.upi_id ||
+          dp.upiId ||
+          d.driverUpiId ||
+          d.driver_upi_id ||
+          du.upi_id ||
+          localStorage.getItem('driver_registered_upi') ||
+          (localStorage.getItem('driver_custom_upi') && localStorage.getItem('driver_custom_upi') !== 'vikram.cab@okhdfcbank' ? localStorage.getItem('driver_custom_upi') : null) ||
+          'vikram.cab@okhdfcbank'
+        ),
         licensePlate: dp.license_plate || dp.licensePlate || 'WB 02 AB 4488',
         vehicleModel: `${dp.vehicle_make || dp.vehicleMake || 'Toyota'} ${dp.vehicle_model || dp.vehicleModel || 'Camry'}`,
         vehicleColor: dp.vehicle_color || dp.vehicleColor || 'Silver Metallic',

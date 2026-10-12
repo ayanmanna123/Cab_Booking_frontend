@@ -82,7 +82,14 @@ export default function LiveRideTracker({
   const [upiSubMode, setUpiSubMode] = useState('qr'); // 'qr' | 'id'
   const [driverUpiId, setDriverUpiId] = useState(() => {
     try {
-      return localStorage.getItem('driver_custom_upi') || 'vikram.cab@okhdfcbank';
+      const reg = localStorage.getItem('driver_registered_upi');
+      if (ride?.driverUpiId && ride.driverUpiId !== 'vikram.cab@okhdfcbank') {
+        return ride.driverUpiId;
+      }
+      if (reg) return reg;
+      const custom = localStorage.getItem('driver_custom_upi');
+      if (custom && custom !== 'vikram.cab@okhdfcbank') return custom;
+      return ride?.driverUpiId || 'vikram.cab@okhdfcbank';
     } catch {}
     return 'vikram.cab@okhdfcbank';
   });
@@ -97,6 +104,37 @@ export default function LiveRideTracker({
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [isEditingDriverUpi, setIsEditingDriverUpi] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+
+  // Synchronize driverUpiId whenever assigned driver updates
+  useEffect(() => {
+    if (ride?.driverUpiId && ride.driverUpiId !== 'vikram.cab@okhdfcbank') {
+      setDriverUpiId(ride.driverUpiId);
+    } else {
+      const reg = localStorage.getItem('driver_registered_upi');
+      if (reg) {
+        setDriverUpiId(reg);
+      } else if (ride?.driverUpiId) {
+        setDriverUpiId(ride.driverUpiId);
+      }
+    }
+  }, [ride?.driverUpiId]);
+
+  // Listen to live broadcast acceptance event for dynamic driver UPI ID
+  useEffect(() => {
+    let channel = null;
+    try {
+      channel = new BroadcastChannel('uber_dispatch_channel');
+      channel.onmessage = (event) => {
+        if (event.data?.type === 'RIDE_ACCEPTED' && event.data?.driverUpiId) {
+          setDriverUpiId(event.data.driverUpiId);
+        }
+      };
+    } catch {}
+
+    return () => {
+      if (channel) channel.close();
+    };
+  }, []);
 
   // Check saved payment state if ride id changes
   useEffect(() => {
@@ -843,7 +881,15 @@ export default function LiveRideTracker({
                         <div className="flex items-center space-x-1 shrink-0">
                           <button
                             type="button"
-                            onClick={() => setIsEditingDriverUpi(!isEditingDriverUpi)}
+                            onClick={() => {
+                              if (isEditingDriverUpi && driverUpiId) {
+                                try {
+                                  localStorage.setItem('driver_custom_upi', driverUpiId.trim());
+                                  localStorage.setItem('driver_registered_upi', driverUpiId.trim());
+                                } catch {}
+                              }
+                              setIsEditingDriverUpi(!isEditingDriverUpi);
+                            }}
                             className="px-2 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded text-[10px] transition cursor-pointer"
                           >
                             {isEditingDriverUpi ? 'Save' : 'Edit'}
