@@ -24,7 +24,7 @@ export default function RideTrackingPage({ ride: initialRide, onBackToHome }) {
         id: r.id || r.rideId,
         status: r.status || 'IN_PROGRESS',
         otp: r.otp || r.otp_code,
-        pickupAddress: r.pickup_address || r.pickupAddress || 'Current Location',
+        pickupAddress: r.pickup_address || r.pickupAddress || 'Baguiati, South Dumdum',
         dropoffAddress: r.dropoff_address || r.dropoffAddress || 'Sector V, Bidhannagar',
         pickupCoords: [pLat, pLng],
         dropoffCoords: [dLat, dLng],

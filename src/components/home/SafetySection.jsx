@@ -81,8 +81,7 @@ export default function SafetySection() {
             </div>
 
             <div className="pt-6">
-              <div className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 flex items-center space-x-3 text-xs text-neutral-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 text-xs text-neutral-300">
                 <span>Live GPS route streaming enabled</span>
               </div>
             </div>

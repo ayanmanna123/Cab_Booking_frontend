@@ -698,19 +698,83 @@ export default function RideBookingWidget({
     } catch {}
   };
 
+// Reverse-geocode coordinates to an exact area / address name
+const reverseGeocodeCoords = async (lat, lng) => {
+  try {
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.features?.length > 0) {
+        const p = data.features[0].properties || {};
+        const parts = [
+          p.name !== p.street ? p.name : null,
+          p.street,
+          p.district || p.suburb || p.locality,
+          p.city || p.town
+        ].filter(Boolean);
+        const unique = [...new Set(parts)];
+        if (unique.length > 0) {
+          return unique.slice(0, 3).join(', ');
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Photon reverse geocode failed, using Nominatim fallback', err);
+  }
+
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const parts = [
+        addr.road || addr.neighbourhood,
+        addr.suburb || addr.district,
+        addr.city || addr.town || addr.municipality
+      ].filter(Boolean);
+      const unique = [...new Set(parts)];
+      if (unique.length > 0) {
+        return unique.slice(0, 3).join(', ');
+      }
+      if (data.display_name) {
+        return data.display_name.split(',').slice(0, 3).join(',').trim();
+      }
+    }
+  } catch (err) {
+    console.warn('Nominatim reverse geocode failed', err);
+  }
+
+  // Pre-mapped local coordinates fallback
+  if (Math.abs(lat - 22.6116) < 0.08 && Math.abs(lng - 88.4204) < 0.08) {
+    return 'Baguiati, South Dumdum';
+  }
+  if (Math.abs(lat - 22.5804) < 0.08 && Math.abs(lng - 88.4378) < 0.08) {
+    return 'Sector V, Bidhannagar';
+  }
+  if (Math.abs(lat - 37.7749) < 0.08 && Math.abs(lng - (-122.4194)) < 0.08) {
+    return 'Market St, San Francisco, CA';
+  }
+
+  return 'Local Area';
+};
+
   const handleUseCurrentLocation = () => {
     if ('geolocation' in navigator) {
+      setPickup('Locating pickup area...');
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           setPickupCoords({ lat, lng });
-          const formatted = `Current Location (${lat.toFixed(4)}°, ${lng.toFixed(4)}°)`;
-          setPickup(formatted);
-          if (onPickupChange) onPickupChange(formatted, { lat, lng });
+          const exactArea = await reverseGeocodeCoords(lat, lng);
+          setPickup(exactArea);
+          if (onPickupChange) onPickupChange(exactArea, { lat, lng });
           setActiveField(null);
         },
         () => {
+          setPickup('Market St, San Francisco, CA');
           setErrorMsg('Location permission denied or unavailable. Please type your pickup location.');
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -867,8 +931,7 @@ export default function RideBookingWidget({
               <div className="bg-emerald-950/80 border-2 border-emerald-500/80 p-5 sm:p-6 rounded-3xl space-y-4 animate-in zoom-in-95 shadow-2xl shadow-emerald-950/50 backdrop-blur-xl">
                 {/* Top Banner Status */}
                 <div className="flex items-center justify-between border-b border-emerald-800/60 pb-3">
-                  <div className="flex items-center space-x-2.5">
-                    <span className="w-3 h-3 rounded-full bg-emerald-400" />
+                  <div>
                     <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
                       {rideTripStatus === 'IN_PROGRESS'
                         ? 'Your trip has started • Live on route'

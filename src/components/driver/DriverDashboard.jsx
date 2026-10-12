@@ -1181,8 +1181,7 @@ export default function DriverDashboard() {
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <span className={`w-3 h-3 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-neutral-600'}`} />
+            <div>
               <h1 className="text-2xl font-black text-white">Driver Portal</h1>
             </div>
             <p className="text-xs text-neutral-400">
@@ -1422,12 +1421,9 @@ export default function DriverDashboard() {
         <div className="bg-neutral-900/90 border-2 border-amber-500/50 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl shadow-amber-950/30 backdrop-blur-xl animate-in fade-in duration-300">
           {/* Header Badge & Trip details */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
-            <div className="flex items-center space-x-3">
-              <span className="h-3 w-3 rounded-full bg-amber-500" />
-              <div>
-                <span className="text-sm font-bold text-white block">En Route to Pickup</span>
-                <span className="text-xs text-neutral-400 font-medium">Ride Accepted</span>
-              </div>
+            <div>
+              <span className="text-sm font-bold text-white block">En Route to Pickup</span>
+              <span className="text-xs text-neutral-400 font-medium">Ride Accepted</span>
             </div>
 
             <div className="flex items-center space-x-2 text-xs">
@@ -1460,25 +1456,19 @@ export default function DriverDashboard() {
 
           {/* Pickup and Destination summary with Coordinates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-neutral-950/60 p-4 rounded-2xl border border-neutral-800 text-xs">
-            <div className="flex items-start space-x-2.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 mt-1 shrink-0 ring-4 ring-emerald-500/20" />
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
-                <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
-                <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
-                  Coords: {activeRide.pickupCoords?.[0]?.toFixed(4)}°, {activeRide.pickupCoords?.[1]?.toFixed(4)}°
-                </span>
-              </div>
+            <div>
+              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
+              <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
+              <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
+                Coords: {activeRide.pickupCoords?.[0]?.toFixed(4)}°, {activeRide.pickupCoords?.[1]?.toFixed(4)}°
+              </span>
             </div>
-            <div className="flex items-start space-x-2.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1 shrink-0 ring-4 ring-rose-500/20" />
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
-                <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
-                <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
-                  Coords: {activeRide.dropoffCoords?.[0]?.toFixed(4)}°, {activeRide.dropoffCoords?.[1]?.toFixed(4)}°
-                </span>
-              </div>
+            <div>
+              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
+              <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
+              <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
+                Coords: {activeRide.dropoffCoords?.[0]?.toFixed(4)}°, {activeRide.dropoffCoords?.[1]?.toFixed(4)}°
+              </span>
             </div>
           </div>
 
@@ -1513,12 +1503,9 @@ export default function DriverDashboard() {
         <div className="bg-neutral-900/90 border-2 border-emerald-500/50 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl shadow-emerald-950/30 backdrop-blur-xl animate-in fade-in duration-300">
           {/* Header Badge */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
-            <div className="flex items-center space-x-3">
-              <span className="h-3 w-3 rounded-full bg-emerald-500" />
-              <div>
-                <span className="text-sm font-bold text-white block">Enter Rider PIN</span>
-                <span className="text-xs text-neutral-400 font-medium">Arrived at Pickup Location</span>
-              </div>
+            <div>
+              <span className="text-sm font-bold text-white block">Enter Rider PIN</span>
+              <span className="text-xs text-neutral-400 font-medium">Arrived at Pickup Location</span>
             </div>
 
             <div className="flex items-center space-x-2 text-xs">
@@ -1531,19 +1518,13 @@ export default function DriverDashboard() {
 
           {/* Pickup and Destination summary */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-neutral-950/60 p-4 rounded-2xl border border-neutral-800 text-xs">
-            <div className="flex items-start space-x-2.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 mt-1 shrink-0 ring-4 ring-emerald-500/20" />
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
-                <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
-              </div>
+            <div>
+              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
+              <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
             </div>
-            <div className="flex items-start space-x-2.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1 shrink-0 ring-4 ring-rose-500/20" />
-              <div>
-                <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
-                <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
-              </div>
+            <div>
+              <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
+              <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
             </div>
           </div>
 
@@ -1618,8 +1599,7 @@ export default function DriverDashboard() {
         {activeRide && activeRide.isVerified && (
           <div className="bg-emerald-950/80 border-2 border-emerald-500/80 p-6 sm:p-7 rounded-3xl space-y-5 shadow-2xl shadow-emerald-950/40 backdrop-blur-xl animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center space-x-2.5">
-                <span className="w-3 h-3 rounded-full bg-emerald-400" />
+              <div>
                 <h3 className="text-sm font-bold text-white">Trip in Progress · Navigating</h3>
               </div>
 
@@ -1712,7 +1692,6 @@ export default function DriverDashboard() {
 
             {/* GPS Coordinates pill */}
             <div className="flex items-center space-x-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-md text-xs">
-              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-neutral-500'}`} />
               <MapPin className="w-3.5 h-3.5 text-neutral-400" />
               <span className="text-neutral-300 font-mono font-medium">
                 {locationLabel}

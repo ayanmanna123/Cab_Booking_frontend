@@ -379,8 +379,7 @@ export default function LiveRideTracker({
       <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            <div>
               <h2 className="text-2xl font-black text-white">
                 {tripCompleted ? 'Trip Completed' : statusStep >= 3 ? 'On Trip to Destination' : 'Driver En Route'}
               </h2>
@@ -618,19 +617,13 @@ export default function LiveRideTracker({
 
             {/* Trip Destination Details */}
             <div className="bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-xs space-y-2">
-              <div className="flex items-start space-x-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-neutral-400 mt-1 shrink-0" />
-                <div>
-                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Pickup</span>
-                  <span className="text-neutral-200">{ride?.pickupAddress || 'Current Location (22.6113°, 88.4202°)'}</span>
-                </div>
+              <div>
+                <span className="text-[10px] text-neutral-500 uppercase font-bold block">Pickup</span>
+                <span className="text-neutral-200">{ride?.pickupAddress || 'Baguiati, South Dumdum'}</span>
               </div>
-              <div className="flex items-start space-x-2 pt-2 border-t border-neutral-900">
-                <div className="w-2.5 h-2.5 bg-emerald-400 mt-1 shrink-0" />
-                <div>
-                  <span className="text-[10px] text-neutral-500 uppercase font-bold block">Destination</span>
-                  <span className="text-neutral-200">{ride?.dropoffAddress || 'Sector V, Bidhannagar'}</span>
-                </div>
+              <div className="pt-2 border-t border-neutral-900">
+                <span className="text-[10px] text-neutral-500 uppercase font-bold block">Destination</span>
+                <span className="text-neutral-200">{ride?.dropoffAddress || 'Sector V, Bidhannagar'}</span>
               </div>
             </div>
 
@@ -958,8 +951,7 @@ export default function LiveRideTracker({
               {selectedPaymentMethod === 'card' && (
                 <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3.5 space-y-3 text-xs animate-in fade-in duration-200">
                   <div className="flex items-center justify-between pb-2 border-b border-neutral-900">
-                    <div className="flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <div>
                       <span className="font-bold text-white text-xs">Stripe Test Gateway Active</span>
                     </div>
                     <span className="text-[10px] font-mono text-neutral-500">pk_test_...55H</span>
@@ -1087,10 +1079,7 @@ export default function LiveRideTracker({
                       <span className="font-mono text-white font-medium">{riderUpiId}</span>
                     </div>
                     <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
-                      <div className="flex items-center space-x-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span>UPI UTR / Ref No:</span>
-                      </div>
+                      <span>UPI UTR / Ref No:</span>
                       <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
                         #{savedUtr || 'UTR-829104829102'}
                       </span>
@@ -1100,10 +1089,7 @@ export default function LiveRideTracker({
 
                 {selectedPaymentMethod === 'card' && stripePaymentIntentId && (
                   <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                      <span>Stripe Reference:</span>
-                    </div>
+                    <span>Stripe Reference:</span>
                     <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
                       {stripePaymentIntentId}
                     </span>

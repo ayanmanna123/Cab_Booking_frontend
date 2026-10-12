@@ -32,8 +32,7 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
       <div className="bg-neutral-900 border-2 border-emerald-500/60 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl space-y-5 p-6 animate-in zoom-in-95">
         {/* Countdown header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+          <div>
             <h3 className="text-xs font-black tracking-wider uppercase text-emerald-400">
               New Ride Request
             </h3>
@@ -93,19 +92,13 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
 
         {/* Pickup & Destination */}
         <div className="space-y-3 bg-neutral-950 p-4 rounded-2xl border border-neutral-800 text-xs">
-          <div className="flex items-start space-x-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 mt-1 shrink-0 ring-4 ring-emerald-500/20" />
-            <div className="flex-1 min-w-0">
-              <span className="text-neutral-500 block text-[10px] uppercase font-bold">Pickup Location</span>
-              <span className="font-semibold text-white block truncate">{offer.pickupAddress || 'Pickup Point'}</span>
-            </div>
+          <div>
+            <span className="text-neutral-500 block text-[10px] uppercase font-bold">Pickup Location</span>
+            <span className="font-semibold text-white block truncate">{offer.pickupAddress || 'Pickup Point'}</span>
           </div>
-          <div className="flex items-start space-x-3 pt-2 border-t border-neutral-900">
-            <div className="w-2.5 h-2.5 rounded bg-amber-400 mt-1 shrink-0 ring-4 ring-amber-500/20" />
-            <div className="flex-1 min-w-0">
-              <span className="text-neutral-500 block text-[10px] uppercase font-bold">Destination</span>
-              <span className="font-semibold text-white block truncate">{offer.dropoffAddress || 'Destination Point'}</span>
-            </div>
+          <div className="pt-2 border-t border-neutral-900">
+            <span className="text-neutral-500 block text-[10px] uppercase font-bold">Destination</span>
+            <span className="font-semibold text-white block truncate">{offer.dropoffAddress || 'Destination Point'}</span>
           </div>
         </div>
 
