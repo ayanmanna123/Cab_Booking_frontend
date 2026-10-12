@@ -6,12 +6,13 @@ import DriverDashboardPage from './pages/DriverDashboardPage';
 import RideTrackingPage from './pages/RideTrackingPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsConditionsPage from './pages/TermsConditionsPage';
+import RideHistoryPage from './pages/RideHistoryPage';
 import { SocketProvider, RideProvider } from './context';
 
 import UserAuthSync from './components/auth/UserAuthSync';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('ride'); // 'ride' | 'drive' | 'tracking' | 'privacy' | 'terms'
+  const [currentView, setCurrentView] = useState('ride'); // 'ride' | 'drive' | 'tracking' | 'history' | 'privacy' | 'terms'
   const [activeRide, setActiveRide] = useState(null);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function App() {
         if (hash === 'drive' || hash === 'driver') cleanPath = '/driver';
         else if (hash === 'dashboard') cleanPath = '/dashboard';
         else if (hash === 'tracking') cleanPath = '/tracking';
+        else if (hash === 'history' || hash === 'activity') cleanPath = '/history';
         else if (hash === 'privacy') cleanPath = '/privacy';
         else if (hash === 'terms') cleanPath = '/terms';
         window.history.replaceState({}, '', cleanPath);
@@ -35,6 +37,8 @@ export default function App() {
         setCurrentView('drive');
       } else if (path === '/tracking') {
         setCurrentView('tracking');
+      } else if (path === '/history' || path === '/activity') {
+        setCurrentView('history');
       } else if (path === '/privacy') {
         setCurrentView('privacy');
       } else if (path === '/terms') {
@@ -58,12 +62,13 @@ export default function App() {
     if (tab === 'drive' || tab === 'driver') path = '/driver';
     else if (tab === 'dashboard') path = '/dashboard';
     else if (tab === 'tracking') path = '/tracking';
+    else if (tab === 'history' || tab === 'activity') path = '/history';
     else if (tab === 'privacy') path = '/privacy';
     else if (tab === 'terms') path = '/terms';
     else path = '/';
 
     window.history.pushState({}, '', path);
-    setCurrentView(tab === 'driver' ? 'drive' : tab);
+    setCurrentView(tab === 'driver' ? 'drive' : (tab === 'activity' ? 'history' : tab));
   };
 
   return (
@@ -71,13 +76,22 @@ export default function App() {
       <RideProvider>
         <UserAuthSync />
         <div className="min-h-screen bg-black text-white flex flex-col font-sans selection:bg-neutral-800 selection:text-white">
-          {/* Header Navigation with Tab Switching (Ride vs Drive) */}
+          {/* Header Navigation with Tab Switching (Ride vs Drive vs History) */}
           <Navbar activeTab={currentView} onSelectTab={handleNavigate} />
 
           {/* Active View */}
           <main className="flex-1">
             {currentView === 'ride' && <HomePage />}
             {currentView === 'drive' && <DriverDashboardPage />}
+            {currentView === 'history' && (
+              <RideHistoryPage
+                onTrackRide={(ride) => {
+                  setActiveRide(ride);
+                  handleNavigate('tracking');
+                }}
+                onBackToHome={() => handleNavigate('ride')}
+              />
+            )}
             {currentView === 'tracking' && (
               <RideTrackingPage
                 ride={activeRide}

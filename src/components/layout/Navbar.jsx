@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Globe, HelpCircle, ChevronDown, Car, Shield } from 'lucide-react';
+import { Menu, X, Globe, HelpCircle, ChevronDown, Car, Shield, Clock } from 'lucide-react';
 import {
   SignedIn,
   SignedOut,
@@ -67,6 +67,18 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
               >
                 <Car className="w-3.5 h-3.5" />
                 <span>Drive</span>
+              </button>
+              <button
+                id="nav-history-tab"
+                onClick={() => handleNav('history')}
+                className={`px-3.5 py-2 text-sm font-medium rounded-md transition cursor-pointer flex items-center space-x-1.5 ${
+                  activeTab === 'history'
+                    ? 'text-white bg-neutral-900'
+                    : 'text-neutral-300 hover:text-white hover:bg-neutral-900/50'
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>Activity</span>
               </button>
               <a
                 href="#business"
@@ -150,6 +162,7 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
         <div className="md:hidden border-t border-neutral-900 bg-black px-5 py-4 space-y-3">
           <button onClick={() => handleNav('ride')} className="block w-full text-left py-2 text-base font-semibold text-white">Ride</button>
           <button onClick={() => handleNav('drive')} className="block w-full text-left py-2 text-base font-semibold text-neutral-300">Drive (Driver Mode)</button>
+          <button onClick={() => handleNav('history')} className="block w-full text-left py-2 text-base font-semibold text-neutral-300">Activity (Ride History)</button>
           <a href="#business" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-base font-semibold text-neutral-300">Business</a>
           <a href="#safety" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-base font-semibold text-neutral-300">Safety</a>
           <div className="pt-3 border-t border-neutral-900 flex flex-col space-y-2">

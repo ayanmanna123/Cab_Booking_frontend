@@ -79,10 +79,26 @@ export const ridesApi = {
   },
 
   /**
-   * Fetch ride history for current user or driver
+   * Fetch ride history for current user or driver (both completed and running)
    */
-  getRideHistory: async (page = 1, limit = 10) => {
+  getRideHistory: async (page = 1, limit = 20, status = null) => {
     const offset = (page - 1) * limit;
-    return apiClient.get(`/rides/history?limit=${limit}&offset=${offset}`);
+    let url = `/rides/history?limit=${limit}&offset=${offset}`;
+    if (status) {
+      url += `&status=${encodeURIComponent(status)}`;
+    }
+    return apiClient.get(url);
+  },
+
+  /**
+   * Fetch dedicated rider ride history
+   */
+  getRiderHistory: async (page = 1, limit = 20, status = null) => {
+    const offset = (page - 1) * limit;
+    let url = `/rides/history/rider?limit=${limit}&offset=${offset}`;
+    if (status) {
+      url += `&status=${encodeURIComponent(status)}`;
+    }
+    return apiClient.get(url);
   }
 };

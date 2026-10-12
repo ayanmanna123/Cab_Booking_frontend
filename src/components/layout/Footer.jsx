@@ -34,6 +34,7 @@ export default function Footer() {
             <h4 className="font-bold text-base text-white">Products</h4>
             <ul className="space-y-2.5 text-neutral-400 text-xs">
               <li><a href="/" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-white transition cursor-pointer">Ride</a></li>
+              <li><a href="/history" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/history'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-white transition cursor-pointer">Activity & History</a></li>
               <li><a href="/driver" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/driver'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-white transition cursor-pointer">Drive</a></li>
               <li><a href="#deliver" className="hover:text-white transition">Deliver</a></li>
               <li><a href="#eats" className="hover:text-white transition">Eat</a></li>
