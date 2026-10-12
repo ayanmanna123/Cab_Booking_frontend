@@ -42,7 +42,7 @@ export const driversApi = {
    * Toggle driver online / offline availability
    */
   toggleStatus: async (driverId, isOnline) => {
-    return apiClient.put(`/drivers/${driverId}/status`, { isOnline });
+    return apiClient.patch('/drivers/availability', { isOnline, driverId });
   },
 
   /**
@@ -59,10 +59,11 @@ export const driversApi = {
    * Update live driver GPS location
    */
   updateLocation: async (driverId, latitude, longitude, heading = 0) => {
-    return apiClient.put(`/drivers/${driverId}/location`, {
+    return apiClient.patch('/drivers/location', {
       latitude,
       longitude,
-      heading
+      heading,
+      driverId
     });
   },
 

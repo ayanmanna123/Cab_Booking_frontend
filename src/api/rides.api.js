@@ -2,10 +2,24 @@ import { apiClient } from './apiClient';
 
 export const ridesApi = {
   /**
-   * Request a new ride
+   * Calculate fare estimates for supported vehicle categories
+   */
+  estimateFare: async (data) => {
+    return apiClient.post('/rides/estimate', data);
+  },
+
+  /**
+   * Request / book a new ride
    */
   requestRide: async (rideData) => {
-    return apiClient.post('/rides/request', rideData);
+    return apiClient.post('/rides', rideData);
+  },
+
+  /**
+   * Get currently active ride for user / driver
+   */
+  getActiveRide: async () => {
+    return apiClient.get('/rides/active');
   },
 
   /**
@@ -16,6 +30,41 @@ export const ridesApi = {
   },
 
   /**
+   * Accept an incoming ride request (driver)
+   */
+  acceptRide: async (rideId) => {
+    return apiClient.post(`/rides/${rideId}/accept`);
+  },
+
+  /**
+   * Reject / decline an incoming ride request (driver)
+   */
+  rejectRide: async (rideId) => {
+    return apiClient.post(`/rides/${rideId}/reject`);
+  },
+
+  /**
+   * Driver marks arrived at pickup location
+   */
+  arriveRide: async (rideId) => {
+    return apiClient.post(`/rides/${rideId}/arrive`);
+  },
+
+  /**
+   * Driver verifies passenger PIN and starts trip
+   */
+  verifyPin: async (rideId, pin) => {
+    return apiClient.post(`/rides/${rideId}/verify-pin`, { pin, otp: pin });
+  },
+
+  /**
+   * Driver completes trip at destination
+   */
+  completeRide: async (rideId) => {
+    return apiClient.post(`/rides/${rideId}/complete`);
+  },
+
+  /**
    * Cancel an ongoing ride request
    */
   cancelRide: async (rideId, reason = 'Changed my mind') => {
@@ -23,16 +72,17 @@ export const ridesApi = {
   },
 
   /**
-   * Update status of an ongoing ride (e.g. IN_PROGRESS with OTP verification, COMPLETED)
+   * Generic status updater (backwards-compatible)
    */
   updateStatus: async (rideId, status, otp = undefined) => {
     return apiClient.patch(`/rides/${rideId}/status`, { status, otp });
   },
 
   /**
-   * Fetch ride history for current user
+   * Fetch ride history for current user or driver
    */
-  getRideHistory: async (userId, page = 1, limit = 10) => {
-    return apiClient.get(`/rides/history?userId=${userId}&page=${page}&limit=${limit}`);
+  getRideHistory: async (page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+    return apiClient.get(`/rides/history?limit=${limit}&offset=${offset}`);
   }
 };

@@ -207,6 +207,40 @@ export default function DriverDashboard() {
     }
   };
 
+  const handleArriveAtPickup = async () => {
+    if (!activeRide) return;
+    const rideId = activeRide.id || activeRide.rideId;
+    try {
+      await ridesApi.arriveRide(rideId);
+    } catch (err) {
+      console.warn('Backend arriveRide error:', err);
+    }
+
+    const updated = {
+      ...activeRide,
+      status: 'ARRIVED'
+    };
+    setActiveRide(updated);
+    try {
+      localStorage.setItem('driver_active_ride', JSON.stringify(updated));
+    } catch {}
+
+    if (socket && rideId) {
+      socket.emit(SOCKET_EVENTS.RIDE_STATUS_CHANGE, {
+        rideId,
+        status: 'ARRIVED'
+      });
+    }
+
+    try {
+      const channel = new BroadcastChannel('uber_dispatch_channel');
+      channel.postMessage({ type: 'RIDE_ARRIVED', rideId });
+      channel.close();
+    } catch {}
+
+    window.dispatchEvent(new CustomEvent('uber_ride_arrived', { detail: { rideId } }));
+  };
+
   const handleVerifyPinAndStart = async (overridePin = null) => {
     if (!activeRide) return;
     const fullPin = overridePin || pinDigits.join('');
@@ -215,84 +249,77 @@ export default function DriverDashboard() {
       return;
     }
 
-    const expectedOtp = String(activeRide.otp || '4829').trim();
-    if (expectedOtp && fullPin !== expectedOtp && fullPin !== '4829' && fullPin !== '1234') {
-      setPinError(`Incorrect PIN "${fullPin}". Please check with customer (PIN: ${expectedOtp}).`);
-      return;
-    }
-
     setIsVerifyingPin(true);
     setPinError(null);
 
-    // Audio chime confirmation
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-      osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-      osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-      osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.6);
-    } catch {}
-
     const rideId = activeRide.id || activeRide.rideId;
     try {
-      if (rideId && rideId !== 'ride_kolkata_demo') {
-        await ridesApi.updateStatus(rideId, 'IN_PROGRESS', fullPin);
+      // Backend authoritative PIN verification
+      const res = await ridesApi.verifyPin(rideId, fullPin);
+      if (res && res.success) {
+        // Audio chime confirmation
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+          osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+          osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.6);
+        } catch {}
+
+        setPinSuccess(true);
+        setIsVerifyingPin(false);
+
+        const updated = {
+          ...activeRide,
+          isVerified: true,
+          status: 'IN_PROGRESS',
+          verifiedAt: Date.now()
+        };
+        setActiveRide(updated);
+        try {
+          localStorage.setItem('driver_active_ride', JSON.stringify(updated));
+        } catch {}
+
+        if (socket && rideId) {
+          socket.emit(SOCKET_EVENTS.RIDE_STATUS_CHANGE, {
+            rideId,
+            status: 'IN_PROGRESS'
+          });
+        }
+
+        try {
+          const channel = new BroadcastChannel('uber_dispatch_channel');
+          channel.postMessage({
+            type: 'RIDE_IN_PROGRESS',
+            rideId,
+            driverCoords: driverLocation
+          });
+          channel.close();
+        } catch {}
+
+        window.dispatchEvent(new CustomEvent('uber_ride_in_progress', {
+          detail: { rideId }
+        }));
+
+        setIsNavigatingMode(true);
+
+        // Auto-scroll smoothly to the navigation map view
+        setTimeout(() => {
+          mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
       }
     } catch (err) {
-      console.warn('Backend updateStatus error:', err);
+      setPinError(err.message || 'Incorrect PIN. Please ask the passenger for the 4-digit ride verification PIN.');
+      setIsVerifyingPin(false);
     }
-
-    if (socket && rideId) {
-      socket.emit(SOCKET_EVENTS.RIDE_STATUS_CHANGE, {
-        rideId,
-        status: 'IN_PROGRESS',
-        otp: fullPin
-      });
-    }
-
-    try {
-      const channel = new BroadcastChannel('uber_dispatch_channel');
-      channel.postMessage({
-        type: 'RIDE_IN_PROGRESS',
-        rideId,
-        otp: fullPin,
-        driverCoords: driverLocation
-      });
-      channel.close();
-    } catch {}
-
-    window.dispatchEvent(new CustomEvent('uber_ride_in_progress', {
-      detail: { rideId, otp: fullPin }
-    }));
-
-    setPinSuccess(true);
-    setIsVerifyingPin(false);
-
-    const updated = {
-      ...activeRide,
-      isVerified: true,
-      status: 'IN_PROGRESS',
-      verifiedAt: Date.now()
-    };
-    setActiveRide(updated);
-    try {
-      localStorage.setItem('driver_active_ride', JSON.stringify(updated));
-    } catch {}
-
-    setIsNavigatingMode(true);
-
-    // Auto-scroll smoothly to the navigation map view
-    setTimeout(() => {
-      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 200);
   };
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
@@ -350,6 +377,41 @@ export default function DriverDashboard() {
     };
 
     fetchProfile();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Restore active ride on mount if driver reloads the browser
+  useEffect(() => {
+    let isMounted = true;
+    const restoreActiveRide = async () => {
+      try {
+        const res = await ridesApi.getActiveRide();
+        if (res && res.success && res.data && isMounted) {
+          const r = res.data;
+          const normalized = {
+            id: r.id,
+            rideId: r.id,
+            pickupAddress: r.pickup_address,
+            dropoffAddress: r.dropoff_address,
+            pickupCoords: [Number(r.pickup_latitude), Number(r.pickup_longitude)],
+            dropoffCoords: [Number(r.dropoff_latitude), Number(r.dropoff_longitude)],
+            estimatedFare: r.estimated_fare,
+            vehicleTier: r.vehicle_type?.name || r.vehicle_type_id || 'Uber Go',
+            status: r.status,
+            riderName: r.rider?.full_name || 'Passenger',
+            riderPhone: r.rider?.phone || '+91 98765 00000',
+            isVerified: r.status === 'IN_PROGRESS' || r.status === 'COMPLETED'
+          };
+          setActiveRide(normalized);
+          if (normalized.status === 'IN_PROGRESS') {
+            setIsNavigatingMode(true);
+          }
+        }
+      } catch {
+        // No active ride or not logged in as driver
+      }
+    };
+    restoreActiveRide();
     return () => { isMounted = false; };
   }, []);
 
@@ -443,16 +505,29 @@ export default function DriverDashboard() {
           : [22.5804, 88.4378],
         estimatedFare: data.estimatedFare || data.finalFare || '180.00',
         vehicleTier: data.vehicleTier || data.vehicleType || 'Uber Go AC',
-        otp: data.otp || '4829',
         isVerified: false,
-        status: 'ACCEPTED'
+        status: 'SEARCHING'
       });
 
       playIncomingOfferChime();
     };
 
+    const handleRideUnavailable = (data) => {
+      console.log('🚫 [Driver] Ride taken by another driver or cancelled:', data);
+      const targetId = data?.rideId || data?.id;
+      setIncomingOffer((prev) => {
+        if (!prev) return null;
+        const offerId = prev.id || prev.rideId;
+        if (offerId === targetId) {
+          return null;
+        }
+        return prev;
+      });
+    };
+
     if (socket) {
       socket.on(SOCKET_EVENTS.RIDE_NEW_OFFER, processIncomingOffer);
+      socket.on(SOCKET_EVENTS.RIDE_UNAVAILABLE, handleRideUnavailable);
     }
 
     // Cross-tab broadcast channel listener
@@ -460,8 +535,12 @@ export default function DriverDashboard() {
     try {
       channel = new BroadcastChannel('uber_dispatch_channel');
       channel.onmessage = (event) => {
-        if (event.data && event.data.type === 'NEW_OFFER') {
-          processIncomingOffer(event.data);
+        if (event.data) {
+          if (event.data.type === 'NEW_OFFER') {
+            processIncomingOffer(event.data);
+          } else if (event.data.type === 'RIDE_UNAVAILABLE' || event.data.type === 'RIDE_ACCEPTED') {
+            handleRideUnavailable(event.data);
+          }
         }
       };
     } catch {}
@@ -470,16 +549,22 @@ export default function DriverDashboard() {
     const handleCustomOffer = (e) => {
       if (e.detail) processIncomingOffer(e.detail);
     };
+    const handleCustomUnavailable = (e) => {
+      if (e.detail) handleRideUnavailable(e.detail);
+    };
     window.addEventListener('uber_driver_offer', handleCustomOffer);
+    window.addEventListener('uber_ride_unavailable', handleCustomUnavailable);
 
     return () => {
       if (socket) {
         socket.off(SOCKET_EVENTS.RIDE_NEW_OFFER, processIncomingOffer);
+        socket.off(SOCKET_EVENTS.RIDE_UNAVAILABLE, handleRideUnavailable);
       }
       if (channel) {
         channel.close();
       }
       window.removeEventListener('uber_driver_offer', handleCustomOffer);
+      window.removeEventListener('uber_ride_unavailable', handleCustomUnavailable);
     };
   }, [socket, driverProfile, joinDriverRoom, isOnline]);
 
@@ -616,29 +701,8 @@ export default function DriverDashboard() {
       totalRides: 1240
     };
 
-    const rideObj = {
-      ...offer,
-      pickupCoords: offer.pickupCoords || [22.6113, 88.4202],
-      dropoffCoords: offer.dropoffCoords || [22.5804, 88.4378],
-      otp: offer.otp || '4829',
-      isVerified: false,
-      status: 'ACCEPTED'
-    };
-    setActiveRide(rideObj);
-    try {
-      localStorage.setItem('driver_active_ride', JSON.stringify(rideObj));
-    } catch {}
-    setIncomingOffer(null);
-    setPinDigits(['', '', '', '']);
-    setPinError(null);
-    setPinSuccess(false);
-
-    const driverId = currentProfile.id || 'demo_driver_1';
     const rideId = offer.id || offer.rideId;
-
-    try {
-      await driversApi.respondToOffer(rideId, driverId, 'ACCEPT');
-    } catch (e) {}
+    const driverId = currentProfile.id || 'demo_driver_1';
 
     const cleanPlate = (currentProfile.licensePlate || 'MH 02 CZ 4488').trim();
     const alphanumericOnly = cleanPlate.replace(/[^a-zA-Z0-9]/g, '');
@@ -647,50 +711,112 @@ export default function DriverDashboard() {
     const driverDetails = {
       rideId,
       driverId,
-      driverName: currentProfile.fullName || 'Ayan Manna',
+      driverName: currentProfile.fullName || 'Vikram Malhotra',
       driverPhone: currentProfile.phone || '+91 98765 43210',
       driverPhoto: currentProfile.carImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop',
       vehicleMake: currentProfile.vehicleMake || 'Toyota',
       vehicleModel: currentProfile.vehicleModel || 'Camry',
       vehicleColor: currentProfile.vehicleColor || 'Silver Metallic',
       licensePlate: cleanPlate,
-      carLast4: carLast4,
+      carLast4,
       rating: currentProfile.rating || 4.98,
       totalTrips: currentProfile.totalRides || 1240,
       driverCoords: driverLocation
     };
 
-    // Store in localStorage for instant cross-tab sync
+    // Immediate optimistic update so driver view updates instantly!
+    const rideObj = {
+      ...offer,
+      id: rideId,
+      rideId,
+      pickupCoords: offer.pickupCoords || [22.6113, 88.4202],
+      dropoffCoords: offer.dropoffCoords || [22.5804, 88.4378],
+      status: 'ACCEPTED',
+      isVerified: false
+    };
+
+    setActiveRide(rideObj);
     try {
+      localStorage.setItem('driver_active_ride', JSON.stringify(rideObj));
       localStorage.setItem('uber_active_accepted_driver', JSON.stringify(driverDetails));
     } catch {}
 
+    setIncomingOffer(null);
+    setPinDigits(['', '', '', '']);
+    setPinError(null);
+    setPinSuccess(false);
+    setIsNavigatingMode(true);
+
+    // Broadcast acceptance via WebSockets and BroadcastChannel
     if (socket) {
       socket.emit(SOCKET_EVENTS.RIDE_STATUS_CHANGE, {
         rideId,
         status: 'ACCEPTED',
         driver: driverDetails
       });
+      socket.emit('ride:status_change', {
+        rideId,
+        status: 'ACCEPTED',
+        driver: driverDetails
+      });
+      socket.emit('ride:accept', driverDetails);
     }
 
     try {
+      localStorage.setItem('uber_active_accepted_driver', JSON.stringify({ ...driverDetails, _ts: Date.now() }));
+    } catch {}
+
+    try {
       const channel = new BroadcastChannel('uber_dispatch_channel');
-      channel.postMessage({ type: 'RIDE_ACCEPTED', ...driverDetails });
-      channel.close();
+      channel.postMessage({ type: 'RIDE_ACCEPTED', rideId, ...driverDetails });
+      // Keep channel alive briefly so message is dispatched to other tabs
+      setTimeout(() => {
+        try { channel.close(); } catch {}
+      }, 1000);
     } catch {}
 
     window.dispatchEvent(new CustomEvent('uber_ride_accepted', { detail: driverDetails }));
+
+    try {
+      // Backend authoritative acceptance
+      const res = await ridesApi.acceptRide(rideId);
+      if (res?.data) {
+        const merged = { ...rideObj, ...res.data, status: 'ACCEPTED' };
+        setActiveRide(merged);
+        try {
+          localStorage.setItem('driver_active_ride', JSON.stringify(merged));
+        } catch {}
+      }
+    } catch (err) {
+      console.warn('Backend acceptRide notice:', err.message);
+    }
   };
 
-  const handleDeclineOffer = () => {
+  const handleDeclineOffer = async (offer) => {
+    const rideId = offer?.id || offer?.rideId;
+    if (rideId) {
+      try {
+        await ridesApi.rejectRide(rideId);
+      } catch {}
+    }
     setIncomingOffer(null);
   };
 
   const handleCompleteRide = async () => {
     if (!activeRide) return;
     const rideId = activeRide.id || activeRide.rideId;
-    const fare = Number(activeRide.estimatedFare || 25);
-    const newEarnings = todayEarnings + fare;
+    let earnedAmount = Number(activeRide.estimatedFare || 25);
+
+    try {
+      const res = await ridesApi.completeRide(rideId);
+      if (res && res.success && res.data) {
+        earnedAmount = Number(res.data.driverEarnings || res.data.final_fare || earnedAmount);
+      }
+    } catch (e) {
+      console.warn('Backend completeRide error:', e);
+    }
+
+    const newEarnings = todayEarnings + earnedAmount;
     const newTrips = completedTrips + 1;
     setTodayEarnings(newEarnings);
     setCompletedTrips(newTrips);
@@ -699,12 +825,6 @@ export default function DriverDashboard() {
       localStorage.setItem('driver_completed_trips', newTrips.toString());
       localStorage.setItem('driver_active_ride', 'none');
     } catch {}
-
-    try {
-      if (rideId && rideId !== 'ride_kolkata_demo') {
-        await ridesApi.updateStatus(rideId, 'COMPLETED');
-      }
-    } catch (e) {}
 
     if (socket && rideId) {
       socket.emit(SOCKET_EVENTS.RIDE_STATUS_CHANGE, {
@@ -719,7 +839,7 @@ export default function DriverDashboard() {
       channel.close();
     } catch {}
 
-    window.dispatchEvent(new CustomEvent('uber_ride_completed', { detail: { rideId, fare } }));
+    window.dispatchEvent(new CustomEvent('uber_ride_completed', { detail: { rideId, fare: earnedAmount } }));
     setActiveRide(null);
     setIsNavigatingMode(false);
     setActiveRideRoute([]);
@@ -1317,8 +1437,8 @@ export default function DriverDashboard() {
         </div>
       </div>
 
-      {/* Active Trip Section: Either Interactive PIN Entry OR Live Navigation HUD */}
-      {activeRide && !activeRide.isVerified && (
+      {/* Active Trip Section: En Route to Pickup (ACCEPTED) OR PIN Verification (ARRIVED) */}
+      {activeRide && !activeRide.isVerified && activeRide.status === 'ACCEPTED' && (
         <div className="bg-neutral-900/90 border-2 border-amber-500/50 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl shadow-amber-950/30 backdrop-blur-xl animate-in fade-in duration-300">
           {/* Header Badge & Trip details */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
@@ -1329,7 +1449,105 @@ export default function DriverDashboard() {
               </span>
               <div>
                 <span className="text-xs font-black uppercase tracking-wider text-amber-300 bg-amber-950/80 border border-amber-600/50 px-3 py-1 rounded-full">
-                  Step 1: Enter Rider PIN
+                  Step 1: En Route to Pickup
+                </span>
+                <span className="text-xs text-neutral-400 ml-2 font-medium">
+                  Ride Accepted
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 text-xs">
+              <span className="text-neutral-400">Est. Payout:</span>
+              <span className="font-mono font-bold text-emerald-400 text-sm">
+                ₹{activeRide.estimatedFare || '185.00'}
+              </span>
+            </div>
+          </div>
+
+          {/* Rider Information & Contact Action */}
+          <div className="flex items-center justify-between bg-neutral-950/80 p-4 rounded-2xl border border-neutral-800">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">Passenger</span>
+                <span className="text-sm font-extrabold text-white">{activeRide.riderName || 'Customer'}</span>
+              </div>
+            </div>
+            <a
+              href={`tel:${activeRide.riderPhone || '+919876543210'}`}
+              className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-white text-xs font-bold rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
+            >
+              <Phone className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Call Rider</span>
+            </a>
+          </div>
+
+          {/* Pickup and Destination summary with Coordinates */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-neutral-950/60 p-4 rounded-2xl border border-neutral-800 text-xs">
+            <div className="flex items-start space-x-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 mt-1 shrink-0 ring-4 ring-emerald-500/20" />
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Pickup Point</span>
+                <span className="font-semibold text-neutral-100">{activeRide.pickupAddress}</span>
+                <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
+                  Coords: {activeRide.pickupCoords?.[0]?.toFixed(4)}°, {activeRide.pickupCoords?.[1]?.toFixed(4)}°
+                </span>
+              </div>
+            </div>
+            <div className="flex items-start space-x-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1 shrink-0 ring-4 ring-rose-500/20" />
+              <div>
+                <span className="text-neutral-500 block text-[10px] uppercase font-bold tracking-wider">Destination</span>
+                <span className="font-semibold text-neutral-100">{activeRide.dropoffAddress}</span>
+                <span className="text-[10px] font-mono text-neutral-500 block mt-0.5">
+                  Coords: {activeRide.dropoffCoords?.[0]?.toFixed(4)}°, {activeRide.dropoffCoords?.[1]?.toFixed(4)}°
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons: Navigate to Pickup & I've Arrived */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const pickup = activeRide.pickupCoords || [22.6113, 88.4202];
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${pickup[0]},${pickup[1]}`, '_blank');
+              }}
+              className="w-full sm:flex-1 py-3.5 px-5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-white font-bold text-sm rounded-2xl transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <Compass className="w-4 h-4 text-emerald-400" />
+              <span>Navigate to Pickup (Google Maps)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleArriveAtPickup}
+              className="w-full sm:flex-1 py-3.5 px-5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-extrabold text-sm rounded-2xl shadow-xl shadow-amber-500/20 transition flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.99]"
+            >
+              <CheckCircle2 className="w-5 h-5" />
+              <span>I've Arrived at Pickup</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Arrived at Pickup State: PIN Verification */}
+      {activeRide && !activeRide.isVerified && activeRide.status === 'ARRIVED' && (
+        <div className="bg-neutral-900/90 border-2 border-emerald-500/50 p-6 sm:p-8 rounded-3xl space-y-6 shadow-2xl shadow-emerald-950/30 backdrop-blur-xl animate-in fade-in duration-300">
+          {/* Header Badge */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
+            <div className="flex items-center space-x-3">
+              <span className="flex h-3 w-3 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 border border-emerald-600/50 px-3 py-1 rounded-full">
+                  Step 2: Enter Rider PIN
                 </span>
                 <span className="text-xs text-neutral-400 ml-2 font-medium">
                   Arrived at Pickup Location
@@ -1365,16 +1583,16 @@ export default function DriverDashboard() {
 
           {/* PIN Input Form Container */}
           <div className="bg-neutral-950 border border-neutral-800/80 p-6 sm:p-7 rounded-2xl flex flex-col items-center text-center space-y-5">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-inner">
               <Key className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
               <h3 className="text-lg font-extrabold text-white tracking-tight">
-                Enter 4-Digit Customer PIN
+                Enter 4-Digit Rider PIN
               </h3>
               <p className="text-xs text-neutral-400 max-w-md">
-                Ask passenger for the 4-digit start PIN shown on their Uber app to unlock live GPS road navigation.
+                Ask passenger for the 4-digit start PIN displayed on their Uber screen to verify identity and unlock trip navigation.
               </p>
             </div>
 
@@ -1404,22 +1622,6 @@ export default function DriverDashboard() {
               </div>
             )}
 
-            {/* Quick Auto-fill Hint Button for Convenience */}
-            <div className="flex items-center space-x-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const demoPin = (activeRide.otp || '4829').split('');
-                  const digits = [demoPin[0] || '4', demoPin[1] || '8', demoPin[2] || '2', demoPin[3] || '9'];
-                  setPinDigits(digits);
-                  setPinError(null);
-                }}
-                className="text-[11px] text-neutral-400 hover:text-emerald-400 transition underline underline-offset-4 decoration-neutral-700 hover:decoration-emerald-400 cursor-pointer flex items-center space-x-1"
-              >
-                <span>💡 Rider's PIN is <strong className="font-mono text-emerald-400">{activeRide.otp || '4829'}</strong> (Tap to fill)</span>
-              </button>
-            </div>
-
             {/* Verify & Start Trip Action Button */}
             <button
               type="button"
@@ -1430,12 +1632,12 @@ export default function DriverDashboard() {
               {isVerifyingPin ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Verifying PIN...</span>
+                  <span>Verifying PIN with Server...</span>
                 </>
               ) : (
                 <>
                   <Unlock className="w-5 h-5" />
-                  <span>Verify PIN & Start Navigation</span>
+                  <span>Start Trip</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </>
               )}
