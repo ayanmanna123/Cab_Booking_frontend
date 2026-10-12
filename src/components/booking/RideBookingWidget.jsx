@@ -868,7 +868,7 @@ export default function RideBookingWidget({
                 {/* Top Banner Status */}
                 <div className="flex items-center justify-between border-b border-emerald-800/60 pb-3">
                   <div className="flex items-center space-x-2.5">
-                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-400" />
                     <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
                       {rideTripStatus === 'IN_PROGRESS'
                         ? 'Your trip has started • Live on route'
@@ -877,7 +877,7 @@ export default function RideBookingWidget({
                         : 'Your driver has accepted your ride • On the way'}
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-900/60 px-2.5 py-0.5 rounded-md border border-emerald-700/60">
+                  <span className="text-xs font-mono font-bold text-emerald-400">
                     {rideTripStatus === 'IN_PROGRESS'
                       ? 'On Route'
                       : rideTripStatus === 'ARRIVED'
@@ -908,9 +908,6 @@ export default function RideBookingWidget({
                           <h4 className="text-base font-extrabold text-white">
                             {activeDriver.driverName || 'Driver'}
                           </h4>
-                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-md border border-emerald-500/30">
-                            Verified
-                          </span>
                         </div>
                         <div className="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
                           <span className="text-amber-400 font-bold flex items-center">
@@ -1117,9 +1114,8 @@ export default function RideBookingWidget({
                 /* Live Searching Radar Animation */
                 <div className="bg-neutral-950 p-6 rounded-2xl border border-neutral-800 space-y-5 text-center">
                   <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-                    <span className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 animate-ping absolute"></span>
-                    <span className="w-8 h-8 rounded-full bg-emerald-500/40 border border-emerald-400 flex items-center justify-center">
-                      <Car className="w-4 h-4 text-white" />
+                    <span className="w-10 h-10 rounded-full bg-emerald-500/30 border border-emerald-400/60 flex items-center justify-center">
+                      <Car className="w-5 h-5 text-emerald-300" />
                     </span>
                   </div>
 
@@ -1423,12 +1419,6 @@ export default function RideBookingWidget({
                 <h5 className="text-sm font-black text-white tracking-tight">
                   Rides we think you'll like
                 </h5>
-                <div className="flex items-center space-x-1.5 bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-full text-neutral-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span className="font-semibold text-white">{estimates.distanceKm} km</span>
-                  <span className="text-neutral-500">·</span>
-                  <span>{estimates.durationMin} min</span>
-                </div>
               </div>
 
               <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">

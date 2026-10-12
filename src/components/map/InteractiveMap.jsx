@@ -430,31 +430,6 @@ export default function InteractiveMap({
       className="relative w-full rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl isolate z-0 transition-all"
       style={{ height: containerHeight }}
     >
-      {/* Top Left Floating Status Badge */}
-      <div className="absolute top-4 left-4 z-[1000] flex items-center space-x-2 pointer-events-none">
-        <div className="bg-black/85 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-neutral-700/70 flex items-center space-x-2 text-xs font-semibold text-white shadow-xl">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-          <span>Leaflet Live GPS</span>
-          <span className="text-neutral-400">·</span>
-          <span className="text-neutral-300">
-            {mapTheme === 'dark' ? 'Night View' : 'Street View'}
-          </span>
-        </div>
-
-        {/* Live Real Drivers Badge */}
-        {nearbyDrivers && nearbyDrivers.length > 0 ? (
-          <div className="hidden sm:flex bg-neutral-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-neutral-700/70 items-center space-x-1.5 text-xs font-medium text-emerald-400 shadow-xl">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>{nearbyDrivers.length} Driver{nearbyDrivers.length > 1 ? 's' : ''} Online Nearby</span>
-          </div>
-        ) : (
-          <div className="hidden sm:flex bg-neutral-900/85 backdrop-blur-md px-3 py-1.5 rounded-lg border border-neutral-700/70 items-center space-x-1.5 text-xs font-medium text-neutral-400 shadow-xl">
-            <span className="w-2 h-2 rounded-full bg-neutral-600"></span>
-            <span>No Drivers Online</span>
-          </div>
-        )}
-      </div>
-
       {/* Map Tile Container */}
       <MapContainer
         center={defaultCenter}
@@ -570,12 +545,9 @@ export default function InteractiveMap({
                     <span>★ {vehicle.rating || '5.0'}</span>
                     <span className="font-semibold text-emerald-600">Online & Ready</span>
                   </div>
-                  <div className="pt-1 border-t border-neutral-200 flex items-center justify-between text-[10px]">
+                  <div className="pt-1 border-t border-neutral-200 text-[10px]">
                     <span className="text-neutral-500 font-medium">
                       {vehicle.driver_name || vehicle.fullName || 'Verified Driver'}
-                    </span>
-                    <span className="bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
-                      Live
                     </span>
                   </div>
                 </div>
@@ -602,13 +574,8 @@ export default function InteractiveMap({
                 <Navigation className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-white font-extrabold text-sm sm:text-base flex items-center space-x-2">
-                  <span>Uber Live GPS Fleet Radar</span>
-                  {nearbyDrivers.length > 0 && (
-                    <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-500/30">
-                      Live
-                    </span>
-                  )}
+                <h3 className="text-white font-extrabold text-sm sm:text-base">
+                  Uber Live GPS Fleet Radar
                 </h3>
                 <p className="text-xs text-neutral-400">
                   {nearbyDrivers.length > 0

@@ -29,10 +29,6 @@ export default function SafetySection() {
     <section id="safety" className="py-20 bg-neutral-950 text-white border-t border-neutral-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center space-x-2 bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-md text-red-400 text-xs font-bold uppercase tracking-wider">
-            <Shield className="w-3.5 h-3.5" />
-            <span>Safety First</span>
-          </div>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
             Your safety drives everything we do
           </h2>
@@ -86,7 +82,7 @@ export default function SafetySection() {
 
             <div className="pt-6">
               <div className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 flex items-center space-x-3 text-xs text-neutral-300">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
                 <span>Live GPS route streaming enabled</span>
               </div>
             </div>

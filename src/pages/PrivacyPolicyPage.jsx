@@ -30,10 +30,6 @@ export default function PrivacyPolicyPage({ onBackToHome }) {
           </button>
           
           <div className="space-y-4 border-b border-neutral-800 pb-8">
-            <div className="inline-flex items-center space-x-2 bg-neutral-900 border border-neutral-800 px-3 py-1 rounded-md text-neutral-300 text-xs font-bold uppercase tracking-wider">
-              <Shield className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Legal Documentation</span>
-            </div>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white">
               Privacy Policy
             </h1>

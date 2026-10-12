@@ -974,11 +974,6 @@ export default function DriverDashboard() {
         <div className="relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-800 p-8 sm:p-12 lg:p-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center space-x-2 bg-neutral-800 border border-neutral-700/80 px-3.5 py-1.5 rounded-md text-xs font-semibold text-neutral-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Driver Partner Program</span>
-              </div>
-
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
                 Drive when you want, make what you need.
               </h1>
@@ -1135,13 +1130,7 @@ export default function DriverDashboard() {
             <Car className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-base font-bold text-white">Driver Partner Program</h2>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center space-x-1">
-                <ShieldCheck className="w-3 h-3 mr-0.5" />
-                <span>Verified Partner</span>
-              </span>
-            </div>
+            <h2 className="text-base font-bold text-white">Driver Partner Program</h2>
             <p className="text-xs text-neutral-400 mt-0.5">
               Driving as <strong className="text-white">{driverProfile.fullName}</strong> · Aadhaar ({driverProfile.aadhaarNumber ? `•••• ${driverProfile.aadhaarNumber.slice(-4)}` : 'Verified'}) & DL ({driverProfile.drivingLicense || 'Verified'})
             </p>
@@ -1192,15 +1181,9 @@ export default function DriverDashboard() {
           </div>
 
           <div className="space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${isOnline ? 'bg-emerald-500 animate-ping' : 'bg-neutral-600'}`} />
+            <div className="flex items-center space-x-2">
+              <span className={`w-3 h-3 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-neutral-600'}`} />
               <h1 className="text-2xl font-black text-white">Driver Portal</h1>
-              <span className="text-xs bg-neutral-800 px-2.5 py-0.5 rounded-md text-white font-bold border border-neutral-700">
-                {driverProfile.vehicleMake} {driverProfile.vehicleModel} ({tierLabel})
-              </span>
-              <span className="text-xs font-mono font-bold bg-neutral-950 px-2.5 py-0.5 rounded-md text-amber-400 border border-amber-400/20">
-                {driverProfile.licensePlate || 'DL 01 AB 1234'}
-              </span>
             </div>
             <p className="text-xs text-neutral-400">
               {isLocating
@@ -1235,7 +1218,7 @@ export default function DriverDashboard() {
               </>
             ) : (
               <>
-                <Radio className="w-4 h-4 animate-pulse text-black" />
+                <Radio className="w-4 h-4 text-black" />
                 <span>Go Live</span>
               </>
             )}
@@ -1279,13 +1262,7 @@ export default function DriverDashboard() {
       <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5">
           <div className="space-y-1">
-            <div className="flex items-center space-x-2.5">
-              <h2 className="text-xl font-black text-white">Driver Partner Profile & Vehicle Details</h2>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-md border border-emerald-500/30 flex items-center space-x-1">
-                <CheckCircle2 className="w-3 h-3 mr-0.5" />
-                <span>Documents Verified</span>
-              </span>
-            </div>
+            <h2 className="text-xl font-black text-white">Driver Partner Profile & Vehicle Details</h2>
             <p className="text-xs text-neutral-400">
               Live data synchronized from your driver registration and Supabase database.
             </p>
@@ -1352,10 +1329,6 @@ export default function DriverDashboard() {
                 alt="Registered Vehicle"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-2.5 right-2.5 bg-black/85 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
-                <Check className="w-3 h-3 text-emerald-400" />
-                <span>Verified Vehicle</span>
-              </div>
               <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition text-xs font-bold text-white space-x-2">
                 <Upload className="w-4 h-4 text-emerald-400" />
                 <span>Upload Custom Photo</span>
@@ -1374,7 +1347,7 @@ export default function DriverDashboard() {
                   <span className="text-neutral-500 block text-[10px] uppercase font-bold">Make & Model</span>
                   <span className="font-bold text-white text-sm">{driverProfile.vehicleMake} {driverProfile.vehicleModel}</span>
                 </div>
-                <span className="text-xs bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded-lg text-white font-bold">
+                <span className="text-xs text-neutral-400 font-semibold">
                   {tierLabel}
                 </span>
               </div>
@@ -1392,7 +1365,7 @@ export default function DriverDashboard() {
 
               <div>
                 <span className="text-neutral-500 block text-[10px] uppercase font-bold">License Plate</span>
-                <span className="font-mono font-black text-amber-400 text-sm bg-neutral-900 px-2.5 py-0.5 rounded border border-amber-400/20 inline-block">
+                <span className="font-mono font-bold text-amber-400 text-sm block">
                   {driverProfile.licensePlate || 'DL 01 AB 1234'}
                 </span>
               </div>
@@ -1450,17 +1423,10 @@ export default function DriverDashboard() {
           {/* Header Badge & Trip details */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
             <div className="flex items-center space-x-3">
-              <span className="flex h-3 w-3 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-              </span>
+              <span className="h-3 w-3 rounded-full bg-amber-500" />
               <div>
-                <span className="text-xs font-black uppercase tracking-wider text-amber-300 bg-amber-950/80 border border-amber-600/50 px-3 py-1 rounded-md">
-                  Step 1: En Route to Pickup
-                </span>
-                <span className="text-xs text-neutral-400 ml-2 font-medium">
-                  Ride Accepted
-                </span>
+                <span className="text-sm font-bold text-white block">En Route to Pickup</span>
+                <span className="text-xs text-neutral-400 font-medium">Ride Accepted</span>
               </div>
             </div>
 
@@ -1548,17 +1514,10 @@ export default function DriverDashboard() {
           {/* Header Badge */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800">
             <div className="flex items-center space-x-3">
-              <span className="flex h-3 w-3 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-              </span>
+              <span className="h-3 w-3 rounded-full bg-emerald-500" />
               <div>
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 border border-emerald-600/50 px-3 py-1 rounded-md">
-                  Step 2: Enter Rider PIN
-                </span>
-                <span className="text-xs text-neutral-400 ml-2 font-medium">
-                  Arrived at Pickup Location
-                </span>
+                <span className="text-sm font-bold text-white block">Enter Rider PIN</span>
+                <span className="text-xs text-neutral-400 font-medium">Arrived at Pickup Location</span>
               </div>
             </div>
 
@@ -1660,10 +1619,8 @@ export default function DriverDashboard() {
           <div className="bg-emerald-950/80 border-2 border-emerald-500/80 p-6 sm:p-7 rounded-3xl space-y-5 shadow-2xl shadow-emerald-950/40 backdrop-blur-xl animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center space-x-2.5">
-                <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-900/80 border border-emerald-600/60 px-3.5 py-1 rounded-md">
-                  Live Trip in Progress • On Route
-                </span>
+                <span className="w-3 h-3 rounded-full bg-emerald-400" />
+                <h3 className="text-sm font-bold text-white">Trip in Progress · Navigating</h3>
               </div>
 
               <div className="flex items-center space-x-3">
@@ -1694,7 +1651,7 @@ export default function DriverDashboard() {
             <div className="bg-neutral-950/90 border border-emerald-500/30 p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center space-x-3.5">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0 shadow-lg shadow-emerald-950">
-                  <CornerUpRight className="w-6 h-6 stroke-[2.5] animate-pulse" />
+                  <CornerUpRight className="w-6 h-6 stroke-[2.5]" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
@@ -1751,16 +1708,11 @@ export default function DriverDashboard() {
             <div className="flex items-center space-x-2">
               <span className="font-bold text-white">Live Road Heatmap & Navigation</span>
               <span className="text-xs text-neutral-400">· OpenStreetMap GPS</span>
-              {activeRide?.isVerified && (
-                <span className="text-[10px] font-extrabold text-emerald-300 bg-emerald-950 border border-emerald-600 px-2 py-0.5 rounded-md">
-                  TURN-BY-TURN ACTIVE
-                </span>
-              )}
             </div>
 
             {/* GPS Coordinates pill */}
             <div className="flex items-center space-x-2 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-md text-xs">
-              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-neutral-500'}`} />
+              <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-neutral-500'}`} />
               <MapPin className="w-3.5 h-3.5 text-neutral-400" />
               <span className="text-neutral-300 font-mono font-medium">
                 {locationLabel}
@@ -1768,11 +1720,6 @@ export default function DriverDashboard() {
               {gpsAccuracy && (
                 <span className="text-[10px] text-neutral-500">
                   (±{Math.round(gpsAccuracy)}m)
-                </span>
-              )}
-              {isOnline && (
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                  LIVE
                 </span>
               )}
             </div>

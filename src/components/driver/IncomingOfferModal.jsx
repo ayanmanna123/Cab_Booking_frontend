@@ -33,12 +33,12 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
         {/* Countdown header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-xs font-black tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-md border border-emerald-500/30">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            <h3 className="text-xs font-black tracking-wider uppercase text-emerald-400">
               New Ride Request
-            </span>
+            </h3>
           </div>
-          <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-neutral-200 bg-neutral-800 px-2.5 py-1 rounded-md border border-neutral-700">
+          <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-neutral-300">
             <Clock className="w-3.5 h-3.5 text-amber-400" />
             <span>{timeLeft}s remaining</span>
           </div>
@@ -65,7 +65,7 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
             <span className="text-[11px] text-neutral-400 block uppercase font-bold tracking-wider">
               Category
             </span>
-            <span className="text-sm font-bold text-white bg-neutral-900 px-2.5 py-1 rounded-lg border border-neutral-800 inline-block mt-0.5">
+            <span className="text-sm font-bold text-white block mt-0.5">
               {offer.vehicleTier || offer.vehicleType || 'Uber Go AC'}
             </span>
           </div>

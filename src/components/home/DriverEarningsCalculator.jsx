@@ -21,9 +21,6 @@ export default function DriverEarningsCalculator() {
         <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Controls */}
           <div className="space-y-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-3 py-1 rounded-md border border-amber-500/20">
-              Earnings Estimator
-            </span>
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
               See what you could make driving in your city
             </h2>
@@ -35,7 +32,7 @@ export default function DriverEarningsCalculator() {
             <div className="space-y-2 pt-2">
               <div className="flex justify-between items-center text-sm font-semibold">
                 <span className="text-neutral-300">Hours driving per week</span>
-                <span className="text-white text-base font-bold bg-neutral-800 px-3 py-1 rounded-lg">
+                <span className="text-white text-base font-bold">
                   {hoursPerWeek} hrs/week
                 </span>
               </div>

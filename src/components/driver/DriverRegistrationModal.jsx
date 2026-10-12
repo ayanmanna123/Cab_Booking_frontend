@@ -565,10 +565,7 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
                         alt="Selected Vehicle Preview"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1 shadow">
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span>Active Photo</span>
-                      </div>
+
                       <div className="absolute bottom-2.5 left-2.5 bg-black/80 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold text-white border border-neutral-700 shadow">
                         {formData.vehicleMake} {formData.vehicleModel} ({formData.vehicleColor})
                       </div>
@@ -603,7 +600,7 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
                           Upload to Supabase Storage Bucket (car-images):
                         </label>
                         {uploadingImage && (
-                          <span className="text-[10px] text-emerald-400 font-bold animate-pulse">
+                          <span className="text-[10px] text-emerald-400 font-bold">
                             Uploading to Supabase...
                           </span>
                         )}

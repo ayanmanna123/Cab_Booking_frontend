@@ -23,9 +23,7 @@ import {
   ChevronRight,
   Lock,
   ExternalLink,
-  Copy,
-  Edit2,
-  ArrowRight
+  Copy
 } from 'lucide-react';
 import InteractiveMap from '../map/InteractiveMap';
 import { sosApi, paymentsApi } from '../../api';
@@ -382,7 +380,7 @@ export default function LiveRideTracker({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <div className="flex items-center space-x-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${tripCompleted ? 'bg-emerald-400' : 'bg-emerald-400 animate-ping'}`} />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
               <h2 className="text-2xl font-black text-white">
                 {tripCompleted ? 'Trip Completed' : statusStep >= 3 ? 'On Trip to Destination' : 'Driver En Route'}
               </h2>
@@ -548,13 +546,6 @@ export default function LiveRideTracker({
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-extrabold text-white block">
                         {paymentCompleted ? 'Payment Completed' : 'Trip Payment'}
-                      </span>
-                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                        paymentCompleted
-                          ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40'
-                          : 'bg-amber-950/80 text-amber-300 border-amber-500/40'
-                      }`}>
-                        {paymentCompleted ? 'PAID' : 'PENDING'}
                       </span>
                     </div>
                     <span className="text-[11px] text-neutral-400 mt-0.5 block">
@@ -1097,7 +1088,7 @@ export default function LiveRideTracker({
                     </div>
                     <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                       <div className="flex items-center space-x-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                         <span>UPI UTR / Ref No:</span>
                       </div>
                       <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
@@ -1110,7 +1101,7 @@ export default function LiveRideTracker({
                 {selectedPaymentMethod === 'card' && stripePaymentIntentId && (
                   <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                     <div className="flex items-center space-x-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                       <span>Stripe Reference:</span>
                     </div>
                     <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
