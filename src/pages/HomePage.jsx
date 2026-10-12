@@ -6,7 +6,7 @@ import FeaturesShowcase from '../components/home/FeaturesShowcase';
 import DriverEarningsCalculator from '../components/home/DriverEarningsCalculator';
 import SafetySection from '../components/home/SafetySection';
 import AppDownloadBanner from '../components/home/AppDownloadBanner';
-import { driversApi } from '../api';
+import { driversApi, ridesApi } from '../api';
 import { useSocketContext } from '../context/SocketContext';
 import { SOCKET_EVENTS } from '../constants/socketEvents';
 
@@ -18,6 +18,26 @@ export default function HomePage() {
   const [nearbyDrivers, setNearbyDrivers] = useState([]);
 
   const { socket } = useSocketContext();
+
+  // Sync active ride pickup and dropoff coords so route line is drawn immediately on active ride
+  useEffect(() => {
+    let isMounted = true;
+    ridesApi.getActiveRide().then((res) => {
+      if (res?.success && res.data && isMounted) {
+        const r = res.data;
+        const pLat = Number(r.pickup_latitude);
+        const pLng = Number(r.pickup_longitude);
+        const dLat = Number(r.dropoff_latitude);
+        const dLng = Number(r.dropoff_longitude);
+        if (pLat && pLng) setPickupCoords([pLat, pLng]);
+        if (dLat && dLng) {
+          setDropoffCoords([dLat, dLng]);
+          setHasActiveRoute(true);
+        }
+      }
+    }).catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
 
   // Fetch real online drivers from backend & sync local live driver
   useEffect(() => {

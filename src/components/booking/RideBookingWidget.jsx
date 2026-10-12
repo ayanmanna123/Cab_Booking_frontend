@@ -220,6 +220,25 @@ export default function RideBookingWidget({
           const r = res.data;
           setBookingConfirmed(r);
           setRideTripStatus(r.status);
+          const pLat = Number(r.pickup_latitude);
+          const pLng = Number(r.pickup_longitude);
+          const dLat = Number(r.dropoff_latitude);
+          const dLng = Number(r.dropoff_longitude);
+          if (pLat && pLng) setPickupCoords({ lat: pLat, lng: pLng });
+          if (dLat && dLng) setDropoffCoords({ lat: dLat, lng: dLng });
+          if (r.pickup_address) setPickup(r.pickup_address);
+          if (r.dropoff_address) setDropoff(r.dropoff_address);
+
+          if (onRouteCalculated && pLat && pLng && dLat && dLng) {
+            onRouteCalculated({
+              pickup: [pLat, pLng],
+              dropoff: [dLat, dLng],
+              coordinates: [[pLat, pLng], [dLat, dLng]],
+              distanceKm: 5.2,
+              durationMin: 14
+            });
+          }
+
           const driverParsed = parseDriverDetails(r);
           if (driverParsed) {
             setAcceptedDriver(driverParsed);

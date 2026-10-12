@@ -49,9 +49,22 @@
   z-index: 2;
 }
 
+.leaflet-overlay-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-overlay-pane svg {
+  z-index: 400 !important;
+  pointer-events: auto;
+}
+
+.leaflet-marker-pane {
+  z-index: 600 !important;
+}
+
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 3;
+  z-index: 1000 !important;
 }
 
 .dark-tiles .leaflet-tile {

@@ -152,16 +152,31 @@ function AutoFitBounds({ pickup, dropoff, routeCoordinates }) {
   const map = useMap();
 
   useEffect(() => {
-    if (routeCoordinates && routeCoordinates.length > 0) {
+    if (routeCoordinates && routeCoordinates.length > 1) {
       const bounds = L.latLngBounds(routeCoordinates);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     } else if (pickup && dropoff) {
-      const bounds = L.latLngBounds([pickup, dropoff]);
-      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+      const pLat = Array.isArray(pickup) ? pickup[0] : pickup?.lat;
+      const pLng = Array.isArray(pickup) ? pickup[1] : pickup?.lng;
+      const dLat = Array.isArray(dropoff) ? dropoff[0] : dropoff?.lat;
+      const dLng = Array.isArray(dropoff) ? dropoff[1] : dropoff?.lng;
+      if (pLat && pLng && dLat && dLng) {
+        const bounds = L.latLngBounds([[pLat, pLng], [dLat, dLng]]);
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 14 });
+      }
     } else if (pickup) {
-      map.setView(pickup, 14, { animate: true });
+      const pLat = Array.isArray(pickup) ? pickup[0] : pickup?.lat;
+      const pLng = Array.isArray(pickup) ? pickup[1] : pickup?.lng;
+      if (pLat && pLng) {
+        map.setView([pLat, pLng], 14, { animate: true });
+      }
     }
-  }, [pickup, dropoff, routeCoordinates, map]);
+  }, [
+    pickup ? (Array.isArray(pickup) ? pickup.join(',') : `${pickup.lat},${pickup.lng}`) : '',
+    dropoff ? (Array.isArray(dropoff) ? dropoff.join(',') : `${dropoff.lat},${dropoff.lng}`) : '',
+    routeCoordinates?.length,
+    map
+  ]);
 
   return null;
 }
@@ -321,10 +336,69 @@ export default function InteractiveMap({
   const [mounted, setMounted] = useState(false);
   const [mapTheme, setMapTheme] = useState('dark'); // 'dark' | 'street'
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const getInitialRoute = () => {
+    if (routeCoordinates && routeCoordinates.length > 0) return routeCoordinates;
+    const pLat = Array.isArray(pickupCoords) ? pickupCoords[0] : pickupCoords?.lat;
+    const pLng = Array.isArray(pickupCoords) ? pickupCoords[1] : pickupCoords?.lng;
+    const dLat = Array.isArray(dropoffCoords) ? dropoffCoords[0] : dropoffCoords?.lat;
+    const dLng = Array.isArray(dropoffCoords) ? dropoffCoords[1] : dropoffCoords?.lng;
+    if (pLat && pLng && dLat && dLng) {
+      return [[pLat, pLng], [dLat, dLng]];
+    }
+    return [];
+  };
+
+  const [activeRoute, setActiveRoute] = useState(getInitialRoute);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Compute / fetch real OSRM road geometry if routeCoordinates is empty but pickup and dropoff are provided
+  useEffect(() => {
+    if (routeCoordinates && routeCoordinates.length > 0) {
+      setActiveRoute(routeCoordinates);
+      return;
+    }
+
+    const pLat = Number(Array.isArray(pickupCoords) ? pickupCoords[0] : pickupCoords?.lat);
+    const pLng = Number(Array.isArray(pickupCoords) ? pickupCoords[1] : pickupCoords?.lng);
+    const dLat = Number(Array.isArray(dropoffCoords) ? dropoffCoords[0] : dropoffCoords?.lat);
+    const dLng = Number(Array.isArray(dropoffCoords) ? dropoffCoords[1] : dropoffCoords?.lng);
+
+    if (pLat && pLng && dLat && dLng) {
+      let isCurrent = true;
+      // Immediately set direct 2-point line so blue line is visible instantly without delay
+      setActiveRoute(prev => (prev && prev.length > 1 ? prev : [[pLat, pLng], [dLat, dLng]]));
+
+      const fetchRoute = async () => {
+        try {
+          const url = `https://router.project-osrm.org/route/v1/driving/${pLng},${pLat};${dLng},${dLat}?overview=full&geometries=geojson`;
+          const res = await fetch(url);
+          const data = await res.json();
+          if (isCurrent && data?.routes?.[0]?.geometry?.coordinates) {
+            const poly = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            setActiveRoute(poly);
+            return;
+          }
+        } catch (e) {
+          console.warn('OSRM routing fetch fallback', e);
+        }
+        if (isCurrent) {
+          setActiveRoute([[pLat, pLng], [dLat, dLng]]);
+        }
+      };
+
+      fetchRoute();
+      return () => { isCurrent = false; };
+    } else {
+      setActiveRoute([]);
+    }
+  }, [
+    pickupCoords ? (Array.isArray(pickupCoords) ? pickupCoords.join(',') : `${pickupCoords.lat},${pickupCoords.lng}`) : '',
+    dropoffCoords ? (Array.isArray(dropoffCoords) ? dropoffCoords.join(',') : `${dropoffCoords.lat},${dropoffCoords.lng}`) : '',
+    routeCoordinates
+  ]);
 
   // Handle ESC key for exiting fullscreen modal
   useEffect(() => {
@@ -402,7 +476,7 @@ export default function InteractiveMap({
         <MapZoomControls
           pickupCoords={pickupCoords}
           dropoffCoords={dropoffCoords}
-          routeCoordinates={routeCoordinates}
+          routeCoordinates={activeRoute}
           mapTheme={mapTheme}
           setMapTheme={setMapTheme}
           onToggleFullscreen={allowFullscreen ? () => setIsFullscreen(!isFullscreen) : null}
@@ -413,7 +487,7 @@ export default function InteractiveMap({
         <AutoFitBounds
           pickup={pickupCoords}
           dropoff={dropoffCoords}
-          routeCoordinates={routeCoordinates}
+          routeCoordinates={activeRoute}
         />
 
         {/* Pickup Marker */}
@@ -441,23 +515,27 @@ export default function InteractiveMap({
         )}
 
         {/* Route Polyline Background Glow */}
-        {routeCoordinates && routeCoordinates.length > 0 && (
+        {activeRoute && activeRoute.length > 0 && (
           <Polyline
-            positions={routeCoordinates}
+            key={`glow-${activeRoute.length}-${activeRoute[0]?.[0] || 0}`}
+            positions={activeRoute}
             color="#ffffff"
-            weight={6}
-            opacity={0.9}
+            weight={7}
+            opacity={0.8}
             dashArray="1, 8"
             lineCap="round"
           />
         )}
-        {/* Route Polyline Main Solid Drive Line */}
-        {routeCoordinates && routeCoordinates.length > 0 && (
+        {/* Route Polyline Main Solid Royal Blue Drive Line */}
+        {activeRoute && activeRoute.length > 0 && (
           <Polyline
-            positions={routeCoordinates}
+            key={`blue-route-${activeRoute.length}-${activeRoute[0]?.[0] || 0}`}
+            positions={activeRoute}
             color="#2563eb"
-            weight={4}
-            opacity={0.9}
+            weight={5}
+            opacity={1.0}
+            lineCap="round"
+            lineJoin="round"
           />
         )}
 
