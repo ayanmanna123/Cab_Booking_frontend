@@ -74,9 +74,9 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
         />
       </div>
 
-      {/* Desktop Table View */}
-      <div className="hidden md:block rounded-xl border border-neutral-800 bg-neutral-950 overflow-hidden shadow-lg">
-        <table className="w-full text-left border-collapse">
+      {/* Desktop & Tablet Table View with deliberate horizontal scrolling container */}
+      <div className="hidden md:block rounded-xl border border-neutral-800 bg-neutral-950 overflow-x-auto shadow-lg">
+        <table className="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr className="border-b border-neutral-800 bg-neutral-900/60 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
               <th className="py-3.5 px-5">Date & Time</th>
@@ -162,7 +162,7 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
                     ) : (
                       <button
                         onClick={() => onSelectRide(ride)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800 transition flex items-center space-x-1.5 ml-auto cursor-pointer"
+                        className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800 transition flex items-center space-x-1.5 ml-auto cursor-pointer"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>View Receipt</span>
@@ -191,6 +191,7 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
 
           const fare = Number(ride.final_fare || ride.finalFare || ride.estimated_fare || ride.fare || 0).toFixed(2);
           const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Uber Go';
+          const driverName = ride.driver_name || ride.driver?.driver_user?.full_name || ride.driverName || 'Verified Driver';
 
           return (
             <div
@@ -215,16 +216,16 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-xs">
-                <div>
-                  <div className="font-semibold text-white">{vehicleName}</div>
+              <div className="flex items-center justify-between pt-2 border-t border-neutral-900 text-xs gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-white truncate">{vehicleName} · <span className="text-neutral-400 font-normal">{driverName}</span></div>
                   <div className="font-mono text-sm font-bold text-white mt-0.5">₹{fare}</div>
                 </div>
 
                 {rideRunning ? (
                   <button
                     onClick={() => onTrackRide(ride)}
-                    className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-white text-black hover:bg-neutral-200 transition flex items-center space-x-1.5 cursor-pointer shadow-sm active:scale-95"
+                    className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-white text-black hover:bg-neutral-200 transition flex items-center space-x-1.5 cursor-pointer shadow-sm active:scale-95 shrink-0"
                   >
                     <Navigation className="w-3.5 h-3.5" />
                     <span>Track Live</span>
@@ -232,7 +233,7 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
                 ) : (
                   <button
                     onClick={() => onSelectRide(ride)}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white transition flex items-center space-x-1 cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white transition flex items-center space-x-1 cursor-pointer shrink-0"
                   >
                     <span>Receipt</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -242,7 +243,7 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
             </div>
           );
         })}
-      </div>
+      </div> 
     </div>
   );
 }

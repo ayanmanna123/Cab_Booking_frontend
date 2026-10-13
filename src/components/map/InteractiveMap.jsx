@@ -641,31 +641,31 @@ export default function InteractiveMap({
 
       {/* Expanded Fullscreen Zoom Modal */}
       {isFullscreen && (
-        <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-xl flex flex-col p-4 sm:p-6 animate-in fade-in zoom-in-95 duration-200 select-none">
+        <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-xl flex flex-col p-2.5 sm:p-4 lg:p-6 animate-in fade-in zoom-in-95 duration-200 select-none">
           {/* Fullscreen Header with Controls */}
-          <div className="flex items-center justify-between mb-3 bg-neutral-900/90 border border-neutral-800 px-5 py-3 rounded-2xl shadow-2xl">
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-xl bg-neutral-800 flex items-center justify-center text-white">
-                <Navigation className="w-5 h-5 text-blue-400" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2.5 sm:mb-3 bg-neutral-900/90 border border-neutral-800 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl shadow-2xl">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-neutral-800 flex items-center justify-center text-white shrink-0">
+                <Navigation className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
               </div>
-              <div>
-                <h3 className="text-white font-extrabold text-sm sm:text-base">
+              <div className="min-w-0">
+                <h3 className="text-white font-extrabold text-sm sm:text-base truncate">
                   Uber Live GPS Fleet Radar
                 </h3>
-                <p className="text-xs text-neutral-400">
+                <p className="text-[11px] sm:text-xs text-neutral-400 truncate">
                   {nearbyDrivers.length > 0
-                    ? `${nearbyDrivers.length} active driver${nearbyDrivers.length > 1 ? 's' : ''} online in this zone · Scroll or use +/− to zoom in/out`
-                    : 'No drivers currently online nearby · Scroll or use +/− to zoom in/out'}
+                    ? `${nearbyDrivers.length} active driver${nearbyDrivers.length > 1 ? 's' : ''} online in this zone`
+                    : 'No drivers currently online nearby'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 shrink-0 self-end sm:self-auto">
               {/* Map Theme Toggle */}
               <button
                 type="button"
                 onClick={() => setMapTheme((t) => (t === 'dark' ? 'street' : 'dark'))}
-                className="px-3.5 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-neutral-700 cursor-pointer"
+                className="px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white rounded-lg sm:rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition border border-neutral-700 cursor-pointer"
               >
                 {mapTheme === 'dark' ? (
                   <>
@@ -684,10 +684,10 @@ export default function InteractiveMap({
               <button
                 type="button"
                 onClick={() => setIsFullscreen(false)}
-                className="p-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-xl transition cursor-pointer border border-neutral-700 active:scale-95"
+                className="p-1.5 sm:p-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-lg sm:rounded-xl transition cursor-pointer border border-neutral-700 active:scale-95"
                 title="Close Fullscreen (Esc)"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>

@@ -180,8 +180,8 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       {/* 1. Hero Section: Minimalist & Compact Live Ride-Tracking Layout */}
-      <section id="ride" className="relative py-6 lg:py-8 bg-black">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+      <section id="ride" className="relative py-4 sm:py-6 lg:py-8 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Row: City Selector & Main Headline */}
           <div className="mb-4 lg:mb-5">
             <div className="flex items-center space-x-2 text-xs font-medium text-neutral-400 mb-2">
@@ -203,18 +203,18 @@ export default function HomePage() {
             </h1>
           </div>
 
-          {/* Perfectly Aligned Two-Column Layout: Details (~38%) & Map (~62%) */}
+          {/* Responsive Two-Column Layout: Details (40% desktop) & Map (60% desktop) */}
           <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
-            {/* Left Column: Details Section / Ride Booking Widget (~38% width) */}
-            <div className="w-full lg:w-[38%] shrink-0 z-10">
+            {/* Left Column: Details Section / Ride Booking Widget */}
+            <div className="w-full lg:w-[40%] shrink-0 z-10">
               <RideBookingWidget
                 onRouteCalculated={handleRouteCalculated}
                 hideHeadline={true}
               />
             </div>
 
-            {/* Right Column: Live Map / Visuals (~62% width) */}
-            <div className="w-full lg:w-[62%] flex-1 min-w-0">
+            {/* Right Column: Live Map / Visuals */}
+            <div className="w-full lg:w-[60%] flex-1 min-w-0">
               <HeroVisual
                 pickupCoords={pickupCoords}
                 dropoffCoords={dropoffCoords}

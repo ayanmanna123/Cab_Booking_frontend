@@ -116,8 +116,10 @@ export default function LiveRideTracker({
           // Subtract 24px for bottom telemetry line (18px text + mt-1.5)
           setSyncedMapHeight(`${Math.max(380, leftH - 24)}px`);
         }
+      } else if (window.innerWidth < 640) {
+        setSyncedMapHeight('260px');
       } else {
-        setSyncedMapHeight('380px');
+        setSyncedMapHeight('340px');
       }
     };
 
@@ -403,11 +405,11 @@ export default function LiveRideTracker({
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(upiPayUrl)}`;
 
   return (
-    <div className="py-4 sm:py-6 max-w-[1200px] mx-auto px-4 sm:px-6 select-none">
+    <div className="py-4 sm:py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 select-none">
       {/* Main Responsive Two-Column Layout: Ride & Driver Details (~38%) + Live Map (~62%) */}
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
-        {/* Left Column: Ride & Driver Details (~38% width) */}
-        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0 lg:max-h-[85vh] lg:overflow-y-auto pr-0.5">
+        {/* Ride & Driver Details Column: Under map on mobile, left on desktop */}
+        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0 lg:max-h-[85vh] lg:overflow-y-auto pr-0.5 order-2 lg:order-1">
           <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xl select-none">
             {/* 1. Slim Ride Status Bar */}
             <div className="pb-3 border-b border-neutral-800/80 space-y-2">
@@ -687,8 +689,8 @@ export default function LiveRideTracker({
           </div>
         </div>
 
-        {/* Right Column: Live Interactive Leaflet Map (~62%) */}
-        <div className="w-full lg:w-[62%] flex-1 min-w-0">
+        {/* Live Interactive Leaflet Map Column: Top on mobile, right on desktop */}
+        <div className="w-full lg:w-[62%] flex-1 min-w-0 order-1 lg:order-2">
           <div className="relative w-full rounded-[18px] overflow-hidden border border-neutral-800 shadow-xl bg-neutral-950">
             {/* Map Top Floating Overlay */}
             <div className="absolute top-3 left-3 z-20 bg-neutral-950/80 border border-neutral-800 backdrop-blur-md px-2.5 py-1 rounded-lg flex items-center space-x-1.5 text-xs text-neutral-300 shadow-lg">

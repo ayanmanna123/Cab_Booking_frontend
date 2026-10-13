@@ -739,7 +739,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
     selectedTier.toUpperCase();
 
   return (
-    <div className="w-full max-w-[500px] text-white">
+    <div className="w-full text-white">
       {!hideHeadline && (
         <>
           {/* 1. City selector row matching official Uber: San Francisco, CA  Change city */}
@@ -759,7 +759,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
           </div>
 
           {/* 2. Official Headline */}
-          <h1 className="text-5xl sm:text-[56px] font-black tracking-[-0.03em] leading-[1.05] text-white mb-6">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-[-0.03em] leading-tight text-white mb-6">
             Go anywhere
           </h1>
         </>
@@ -1470,15 +1470,15 @@ const reverseGeocodeCoords = async (lat, lng) => {
                       key={tier.vehicleTypeId}
                       id={`ride-tier-${tier.vehicleTypeId}`}
                       onClick={() => setSelectedTier(tier.vehicleTypeId)}
-                      className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all select-none ${
+                      className={`flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all select-none gap-2 ${
                         isSelected
                           ? 'bg-neutral-900 border-2 border-white shadow-2xl'
                           : 'bg-black border border-neutral-800/80 hover:border-neutral-700'
                       }`}
                     >
-                      <div className="flex items-center space-x-3.5 sm:space-x-4">
+                      <div className="flex items-center space-x-2.5 sm:space-x-4 min-w-0 flex-1">
                         {/* Official Uber 3D Transparent Car Render */}
-                        <div className="w-20 h-16 sm:w-22 sm:h-18 flex items-center justify-center shrink-0">
+                        <div className="w-14 h-12 sm:w-20 sm:h-16 flex items-center justify-center shrink-0">
                           <img
                             src={carImgSrc}
                             alt={tier.name}
@@ -1487,35 +1487,35 @@ const reverseGeocodeCoords = async (lat, lng) => {
                           />
                         </div>
 
-                        <div className="space-y-0.5">
-                          <div className="flex items-center space-x-1.5">
-                            <span className="font-extrabold text-[15px] sm:text-base text-white tracking-tight">
+                        <div className="space-y-0.5 min-w-0 flex-1">
+                          <div className="flex items-center space-x-1.5 truncate">
+                            <span className="font-extrabold text-sm sm:text-base text-white tracking-tight truncate">
                               {tier.name}
                             </span>
-                            <span className="flex items-center text-xs text-neutral-400 font-semibold">
+                            <span className="flex items-center text-xs text-neutral-400 font-semibold shrink-0">
                               <User className="w-3 h-3 ml-0.5 mr-0.5 text-neutral-300" />
                               {tier.capacity}
                             </span>
                           </div>
 
-                          <p className="text-xs text-neutral-400 font-medium">
+                          <p className="text-[11px] sm:text-xs text-neutral-400 font-medium truncate">
                             {tier.durationMin || '5'} mins away
                             <span className="mx-1">•</span>
                             {arrivalTime}
                           </p>
 
-                          <div className="text-[11px] text-neutral-400">
+                          <div className="text-[10px] sm:text-[11px] text-neutral-400 truncate">
                             {tier.description || 'Affordable everyday rides'}
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-right pl-3 shrink-0">
-                        <div className="text-lg sm:text-xl font-black text-white tracking-tight">
+                      <div className="text-right pl-2 shrink-0">
+                        <div className="text-base sm:text-xl font-black text-white tracking-tight">
                           ₹{Number(tier.finalFare).toFixed(2)}
                         </div>
                         {tier.discountAmount > 0 && (
-                          <span className="block text-xs line-through text-neutral-500 font-medium">
+                          <span className="block text-[11px] sm:text-xs line-through text-neutral-500 font-medium">
                             ₹{Number(tier.subtotal).toFixed(2)}
                           </span>
                         )}
@@ -1528,13 +1528,13 @@ const reverseGeocodeCoords = async (lat, lng) => {
           )}
 
           {/* Actions: See prices & Log in to check your activity */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
             {!estimates ? (
               <button
                 id="see-prices-btn"
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.98] disabled:opacity-50 shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.98] disabled:opacity-50 shadow-md cursor-pointer text-center"
               >
                 {loading ? 'Calculating...' : 'See prices'}
               </button>
@@ -1544,7 +1544,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
                 type="button"
                 onClick={handleBookRide}
                 disabled={loading}
-                className="px-6 py-3.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.98] disabled:opacity-50 shadow-md cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.98] disabled:opacity-50 shadow-md cursor-pointer text-center"
               >
                 {loading ? 'Confirming...' : `Request ${selectedTier.toUpperCase()}`}
               </button>
@@ -1552,7 +1552,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
 
             <a
               href="#login"
-              className="text-sm font-semibold text-white underline underline-offset-4 hover:text-neutral-300 transition"
+              className="text-xs sm:text-sm font-semibold text-white underline underline-offset-4 hover:text-neutral-300 transition text-center sm:text-left py-1"
             >
               Log in to check your activity
             </a>

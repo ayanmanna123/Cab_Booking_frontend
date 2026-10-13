@@ -96,9 +96,9 @@ export default function RideHistoryPage({ onTrackRide, onBackToHome }) {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-black text-white pt-6 pb-16 px-4 sm:px-8 max-w-[1280px] mx-auto">
+    <div className="min-h-screen bg-black text-white pt-4 sm:pt-6 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Top Breadcrumb & Refresh */}
-      <div className="flex items-center justify-between pb-6 border-b border-neutral-900">
+      <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-neutral-900">
         <button
           onClick={onBackToHome || (() => { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); })}
           className="flex items-center space-x-2 text-xs font-semibold text-neutral-400 hover:text-white transition cursor-pointer"
@@ -110,7 +110,7 @@ export default function RideHistoryPage({ onTrackRide, onBackToHome }) {
         <button
           onClick={fetchHistory}
           disabled={loading}
-          className="px-3.5 py-1.5 text-xs font-medium rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800 transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+          className="px-3 sm:px-3.5 py-1.5 text-xs font-medium rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800 transition flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh Activity</span>
@@ -118,54 +118,54 @@ export default function RideHistoryPage({ onTrackRide, onBackToHome }) {
       </div>
 
       {/* Hero Section */}
-      <div className="py-8">
+      <div className="py-6 sm:py-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="inline-flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded bg-neutral-900 border border-neutral-800 text-neutral-300 uppercase tracking-wider mb-2">
               <Clock className="w-3.5 h-3.5" />
               <span>Trip Records</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               Activity & Ride History
             </h1>
-            <p className="text-sm text-neutral-400 mt-1 max-w-xl">
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-xl">
               Track live trips in real time, inspect completed rides, and review downloadable fare receipts.
             </p>
           </div>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8">
-          <div className="p-4 rounded-xl bg-neutral-950 border border-neutral-900">
-            <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Total Rides</div>
-            <div className="text-2xl font-black text-white mt-1">{rides.length}</div>
-            <div className="text-[11px] text-neutral-400 mt-1">All recorded bookings</div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mt-6 sm:mt-8">
+          <div className="p-3 sm:p-4 rounded-xl bg-neutral-950 border border-neutral-900">
+            <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500">Total Rides</div>
+            <div className="text-xl sm:text-2xl font-black text-white mt-1">{rides.length}</div>
+            <div className="text-[10px] sm:text-[11px] text-neutral-400 mt-1">All recorded bookings</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-neutral-950 border border-neutral-900">
-            <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Running Rides</div>
-            <div className="text-2xl font-black text-white mt-1">{runningRides.length}</div>
-            <div className="text-[11px] text-neutral-400 mt-1">
+          <div className="p-3 sm:p-4 rounded-xl bg-neutral-950 border border-neutral-900">
+            <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500">Running Rides</div>
+            <div className="text-xl sm:text-2xl font-black text-white mt-1">{runningRides.length}</div>
+            <div className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 truncate">
               {runningRides.length > 0 ? 'Live tracking available' : 'No active trips'}
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-neutral-950 border border-neutral-900">
-            <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Completed</div>
-            <div className="text-2xl font-black text-white mt-1">{completedRides.length}</div>
-            <div className="text-[11px] text-neutral-400 mt-1">Finished with receipts</div>
+          <div className="p-3 sm:p-4 rounded-xl bg-neutral-950 border border-neutral-900">
+            <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500">Completed</div>
+            <div className="text-xl sm:text-2xl font-black text-white mt-1">{completedRides.length}</div>
+            <div className="text-[10px] sm:text-[11px] text-neutral-400 mt-1">Finished with receipts</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-neutral-950 border border-neutral-900">
-            <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Total Spent</div>
-            <div className="text-2xl font-black text-white mt-1 font-mono">₹{totalSpent.toFixed(2)}</div>
-            <div className="text-[11px] text-neutral-400 mt-1">Completed fare volume</div>
+          <div className="p-3 sm:p-4 rounded-xl bg-neutral-950 border border-neutral-900">
+            <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500">Total Spent</div>
+            <div className="text-xl sm:text-2xl font-black text-white mt-1 font-mono">₹{totalSpent.toFixed(2)}</div>
+            <div className="text-[10px] sm:text-[11px] text-neutral-400 mt-1">Completed fare volume</div>
           </div>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center space-x-2 border-b border-neutral-900 pb-3 mb-6 overflow-x-auto">
+      <div className="flex items-center space-x-2 border-b border-neutral-900 pb-3 mb-6 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveFilter('all')}
           className={`px-4 py-2 text-xs font-semibold rounded-lg transition cursor-pointer shrink-0 ${

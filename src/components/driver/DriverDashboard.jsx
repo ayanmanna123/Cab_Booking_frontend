@@ -131,8 +131,10 @@ export default function DriverDashboard() {
           // Account for the bottom telemetry status line (approx 26px = 16px text + mt-2)
           setSyncedMapHeight(`${Math.max(380, leftH - 26)}px`);
         }
+      } else if (window.innerWidth < 640) {
+        setSyncedMapHeight('260px');
       } else {
-        setSyncedMapHeight('380px');
+        setSyncedMapHeight('340px');
       }
     };
 
@@ -1057,71 +1059,71 @@ export default function DriverDashboard() {
   // =========================================================================
   if (!driverProfile) {
     return (
-      <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 select-none">
+      <div className="py-6 sm:py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12 select-none">
         {/* Hero Recruitment Section */}
-        <div className="relative overflow-hidden rounded-3xl bg-neutral-900 border border-neutral-800 p-8 sm:p-12 lg:p-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            <div className="lg:col-span-7 space-y-6">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-neutral-900 border border-neutral-800 p-6 sm:p-10 lg:p-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center relative z-10">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
               {isSignedIn ? (
                 <>
-                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-neutral-300 text-xs font-medium">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span>Signed in as <strong className="text-white">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</strong></span>
+                  <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-neutral-300 text-xs font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className="truncate">Signed in as <strong className="text-white">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</strong></span>
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+                  <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
                     Register your vehicle to go live.
                   </h1>
 
-                  <p className="text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed">
+                  <p className="text-sm sm:text-base text-neutral-400 max-w-xl leading-relaxed">
                     Complete your driver partner registration with your vehicle details and documents. Once registered, unlock your driver cockpit and click Go Live to receive trips.
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
                     <button
                       id="join-as-driver-cta-btn"
                       onClick={() => setIsRegisterModalOpen(true)}
-                      className="px-7 py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-2xl flex items-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
+                      className="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-xl sm:rounded-2xl flex items-center justify-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
                     >
-                      <UserPlus className="w-5 h-5" />
+                      <UserPlus className="w-5 h-5 shrink-0" />
                       <span>Register Vehicle & Go Live</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 shrink-0" />
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-neutral-300 text-xs font-medium">
-                    <Shield className="w-4 h-4 text-white" />
+                  <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-neutral-800/80 border border-neutral-700 text-neutral-300 text-xs font-medium">
+                    <Shield className="w-4 h-4 text-white shrink-0" />
                     <span>Driver Account Authentication Required</span>
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+                  <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
                     Drive when you want, make what you need.
                   </h1>
 
-                  <p className="text-base sm:text-lg text-neutral-400 max-w-xl leading-relaxed">
+                  <p className="text-sm sm:text-base text-neutral-400 max-w-xl leading-relaxed">
                     Turn your vehicle into income. Set your own schedule, receive instant daily payouts, and access 24/7 dedicated in-app driver safety.
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
                     <SignInButton mode="modal">
                       <button
                         id="driver-sign-in-btn"
-                        className="px-7 py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-2xl flex items-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 bg-white hover:bg-neutral-200 text-black font-extrabold text-sm rounded-xl sm:rounded-2xl flex items-center justify-center space-x-2.5 transition cursor-pointer shadow-xl active:scale-95"
                       >
-                        <User className="w-5 h-5" />
+                        <User className="w-5 h-5 shrink-0" />
                         <span>Sign In as Driver</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-4 h-4 shrink-0" />
                       </button>
                     </SignInButton>
 
                     <SignInButton mode="modal">
                       <button
                         id="join-as-driver-cta-btn"
-                        className="px-6 py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm rounded-2xl flex items-center space-x-2 transition cursor-pointer border border-neutral-700 active:scale-95"
+                        className="w-full sm:w-auto px-6 py-3.5 sm:py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm rounded-xl sm:rounded-2xl flex items-center justify-center space-x-2 transition cursor-pointer border border-neutral-700 active:scale-95"
                       >
-                        <UserPlus className="w-5 h-5 text-neutral-300" />
+                        <UserPlus className="w-5 h-5 text-neutral-300 shrink-0" />
                         <span>Register as a Driver</span>
                       </button>
                     </SignInButton>
@@ -1131,22 +1133,22 @@ export default function DriverDashboard() {
             </div>
 
             {/* Right Hero Image */}
-            <div className="lg:col-span-5 relative flex justify-center">
-              <div className="relative w-full max-w-md h-80 sm:h-96 rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl">
+            <div className="lg:col-span-5 relative flex justify-center w-full">
+              <div className="relative w-full max-w-md h-64 sm:h-80 lg:h-96 rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-800 shadow-2xl">
                 <img
                   src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=800&auto=format&fit=crop"
                   alt="Driver in vehicle smiling"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                <div className="absolute bottom-5 left-5 right-5 p-4 bg-black/80 backdrop-blur-md rounded-2xl border border-neutral-800">
+                <div className="absolute bottom-3 sm:bottom-5 left-3 sm:left-5 right-3 sm:right-5 p-3 sm:p-4 bg-black/85 backdrop-blur-md rounded-xl sm:rounded-2xl border border-neutral-800">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 text-white flex items-center justify-center font-bold">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-neutral-900 border border-neutral-800 text-white flex items-center justify-center font-bold shrink-0">
                       ₹
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white">Instant UPI Payouts</div>
-                      <div className="text-[11px] text-neutral-400">Cash out after each completed ride</div>
+                      <div className="text-[10px] sm:text-[11px] text-neutral-400">Cash out after each completed ride</div>
                     </div>
                   </div>
                 </div>
@@ -1155,34 +1157,34 @@ export default function DriverDashboard() {
           </div>
         </div>
 
-        {/* 3 Driver Benefits Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-neutral-900 border border-neutral-800 p-7 rounded-3xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-white flex items-center justify-center">
-              <Clock className="w-6 h-6 text-neutral-300" />
+        {/* 3 Driver Benefits Grid: 3 col desktop, 2 col tablet, 1 col mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <div className="bg-neutral-900 border border-neutral-800 p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-3">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-neutral-800 text-white flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-300" />
             </div>
-            <h3 className="text-xl font-bold text-white">Your Schedule, Your Terms</h3>
-            <p className="text-sm text-neutral-400 leading-relaxed">
+            <h3 className="text-lg sm:text-xl font-bold text-white">Your Schedule, Your Terms</h3>
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Drive for an hour or for the day. You decide when, where, and how often you work. You are 100% in control.
             </p>
           </div>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-7 rounded-3xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-white flex items-center justify-center">
-              <DollarSign className="w-6 h-6" />
+          <div className="bg-neutral-900 border border-neutral-800 p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-3">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-neutral-800 text-white flex items-center justify-center shrink-0">
+              <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">Fast, Direct Payouts</h3>
-            <p className="text-sm text-neutral-400 leading-relaxed">
+            <h3 className="text-lg sm:text-xl font-bold text-white">Fast, Direct Payouts</h3>
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Direct deposits into your bank account or instant payouts straight to your UPI ID whenever you complete trips.
             </p>
           </div>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-7 rounded-3xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-white flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="bg-neutral-900 border border-neutral-800 p-6 sm:p-7 rounded-2xl sm:rounded-3xl space-y-3 md:col-span-2 lg:col-span-1">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-neutral-800 text-white flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">24/7 Road Safety</h3>
-            <p className="text-sm text-neutral-400 leading-relaxed">
+            <h3 className="text-lg sm:text-xl font-bold text-white">24/7 Road Safety</h3>
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
               Live GPS tracking powered by OpenStreetMap, verified passengers, and emergency assistance around the clock.
             </p>
           </div>
@@ -1249,7 +1251,7 @@ export default function DriverDashboard() {
   // Minimalist, modern, compact, and premium two-column live ride dashboard
   // =========================================================================
   return (
-    <div className="py-4 sm:py-6 max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4 select-none">
+    <div className="py-4 sm:py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 select-none">
       {/* 1. Slim Top Bar: Driver Partner Status & Vehicle Controls */}
       <div className="bg-neutral-950 border border-neutral-800 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
         <div className="flex items-center space-x-3 min-w-0">
@@ -1323,17 +1325,17 @@ export default function DriverDashboard() {
         </div>
 
         {/* Compact KPI Metrics & Go Live Action Button */}
-        <div className="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-end">
-          <div className="flex items-center divide-x divide-neutral-800 px-2 py-1 bg-black border border-neutral-800 rounded-xl text-xs">
-            <div className="px-3 text-center">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+          <div className="flex items-center justify-around sm:justify-center divide-x divide-neutral-800 px-2 py-1.5 bg-black border border-neutral-800 rounded-xl text-xs w-full sm:w-auto">
+            <div className="px-2.5 sm:px-3 text-center">
               <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Today's Payout</span>
               <span className="font-mono font-bold text-white text-xs sm:text-sm">₹{todayEarnings.toFixed(2)}</span>
             </div>
-            <div className="px-3 text-center">
+            <div className="px-2.5 sm:px-3 text-center">
               <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Trips</span>
               <span className="font-mono font-bold text-white text-xs sm:text-sm">{completedTrips}</span>
             </div>
-            <div className="px-3 text-center">
+            <div className="px-2.5 sm:px-3 text-center">
               <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Score</span>
               <span className="font-bold text-white text-xs sm:text-sm flex items-center justify-center space-x-1">
                 <span>5.00</span>
@@ -1347,7 +1349,7 @@ export default function DriverDashboard() {
             id="driver-go-live-btn"
             onClick={handleToggleOnline}
             disabled={isLocating}
-            className={`h-9 px-4 rounded-lg font-semibold text-xs transition cursor-pointer shadow-sm active:scale-95 disabled:opacity-60 flex items-center space-x-1.5 shrink-0 ${
+            className={`h-9 px-4 rounded-lg font-semibold text-xs transition cursor-pointer shadow-sm active:scale-95 disabled:opacity-60 flex items-center justify-center space-x-1.5 shrink-0 ${
               isOnline
                 ? 'bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800'
                 : 'bg-white text-black hover:bg-neutral-200'
@@ -1375,8 +1377,8 @@ export default function DriverDashboard() {
 
       {/* 3. Responsive Two-Column Live Ride-Tracking & Map Dashboard (~38% Left, ~62% Right) */}
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
-        {/* Left Column: Ride Details / Driver Card (~38% width) */}
-        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0 lg:max-h-[85vh] lg:overflow-y-auto pr-0.5">
+        {/* Driver Cockpit Details: Below map on mobile, left on desktop */}
+        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0 lg:max-h-[85vh] lg:overflow-y-auto pr-0.5 order-2 lg:order-1">
           {isOnline && activeRide && ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'].includes(activeRide.status) ? (
             /* Active Trip Assigned (ACCEPTED, ARRIVED, or IN_PROGRESS) */
             <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
@@ -1734,8 +1736,8 @@ export default function DriverDashboard() {
           )}
         </div>
 
-        {/* Right Column: Live GPS Radar Map (~62% width) */}
-        <div className="w-full lg:w-[62%] flex-1 min-w-0">
+        {/* Live GPS Radar Map Column: Top on mobile, right on desktop */}
+        <div className="w-full lg:w-[62%] flex-1 min-w-0 order-1 lg:order-2">
           <div className="relative w-full rounded-[18px] overflow-hidden border border-neutral-800 shadow-xl bg-neutral-950">
             {/* Map GPS Coordinates Overlay (Top Left) */}
             <div className="absolute top-3 left-3 z-20 bg-neutral-950/80 border border-neutral-800 backdrop-blur-md px-2.5 py-1 rounded-lg flex items-center space-x-1.5 text-xs text-neutral-300 shadow-lg">
@@ -1778,7 +1780,7 @@ export default function DriverDashboard() {
 
       {/* 4. Compact Driver Partner Profile & Vehicle Specifications Grid */}
       <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md">
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-neutral-800 pb-3 gap-2.5">
           <div>
             <h3 className="text-sm font-semibold text-white">Driver Partner Profile & Vehicle Details</h3>
             <p className="text-[11px] text-neutral-400 mt-0.5">
@@ -1789,7 +1791,7 @@ export default function DriverDashboard() {
           <button
             type="button"
             onClick={() => setIsRegisterModalOpen(true)}
-            className="h-7 px-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-[11px] rounded-md border border-neutral-800 transition cursor-pointer flex items-center space-x-1"
+            className="h-7 px-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-[11px] rounded-md border border-neutral-800 transition cursor-pointer flex items-center space-x-1 self-start sm:self-auto shrink-0"
           >
             <UserPlus className="w-3 h-3" />
             <span>Update Details</span>

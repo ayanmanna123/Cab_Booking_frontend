@@ -29,7 +29,7 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-fadeIn select-none">
-      <div className="bg-neutral-950 border border-neutral-800 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl p-4 sm:p-5 space-y-3.5 animate-in zoom-in-95 text-white">
+      <div className="bg-neutral-950 border border-neutral-800 w-full max-w-sm max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl p-4 sm:p-5 space-y-3.5 animate-in zoom-in-95 text-white">
         {/* Countdown header */}
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-semibold tracking-wider uppercase text-neutral-400">

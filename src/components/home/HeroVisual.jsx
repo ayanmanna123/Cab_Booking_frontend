@@ -23,7 +23,7 @@ export default function HeroVisual({
       {/* Container with top-aligned bounds (18px corner radius & subtle border) */}
       <div className="relative rounded-[18px] overflow-hidden border border-neutral-800 shadow-xl bg-neutral-950">
         {/* Compact Floating View Mode Toggle (Top Right Overlay) */}
-        <div className="absolute top-3 right-3 z-20 bg-neutral-950/80 border border-neutral-800 backdrop-blur-md p-0.5 rounded-lg flex items-center space-x-1 text-xs shadow-lg">
+        <div className="absolute top-3 right-3 z-20 bg-neutral-950/85 border border-neutral-800 backdrop-blur-md p-0.5 rounded-lg flex items-center space-x-1 text-xs shadow-lg">
           <button
             type="button"
             onClick={() => setViewMode('gallery')}
@@ -51,22 +51,22 @@ export default function HeroVisual({
         </div>
 
         {viewMode === 'map' ? (
-          /* Interactive Leaflet Map */
-          <div className="relative w-full">
+          /* Interactive Leaflet Map with responsive container */
+          <div className="relative w-full h-[280px] sm:h-[360px] lg:h-[480px]">
             <InteractiveMap
               pickupCoords={pickupCoords}
               dropoffCoords={dropoffCoords}
               routeCoordinates={routeCoordinates}
               nearbyDrivers={nearbyDrivers}
-              height="460px"
+              height="100%"
             />
           </div>
         ) : (
           /* Hero Photography Collage */
-          <div className="relative rounded-[18px] overflow-hidden select-none">
-            <div className="grid grid-cols-2 gap-2 h-[460px]">
+          <div className="relative rounded-[18px] overflow-hidden select-none h-[280px] sm:h-[360px] lg:h-[480px]">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 h-full">
               {/* Top Left */}
-              <div className="rounded-xl overflow-hidden h-[224px]">
+              <div className="rounded-xl overflow-hidden h-full">
                 <img
                   src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?q=80&w=800&auto=format&fit=crop"
                   alt="Couple smiling at night"
@@ -75,7 +75,7 @@ export default function HeroVisual({
               </div>
 
               {/* Top Right */}
-              <div className="rounded-xl overflow-hidden h-[224px]">
+              <div className="rounded-xl overflow-hidden h-full">
                 <img
                   src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop"
                   alt="Executive traveler with phone"
@@ -84,7 +84,7 @@ export default function HeroVisual({
               </div>
 
               {/* Bottom Left */}
-              <div className="rounded-xl overflow-hidden h-[228px]">
+              <div className="rounded-xl overflow-hidden h-full">
                 <img
                   src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop"
                   alt="Urban street ride"
@@ -93,7 +93,7 @@ export default function HeroVisual({
               </div>
 
               {/* Bottom Right */}
-              <div className="rounded-xl overflow-hidden h-[228px]">
+              <div className="rounded-xl overflow-hidden h-full">
                 <img
                   src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=800&auto=format&fit=crop"
                   alt="Friends traveling in city"
@@ -102,8 +102,8 @@ export default function HeroVisual({
               </div>
             </div>
 
-            {/* Floating "Ready to travel? Schedule ahead" Banner */}
-            <div className="absolute bottom-3.5 left-3.5 right-3.5 bg-neutral-950/85 backdrop-blur-md border border-neutral-800 p-3 rounded-xl flex items-center justify-between shadow-xl">
+            {/* Floating Schedule Ahead Banner */}
+            <div className="absolute bottom-2.5 sm:bottom-3.5 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 bg-neutral-950/90 backdrop-blur-md border border-neutral-800 p-2.5 sm:p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xl">
               <div>
                 <h4 className="text-white font-semibold text-xs">Ready to travel?</h4>
                 <p className="text-[11px] text-neutral-400">Reserve a ride up to 90 days in advance</p>
@@ -111,7 +111,7 @@ export default function HeroVisual({
               <button
                 type="button"
                 onClick={() => setViewMode('map')}
-                className="px-3 py-1.5 bg-white text-black font-semibold text-xs rounded-lg hover:bg-neutral-200 transition shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer"
+                className="px-3 py-1.5 bg-white text-black font-semibold text-xs rounded-lg hover:bg-neutral-200 transition shadow-sm active:scale-95 flex items-center justify-center space-x-1 cursor-pointer self-start sm:self-auto shrink-0"
               >
                 <span>Schedule ahead</span>
                 <ArrowRight className="w-3 h-3 ml-0.5" />
@@ -123,7 +123,7 @@ export default function HeroVisual({
 
       {/* Map Subtext */}
       {viewMode === 'map' && (
-        <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-400 px-1">
+        <div className="mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-neutral-400 px-1 gap-1">
           <span>
             {nearbyDrivers && nearbyDrivers.length > 0
               ? `${nearbyDrivers.length} driver${nearbyDrivers.length > 1 ? 's' : ''} live nearby`
