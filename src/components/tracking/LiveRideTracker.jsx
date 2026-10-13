@@ -407,7 +407,7 @@ export default function LiveRideTracker({
       {/* Main Responsive Two-Column Layout: Ride & Driver Details (~38%) + Live Map (~62%) */}
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
         {/* Left Column: Ride & Driver Details (~38% width) */}
-        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0">
+        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0 lg:max-h-[85vh] lg:overflow-y-auto pr-0.5">
           <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xl select-none">
             {/* 1. Slim Ride Status Bar */}
             <div className="pb-3 border-b border-neutral-800/80 space-y-2">
@@ -732,17 +732,21 @@ export default function LiveRideTracker({
       {/* ========================================================================= */}
       {/* COMPLETE PAYMENT MODAL */}
       {/* ========================================================================= */}
+      {/* ========================================================================= */}
+      {/* ========================================================================= */}
+      {/* COMPLETE PAYMENT MODAL */}
+      {/* ========================================================================= */}
       {showPaymentModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl relative text-white overflow-hidden">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200 select-none">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl relative text-white overflow-hidden">
             {/* Modal Header (Fixed Top) */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-800 shrink-0 bg-neutral-900">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-800 shrink-0 bg-neutral-950">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                  <CreditCard className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white">
+                  <CreditCard className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">Complete Payment</h3>
+                  <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight">Complete Payment</h3>
                   <p className="text-[11px] text-neutral-400">Choose your preferred payment method</p>
                 </div>
               </div>
@@ -750,60 +754,60 @@ export default function LiveRideTracker({
               <button
                 type="button"
                 onClick={() => setShowPaymentModal(false)}
-                className="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
+                className="w-7 h-7 rounded-lg bg-neutral-900 hover:bg-neutral-850 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
-              {/* Total Fare Amount Pill */}
-              <div className="bg-black border border-neutral-800 p-3.5 rounded-2xl flex items-center justify-between">
+            <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto flex-1">
+              {/* Total Fare Amount Card */}
+              <div className="bg-neutral-900/60 border border-neutral-800 p-3 rounded-xl flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-500 block">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-neutral-400 block">
                     Trip Total Fare
                   </span>
-                  <span className="text-xs text-neutral-300">
+                  <span className="text-xs text-neutral-400">
                     Includes taxes, tolls & fees
                   </span>
                 </div>
-                <span className="font-mono text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight">
+                <span className="font-mono text-xl sm:text-2xl font-bold text-white tracking-tight">
                   ₹{fareFormatted}
                 </span>
               </div>
 
               {/* Payment Method Selector */}
-              <div className="space-y-2.5">
-                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider block">
+              <div className="space-y-2">
+                <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
                   Select Payment Method
                 </span>
 
                 {/* Option 1: UPI / Instant Pay */}
                 <div
                   onClick={() => setSelectedPaymentMethod('upi')}
-                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                     selectedPaymentMethod === 'upi'
-                      ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                      : 'bg-black border-neutral-800 hover:border-neutral-700'
+                      ? 'bg-neutral-900 border-neutral-600'
+                      : 'bg-neutral-950 border-neutral-800/80 hover:border-neutral-700'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-300">
+                    <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
                       <Smartphone className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="font-bold text-xs sm:text-sm text-white">UPI / GPay / PhonePe</span>
-                        <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-1.5 py-0.2 rounded">
+                        <span className="font-semibold text-xs sm:text-sm text-white">UPI / GPay / PhonePe</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider bg-neutral-800 text-neutral-300 border border-neutral-700 px-1.5 py-0.2 rounded">
                           FAST
                         </span>
                       </div>
                       <span className="text-[11px] text-neutral-400">Instant scan or VPA transfer</span>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    selectedPaymentMethod === 'upi' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    selectedPaymentMethod === 'upi' ? 'border-white bg-white' : 'border-neutral-600'
                   }`}>
                     {selectedPaymentMethod === 'upi' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                   </div>
@@ -812,23 +816,23 @@ export default function LiveRideTracker({
                 {/* Option 2: Credit / Debit Card (Stripe) */}
                 <div
                   onClick={() => setSelectedPaymentMethod('card')}
-                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                     selectedPaymentMethod === 'card'
-                      ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                      : 'bg-black border-neutral-800 hover:border-neutral-700'
+                      ? 'bg-neutral-900 border-neutral-600'
+                      : 'bg-neutral-950 border-neutral-800/80 hover:border-neutral-700'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
                       <CreditCard className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold text-xs sm:text-sm text-white block">Credit / Debit Card</span>
+                      <span className="font-semibold text-xs sm:text-sm text-white block">Credit / Debit Card</span>
                       <span className="text-[11px] text-neutral-400">Stripe gateway (Visa/Mastercard)</span>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    selectedPaymentMethod === 'card' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    selectedPaymentMethod === 'card' ? 'border-white bg-white' : 'border-neutral-600'
                   }`}>
                     {selectedPaymentMethod === 'card' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                   </div>
@@ -837,23 +841,23 @@ export default function LiveRideTracker({
                 {/* Option 3: Cash to Driver */}
                 <div
                   onClick={() => setSelectedPaymentMethod('cash')}
-                  className={`p-3 sm:p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                     selectedPaymentMethod === 'cash'
-                      ? 'bg-neutral-800/80 border-emerald-500 ring-2 ring-emerald-500/20'
-                      : 'bg-black border-neutral-800 hover:border-neutral-700'
+                      ? 'bg-neutral-900 border-neutral-600'
+                      : 'bg-neutral-950 border-neutral-800/80 hover:border-neutral-700'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
                       <Banknote className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold text-xs sm:text-sm text-white block">Cash to Driver</span>
+                      <span className="font-semibold text-xs sm:text-sm text-white block">Cash to Driver</span>
                       <span className="text-[11px] text-neutral-400">Pay cash upon destination arrival</span>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    selectedPaymentMethod === 'cash' ? 'border-emerald-400 bg-emerald-400' : 'border-neutral-600'
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    selectedPaymentMethod === 'cash' ? 'border-white bg-white' : 'border-neutral-600'
                   }`}>
                     {selectedPaymentMethod === 'cash' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                   </div>
@@ -862,15 +866,15 @@ export default function LiveRideTracker({
 
               {/* UPI Payment Detailed Flow (when UPI selected) */}
               {selectedPaymentMethod === 'upi' && (
-                <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3.5 space-y-3 animate-in fade-in duration-200">
+                <div className="bg-neutral-900/40 border border-neutral-800 rounded-xl p-3 space-y-3 animate-in fade-in duration-200">
                   {/* Sub-mode Tabs: Scan QR vs Enter UPI ID */}
-                  <div className="grid grid-cols-2 gap-2 bg-neutral-900 p-1 rounded-xl text-xs font-bold">
+                  <div className="grid grid-cols-2 gap-1.5 bg-neutral-900 p-1 rounded-lg text-xs font-semibold">
                     <button
                       type="button"
                       onClick={() => setUpiSubMode('qr')}
-                      className={`py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 transition cursor-pointer ${
+                      className={`py-1.5 px-3 rounded-md flex items-center justify-center space-x-1.5 transition cursor-pointer ${
                         upiSubMode === 'qr'
-                          ? 'bg-emerald-500 text-black shadow'
+                          ? 'bg-white text-black shadow-sm'
                           : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -880,9 +884,9 @@ export default function LiveRideTracker({
                     <button
                       type="button"
                       onClick={() => setUpiSubMode('id')}
-                      className={`py-1.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 transition cursor-pointer ${
+                      className={`py-1.5 px-3 rounded-md flex items-center justify-center space-x-1.5 transition cursor-pointer ${
                         upiSubMode === 'id'
-                          ? 'bg-emerald-500 text-black shadow'
+                          ? 'bg-white text-black shadow-sm'
                           : 'text-neutral-400 hover:text-white'
                       }`}
                     >
@@ -892,29 +896,29 @@ export default function LiveRideTracker({
                   </div>
 
                   {upiSubMode === 'qr' ? (
-                    <div className="text-center space-y-2.5 pt-1">
+                    <div className="text-center space-y-2.5 pt-0.5">
                       {/* Live Scannable Dynamic QR Code */}
-                      <div className="bg-white p-2.5 rounded-xl inline-block shadow-xl mx-auto border-2 border-emerald-500/40">
+                      <div className="bg-white p-2.5 rounded-xl inline-block shadow-md mx-auto border border-neutral-800">
                         <img
                           src={qrCodeUrl}
                           alt="UPI Payment QR Code"
-                          className="w-36 h-36 mx-auto block rounded-lg"
+                          className="w-32 h-32 mx-auto block rounded-lg"
                           loading="lazy"
                         />
                       </div>
 
                       <div className="flex items-center justify-center space-x-1.5 text-[10px] text-neutral-400 font-medium">
                         <span>Scan with:</span>
-                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">GPay</span>
-                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">PhonePe</span>
-                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">Paytm</span>
-                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-bold">BHIM</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-semibold">GPay</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-semibold">PhonePe</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-semibold">Paytm</span>
+                        <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-white font-semibold">BHIM</span>
                       </div>
 
                       {/* Driver Payee UPI ID with Copy & Edit */}
-                      <div className="bg-neutral-900/90 border border-neutral-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                      <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 flex items-center justify-between text-xs">
                         <div className="text-left flex-1 min-w-0 pr-2">
-                          <span className="text-[9px] text-neutral-400 block uppercase font-bold tracking-wider">
+                          <span className="text-[9px] text-neutral-400 block uppercase font-semibold tracking-wider">
                             Driver Payee UPI ID
                           </span>
                           {isEditingDriverUpi ? (
@@ -922,11 +926,11 @@ export default function LiveRideTracker({
                               type="text"
                               value={driverUpiId}
                               onChange={(e) => setDriverUpiId(e.target.value)}
-                              className="bg-black border border-emerald-500 rounded px-2 py-0.5 text-xs text-emerald-400 font-mono mt-0.5 w-full outline-none"
+                              className="bg-black border border-neutral-700 rounded px-2 py-0.5 text-xs text-white font-mono mt-0.5 w-full outline-none"
                               placeholder="driver@upi"
                             />
                           ) : (
-                            <span className="font-mono font-bold text-white text-xs truncate block">
+                            <span className="font-mono font-semibold text-white text-xs truncate block">
                               {driverUpiId}
                             </span>
                           )}
@@ -955,7 +959,7 @@ export default function LiveRideTracker({
                               setCopiedUpi(true);
                               setTimeout(() => setCopiedUpi(false), 2000);
                             }}
-                            className="px-2 py-1 bg-emerald-500/20 border border-emerald-500/40 hover:bg-emerald-500/30 text-emerald-400 rounded text-[10px] font-bold transition flex items-center space-x-1 cursor-pointer"
+                            className="px-2 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 rounded text-[10px] font-semibold transition flex items-center space-x-1 cursor-pointer"
                           >
                             {copiedUpi ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                             <span>{copiedUpi ? 'Copied' : 'Copy'}</span>
@@ -965,7 +969,7 @@ export default function LiveRideTracker({
 
                       {/* 12-Digit UTR Input */}
                       <div className="text-left space-y-1">
-                        <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                        <div className="flex justify-between items-center text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
                           <span>12-Digit UPI Ref / UTR No.</span>
                           <span className="text-neutral-500 font-normal text-[9px]">Optional</span>
                         </div>
@@ -974,43 +978,43 @@ export default function LiveRideTracker({
                           maxLength={16}
                           value={upiUtrNumber}
                           onChange={(e) => setUpiUtrNumber(e.target.value.replace(/[^0-9A-Za-z]/g, ''))}
-                          placeholder="e.g. 429188239014 (from GPay / PhonePe receipt)"
-                          className="w-full bg-black border border-neutral-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white placeholder-neutral-600 font-mono outline-none"
+                          placeholder="e.g. 429188239014 (from receipt)"
+                          className="w-full bg-black border border-neutral-800 focus:border-neutral-600 rounded-lg px-3 py-1.5 text-xs text-white placeholder-neutral-600 font-mono outline-none transition"
                         />
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-2.5 text-xs pt-1">
+                    <div className="space-y-2 text-xs pt-0.5">
                       {/* Pay by UPI ID mode */}
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                        <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 block">
                           Driver UPI ID (Payee)
                         </label>
                         <input
                           type="text"
                           value={driverUpiId}
                           onChange={(e) => setDriverUpiId(e.target.value)}
-                          className="w-full bg-black border border-neutral-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-emerald-400 font-mono outline-none"
+                          className="w-full bg-black border border-neutral-800 focus:border-neutral-600 rounded-lg px-3 py-1.5 text-xs text-white font-mono outline-none transition"
                           placeholder="driver@okhdfcbank"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                        <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 block">
                           Rider UPI ID (Your VPA)
                         </label>
                         <input
                           type="text"
                           value={riderUpiId}
                           onChange={(e) => setRiderUpiId(e.target.value)}
-                          className="w-full bg-black border border-neutral-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none"
+                          className="w-full bg-black border border-neutral-800 focus:border-neutral-600 rounded-lg px-3 py-1.5 text-xs text-white font-mono outline-none transition"
                           placeholder="yourname@okaxis"
                         />
                       </div>
 
-                      <div className="p-2.5 bg-neutral-900 rounded-xl border border-neutral-800 text-[11px] text-neutral-400 flex items-center justify-between">
+                      <div className="p-2.5 bg-neutral-900 rounded-lg border border-neutral-800 text-[11px] text-neutral-400 flex items-center justify-between">
                         <span>Exact Fare to Transfer:</span>
-                        <span className="font-mono font-bold text-emerald-400 text-sm">₹{fareFormatted}</span>
+                        <span className="font-mono font-bold text-white text-sm">₹{fareFormatted}</span>
                       </div>
                     </div>
                   )}
@@ -1019,30 +1023,30 @@ export default function LiveRideTracker({
 
               {/* Card Payment Info (when Card selected) */}
               {selectedPaymentMethod === 'card' && (
-                <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-3.5 space-y-3 text-xs animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between pb-2 border-b border-neutral-900">
+                <div className="bg-neutral-900/40 border border-neutral-800 rounded-xl p-3 space-y-2.5 text-xs animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-neutral-900">
                     <div>
-                      <span className="font-bold text-white text-xs">Stripe Test Gateway Active</span>
+                      <span className="font-semibold text-white text-xs">Stripe Test Gateway Active</span>
                     </div>
                     <span className="text-[10px] font-mono text-neutral-500">pk_test_...55H</span>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block">
+                    <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 block">
                       Card Number
                     </label>
-                    <div className="w-full bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono flex items-center justify-between">
+                    <div className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono flex items-center justify-between">
                       <span>4242 •••• •••• 4242</span>
-                      <span className="text-[9px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-1.5 py-0.5 rounded">VISA</span>
+                      <span className="text-[9px] font-bold text-neutral-300 bg-neutral-800 border border-neutral-700 px-1.5 py-0.5 rounded">VISA</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">Expiry</label>
-                      <div className="bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono">12 / 28</div>
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 block mb-0.5">Expiry</label>
+                      <div className="bg-black border border-neutral-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono">12 / 28</div>
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-1">CVC</label>
-                      <div className="bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white font-mono">123</div>
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 block mb-0.5">CVC</label>
+                      <div className="bg-black border border-neutral-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono">123</div>
                     </div>
                   </div>
                 </div>
@@ -1057,7 +1061,7 @@ export default function LiveRideTracker({
             </div>
 
             {/* Modal Footer (Fixed Bottom) */}
-            <div className="p-4 sm:p-5 border-t border-neutral-800 bg-neutral-900 shrink-0 space-y-2">
+            <div className="p-3.5 sm:p-4 border-t border-neutral-800 bg-neutral-950 shrink-0 space-y-2">
               <div className="flex items-center justify-center space-x-1.5 text-[10px] text-neutral-500">
                 <Lock className="w-3.5 h-3.5 text-neutral-400" />
                 <span>256-bit encrypted secure checkout · PCI-DSS Compliant</span>
@@ -1069,7 +1073,7 @@ export default function LiveRideTracker({
                 id="confirm-pay-now-btn"
                 disabled={isProcessingPayment}
                 onClick={handleProcessPayment}
-                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-emerald-500/25 active:scale-[0.98] cursor-pointer"
+                className="w-full h-10 bg-white hover:bg-neutral-200 disabled:opacity-50 text-black font-semibold text-xs rounded-xl flex items-center justify-center space-x-2 transition cursor-pointer active:scale-95 shadow-sm"
               >
                 {isProcessingPayment ? (
                   <>
@@ -1078,7 +1082,7 @@ export default function LiveRideTracker({
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>
                       {selectedPaymentMethod === 'cash'
                         ? `Confirm Cash Payment · ₹${fareFormatted}`
@@ -1086,7 +1090,7 @@ export default function LiveRideTracker({
                         ? upiSubMode === 'qr'
                           ? `I Have Scanned & Sent ₹${fareFormatted}`
                           : `Send Request & Pay ₹${fareFormatted}`
-                        : `Pay ₹${fareFormatted} via Stripe Card`}
+                        : `Pay ₹${fareFormatted} via Card`}
                     </span>
                   </>
                 )}
@@ -1100,16 +1104,16 @@ export default function LiveRideTracker({
       {/* RECEIPT MODAL */}
       {/* ========================================================================= */}
       {showReceiptModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl relative text-white overflow-hidden">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200 select-none">
+          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl relative text-white overflow-hidden">
             {/* Header (Fixed Top) */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-800 shrink-0 bg-neutral-900">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-800 shrink-0 bg-neutral-950">
               <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                  <Receipt className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-white">
+                  <Receipt className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">Payment Receipt</h3>
+                  <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight">Payment Receipt</h3>
                   <p className="text-[11px] text-neutral-400">Uber Trip Tax Invoice</p>
                 </div>
               </div>
@@ -1117,23 +1121,23 @@ export default function LiveRideTracker({
               <button
                 type="button"
                 onClick={() => setShowReceiptModal(false)}
-                className="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
+                className="w-7 h-7 rounded-lg bg-neutral-900 hover:bg-neutral-850 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Scrollable Receipt Body */}
-            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
-              <div className="bg-black border border-neutral-800 p-4 rounded-2xl space-y-3 text-xs">
+            <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto flex-1">
+              <div className="bg-neutral-900/60 border border-neutral-800 p-3.5 rounded-xl space-y-2.5 text-xs">
                 <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                   <span>Receipt Number:</span>
-                  <span className="font-mono text-white font-bold">#UBR-{(ride?.id || '982736').slice(0, 10).toUpperCase()}</span>
+                  <span className="font-mono text-white font-semibold">#UBR-{(ride?.id || '982736').slice(0, 10).toUpperCase()}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                   <span>Payment Method:</span>
-                  <span className="font-bold text-white uppercase">
+                  <span className="font-semibold text-white uppercase">
                     {selectedPaymentMethod === 'upi' ? 'UPI Instant Transfer' : selectedPaymentMethod === 'card' ? 'Stripe Card (Visa)' : 'Cash on Dropoff'}
                   </span>
                 </div>
@@ -1142,15 +1146,15 @@ export default function LiveRideTracker({
                   <>
                     <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                       <span>Driver Payee UPI:</span>
-                      <span className="font-mono text-emerald-400 font-bold">{driverUpiId}</span>
+                      <span className="font-mono text-white font-semibold">{driverUpiId}</span>
                     </div>
                     <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                       <span>Rider UPI / VPA:</span>
-                      <span className="font-mono text-white font-medium">{riderUpiId}</span>
+                      <span className="font-mono text-neutral-300 font-medium">{riderUpiId}</span>
                     </div>
                     <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                       <span>UPI UTR / Ref No:</span>
-                      <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
+                      <span className="font-mono text-white font-semibold text-[11px] truncate max-w-[210px]">
                         #{savedUtr || 'UTR-829104829102'}
                       </span>
                     </div>
@@ -1160,7 +1164,7 @@ export default function LiveRideTracker({
                 {selectedPaymentMethod === 'card' && stripePaymentIntentId && (
                   <div className="flex justify-between items-center text-neutral-400 pb-2 border-b border-neutral-900">
                     <span>Stripe Reference:</span>
-                    <span className="font-mono text-emerald-400 font-bold text-[11px] truncate max-w-[210px]">
+                    <span className="font-mono text-white font-semibold text-[11px] truncate max-w-[210px]">
                       {stripePaymentIntentId}
                     </span>
                   </div>
@@ -1179,11 +1183,11 @@ export default function LiveRideTracker({
                   <span className="text-white font-mono">₹{(Number(fareFormatted) * 0.05).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2.5 border-t border-neutral-800 text-sm">
-                  <span className="font-bold text-white">Total Paid:</span>
-                  <span className="font-black text-emerald-400 font-mono text-lg">₹{fareFormatted}</span>
+                  <span className="font-semibold text-white">Total Paid:</span>
+                  <span className="font-bold text-white font-mono text-base">₹{fareFormatted}</span>
                 </div>
-                <div className="pt-1 text-center text-[10px] text-neutral-500">
-                  Payment Status: <span className="text-emerald-400 font-semibold">SUCCEEDED (PAID)</span>
+                <div className="pt-1 text-center text-[10px] text-neutral-400">
+                  Payment Status: <span className="text-white font-semibold">SUCCEEDED (PAID)</span>
                 </div>
               </div>
 
@@ -1192,22 +1196,19 @@ export default function LiveRideTracker({
                   href={stripeReceiptUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-2.5 bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/60 text-emerald-400 hover:text-emerald-300 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-2"
+                  className="w-full h-9 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-white font-medium text-xs rounded-xl transition flex items-center justify-center space-x-2"
                 >
                   <span>View Stripe Official Charge Receipt</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               )}
-            </div>
 
-            {/* Footer (Fixed Bottom) */}
-            <div className="p-4 sm:p-5 border-t border-neutral-800 bg-neutral-900 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowReceiptModal(false)}
-                className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+                className="w-full h-9 bg-white hover:bg-neutral-200 text-black font-semibold text-xs rounded-xl transition cursor-pointer"
               >
-                Close Receipt
+                Done
               </button>
             </div>
           </div>

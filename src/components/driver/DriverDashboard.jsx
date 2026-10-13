@@ -1141,7 +1141,7 @@ export default function DriverDashboard() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
                 <div className="absolute bottom-5 left-5 right-5 p-4 bg-black/80 backdrop-blur-md rounded-2xl border border-neutral-800">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 text-white flex items-center justify-center font-bold">
                       ₹
                     </div>
                     <div>
@@ -1168,7 +1168,7 @@ export default function DriverDashboard() {
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-7 rounded-3xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-emerald-400 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-white flex items-center justify-center">
               <DollarSign className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold text-white">Fast, Direct Payouts</h3>
@@ -1178,7 +1178,7 @@ export default function DriverDashboard() {
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-7 rounded-3xl space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-blue-400 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-neutral-800 text-white flex items-center justify-center">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold text-white">24/7 Road Safety</h3>
@@ -1197,8 +1197,8 @@ export default function DriverDashboard() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-neutral-950 border border-neutral-800 p-5 rounded-2xl space-y-2">
-              <div className="text-xs font-mono font-bold text-emerald-400 flex items-center space-x-1">
-                <Check className="w-4 h-4" />
+              <div className="text-xs font-mono font-bold text-white flex items-center space-x-1">
+                <Check className="w-4 h-4 text-white" />
                 <span>STEP 1</span>
               </div>
               <h4 className="font-bold text-white text-sm">Aadhaar Card</h4>
@@ -1206,8 +1206,8 @@ export default function DriverDashboard() {
             </div>
 
             <div className="bg-neutral-950 border border-neutral-800 p-5 rounded-2xl space-y-2">
-              <div className="text-xs font-mono font-bold text-emerald-400 flex items-center space-x-1">
-                <Check className="w-4 h-4" />
+              <div className="text-xs font-mono font-bold text-white flex items-center space-x-1">
+                <Check className="w-4 h-4 text-white" />
                 <span>STEP 2</span>
               </div>
               <h4 className="font-bold text-white text-sm">Driving License</h4>
@@ -1215,8 +1215,8 @@ export default function DriverDashboard() {
             </div>
 
             <div className="bg-neutral-950 border border-neutral-800 p-5 rounded-2xl space-y-2">
-              <div className="text-xs font-mono font-bold text-emerald-400 flex items-center space-x-1">
-                <Check className="w-4 h-4" />
+              <div className="text-xs font-mono font-bold text-white flex items-center space-x-1">
+                <Check className="w-4 h-4 text-white" />
                 <span>STEP 3</span>
               </div>
               <h4 className="font-bold text-white text-sm">Vehicle & Photo</h4>
@@ -1224,8 +1224,8 @@ export default function DriverDashboard() {
             </div>
 
             <div className="bg-neutral-950 border border-neutral-800 p-5 rounded-2xl space-y-2">
-              <div className="text-xs font-mono font-bold text-emerald-400 flex items-center space-x-1">
-                <Check className="w-4 h-4" />
+              <div className="text-xs font-mono font-bold text-white flex items-center space-x-1">
+                <Check className="w-4 h-4 text-white" />
                 <span>STEP 4</span>
               </div>
               <h4 className="font-bold text-white text-sm">Payout Account</h4>
@@ -1376,7 +1376,7 @@ export default function DriverDashboard() {
       {/* 3. Responsive Two-Column Live Ride-Tracking & Map Dashboard (~38% Left, ~62% Right) */}
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
         {/* Left Column: Ride Details / Driver Card (~38% width) */}
-        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0">
+        <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0 lg:max-h-[85vh] lg:overflow-y-auto pr-0.5">
           {isOnline && activeRide && ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'].includes(activeRide.status) ? (
             /* Active Trip Assigned (ACCEPTED, ARRIVED, or IN_PROGRESS) */
             <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
