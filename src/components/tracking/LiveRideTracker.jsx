@@ -472,7 +472,7 @@ export default function LiveRideTracker({
                   <div key={step.id} className="space-y-1">
                     <div
                       className={`h-1 rounded-full transition-all ${
-                        step.id <= statusStep ? 'bg-white' : 'bg-neutral-850'
+                        step.id <= statusStep ? 'bg-white' : 'bg-neutral-800'
                       }`}
                     />
                     <span

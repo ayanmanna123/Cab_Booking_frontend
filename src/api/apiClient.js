@@ -38,11 +38,11 @@ class ApiClient {
       } catch {}
 
       if (isDriver) {
-        // Driver identity (separate from rider to prevent role/user collisions)
-        const driverId = registeredDriver?.id || registeredDriver?.user_id || 'driver_partner_official';
-        const driverName = registeredDriver?.fullName || registeredDriver?.full_name || 'Vikram Malhotra';
-        const driverEmail = registeredDriver?.email || 'driver.partner@uberclone.local';
-        const driverPhone = registeredDriver?.phone || '+91 98765 43210';
+        // Driver identity (linked to authenticated user profile to avoid FK mismatch)
+        const driverId = authUser?.id || registeredDriver?.user_id || registeredDriver?.id || 'driver_partner_official';
+        const driverName = authUser?.fullName || registeredDriver?.fullName || registeredDriver?.full_name || 'Driver Partner';
+        const driverEmail = authUser?.email || registeredDriver?.email || 'driver.partner@uberclone.local';
+        const driverPhone = authUser?.phone || registeredDriver?.phone || '+91 98765 43210';
 
         authHeaders = {
           'Authorization': `Bearer ${driverId}`,

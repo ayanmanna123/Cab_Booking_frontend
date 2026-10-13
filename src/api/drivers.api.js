@@ -22,6 +22,16 @@ export const driversApi = {
   },
 
   /**
+   * Update driver payout method and UPI ID
+   */
+  updatePayout: async (payoutData, token) => {
+    const resolvedToken = getAuthToken(token);
+    return apiClient.patch('/drivers/payout', payoutData, {
+      Authorization: `Bearer ${resolvedToken}`
+    });
+  },
+
+  /**
    * Get current driver profile
    */
   getMyProfile: async (token) => {

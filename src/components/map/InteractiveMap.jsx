@@ -303,7 +303,7 @@ function MapZoomControls({
       onTouchStart={(e) => e.stopPropagation()}
     >
       {/* Grouped Minimalist Floating Map Toolbar */}
-      <div className="bg-neutral-950/85 backdrop-blur-md border border-neutral-800 rounded-lg p-0.5 shadow-lg flex flex-col items-center divide-y divide-neutral-850 select-none">
+      <div className="bg-neutral-950/85 backdrop-blur-md border border-neutral-800 rounded-lg p-0.5 shadow-lg flex flex-col items-center divide-y divide-neutral-800 select-none">
         {/* Zoom In & Out */}
         <div className="flex flex-col items-center pb-0.5">
           <button

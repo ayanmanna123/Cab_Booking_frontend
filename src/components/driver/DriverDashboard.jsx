@@ -93,10 +93,13 @@ export default function DriverDashboard() {
   const [incomingOffer, setIncomingOffer] = useState(null);
   const [activeRide, setActiveRide] = useState(() => {
     try {
+      const isOnlineSaved = localStorage.getItem('driver_is_online') === 'true';
       const saved = localStorage.getItem('driver_active_ride');
-      if (saved && saved !== 'none') {
+      if (isOnlineSaved && saved && saved !== 'none') {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.id) return parsed;
+        if (parsed && parsed.id && ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'].includes(parsed.status)) {
+          return parsed;
+        }
       }
     } catch {}
     return null;
@@ -464,30 +467,51 @@ export default function DriverDashboard() {
     let isMounted = true;
     const restoreActiveRide = async () => {
       try {
+        const isOnlineSaved = localStorage.getItem('driver_is_online') === 'true';
+        if (!isOnlineSaved) {
+          if (isMounted) {
+            setActiveRide(null);
+            localStorage.removeItem('driver_active_ride');
+          }
+          return;
+        }
+
         const res = await ridesApi.getActiveRide();
         if (res && res.success && res.data && isMounted) {
           const r = res.data;
-          const normalized = {
-            id: r.id,
-            rideId: r.id,
-            pickupAddress: r.pickup_address,
-            dropoffAddress: r.dropoff_address,
-            pickupCoords: [Number(r.pickup_latitude), Number(r.pickup_longitude)],
-            dropoffCoords: [Number(r.dropoff_latitude), Number(r.dropoff_longitude)],
-            estimatedFare: r.estimated_fare,
-            vehicleTier: r.vehicle_type?.name || r.vehicle_type_id || 'Uber Go',
-            status: r.status,
-            riderName: r.rider?.full_name || 'Passenger',
-            riderPhone: r.rider?.phone || '+91 98765 00000',
-            isVerified: r.status === 'IN_PROGRESS' || r.status === 'COMPLETED'
-          };
-          setActiveRide(normalized);
-          if (normalized.status === 'IN_PROGRESS') {
-            setIsNavigatingMode(true);
+          if (['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'].includes(r.status)) {
+            const normalized = {
+              id: r.id,
+              rideId: r.id,
+              pickupAddress: r.pickup_address,
+              dropoffAddress: r.dropoff_address,
+              pickupCoords: [Number(r.pickup_latitude), Number(r.pickup_longitude)],
+              dropoffCoords: [Number(r.dropoff_latitude), Number(r.dropoff_longitude)],
+              estimatedFare: r.estimated_fare,
+              vehicleTier: r.vehicle_type?.name || r.vehicle_type_id || 'Uber Go',
+              status: r.status,
+              riderName: r.rider?.full_name || 'Passenger',
+              riderPhone: r.rider?.phone || '+91 98765 00000',
+              isVerified: r.status === 'IN_PROGRESS' || r.status === 'COMPLETED'
+            };
+            setActiveRide(normalized);
+            if (normalized.status === 'IN_PROGRESS') {
+              setIsNavigatingMode(true);
+            }
+          } else {
+            setActiveRide(null);
+            localStorage.removeItem('driver_active_ride');
           }
+        } else if (isMounted) {
+          setActiveRide(null);
+          localStorage.removeItem('driver_active_ride');
         }
       } catch {
         // No active ride or not logged in as driver
+        if (isMounted) {
+          setActiveRide(null);
+          localStorage.removeItem('driver_active_ride');
+        }
       }
     };
     restoreActiveRide();
@@ -675,7 +699,9 @@ export default function DriverDashboard() {
       }
       setIsOnline(false);
       setIsLocating(false);
+      setActiveRide(null);
       localStorage.setItem('driver_is_online', 'false');
+      localStorage.removeItem('driver_active_ride');
 
       const driverId = driverProfile?.id || user?.id || 'registered_driver';
       try {
@@ -808,7 +834,7 @@ export default function DriverDashboard() {
         currentProfile.upi_id ||
         localStorage.getItem('driver_registered_upi') ||
         (localStorage.getItem('driver_custom_upi') && localStorage.getItem('driver_custom_upi') !== 'vikram.cab@okhdfcbank' ? localStorage.getItem('driver_custom_upi') : null) ||
-        'mannaayan777@oksbi'
+        ''
       ),
       vehicleMake: currentProfile.vehicleMake || 'Toyota',
       vehicleModel: currentProfile.vehicleModel || 'Camry',
@@ -1252,7 +1278,7 @@ export default function DriverDashboard() {
             type="button"
             onClick={handleLogOutDriver}
             title="Log out of driver mode"
-            className="h-8 px-3 bg-neutral-900 hover:bg-neutral-850 text-neutral-400 hover:text-white font-medium text-xs rounded-lg flex items-center space-x-1 transition cursor-pointer border border-neutral-800 active:scale-95"
+            className="h-8 px-3 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white font-medium text-xs rounded-lg flex items-center space-x-1 transition cursor-pointer border border-neutral-800 active:scale-95"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Exit Driver Mode</span>
@@ -1298,7 +1324,7 @@ export default function DriverDashboard() {
 
         {/* Compact KPI Metrics & Go Live Action Button */}
         <div className="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-end">
-          <div className="flex items-center divide-x divide-neutral-850 px-2 py-1 bg-black border border-neutral-800 rounded-xl text-xs">
+          <div className="flex items-center divide-x divide-neutral-800 px-2 py-1 bg-black border border-neutral-800 rounded-xl text-xs">
             <div className="px-3 text-center">
               <span className="text-[10px] uppercase font-semibold text-neutral-500 block">Today's Payout</span>
               <span className="font-mono font-bold text-white text-xs sm:text-sm">₹{todayEarnings.toFixed(2)}</span>
@@ -1323,7 +1349,7 @@ export default function DriverDashboard() {
             disabled={isLocating}
             className={`h-9 px-4 rounded-lg font-semibold text-xs transition cursor-pointer shadow-sm active:scale-95 disabled:opacity-60 flex items-center space-x-1.5 shrink-0 ${
               isOnline
-                ? 'bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-850'
+                ? 'bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800'
                 : 'bg-white text-black hover:bg-neutral-200'
             }`}
           >
@@ -1351,7 +1377,7 @@ export default function DriverDashboard() {
       <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
         {/* Left Column: Ride Details / Driver Card (~38% width) */}
         <div ref={leftCardRef} className="w-full lg:w-[38%] shrink-0">
-          {activeRide ? (
+          {isOnline && activeRide && ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'].includes(activeRide.status) ? (
             /* Active Trip Assigned (ACCEPTED, ARRIVED, or IN_PROGRESS) */
             <div className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl select-none">
               {/* Slim Ride Status Bar */}
@@ -1848,7 +1874,7 @@ export default function DriverDashboard() {
                   {driverProfile.upiId || 'Linked UPI / Direct Bank'}
                 </span>
               </div>
-              <div className="pt-1 border-t border-neutral-850 flex items-center justify-between text-[11px] text-neutral-400">
+              <div className="pt-1 border-t border-neutral-800 flex items-center justify-between text-[11px] text-neutral-400">
                 <span>Background Check</span>
                 <span className="text-white font-semibold flex items-center">
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Cleared

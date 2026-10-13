@@ -1064,10 +1064,6 @@ const reverseGeocodeCoords = async (lat, lng) => {
                     type="button"
                     onClick={() => {
                       try {
-                        localStorage.setItem('driver_active_ride', JSON.stringify({
-                          ...bookingConfirmed,
-                          driver: activeDriver
-                        }));
                         localStorage.setItem('active_tracking_ride', JSON.stringify({
                           ...bookingConfirmed,
                           driver: activeDriver
@@ -1086,7 +1082,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
                     <button
                       type="button"
                       onClick={handleCancelRide}
-                      className="w-full h-8 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-850 font-medium text-xs rounded-lg transition cursor-pointer"
+                      className="w-full h-8 bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800 font-medium text-xs rounded-lg transition cursor-pointer"
                     >
                       Cancel Ride
                     </button>

@@ -2,6 +2,10 @@
 @import "leaflet/dist/leaflet.css";
 
 @layer base {
+  *, ::before, ::after {
+    border-color: #262626;
+  }
+
   :root {
     --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
