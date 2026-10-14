@@ -46,7 +46,7 @@ export default function TermsConditionsPage({ onBackToHome }) {
               1. Acceptance of Terms
             </h2>
             <p>
-              These Terms and Conditions constitute a legally binding agreement between you and Uber Clone. By registering an account, requesting a ride, or enrolling as an independent driver partner, you acknowledge that you have read, understood, and agreed to be bound by these terms in full. If you do not agree, you must immediately discontinue use of the service.
+              These Terms and Conditions constitute a legally binding agreement between you and Veyro. By registering an account, requesting a ride, or enrolling as an independent driver partner, you acknowledge that you have read, understood, and agreed to be bound by these terms in full. If you do not agree, you must immediately discontinue use of the service.
             </p>
           </section>
 
@@ -55,7 +55,7 @@ export default function TermsConditionsPage({ onBackToHome }) {
               2. Platform Nature & Role
             </h2>
             <p>
-              Uber Clone provides an on-demand technology platform connecting prospective riders with independent third-party transportation providers (drivers). Uber Clone is a technology dispatch platform and does not itself operate a fleet of vehicles or employ transportation drivers directly, unless explicitly specified in enterprise partner agreements.
+              Veyro provides an on-demand technology platform connecting prospective riders with independent third-party transportation providers (drivers). Veyro is a technology dispatch platform and does not itself operate a fleet of vehicles or employ transportation drivers directly, unless explicitly specified in enterprise partner agreements.
             </p>
           </section>
 
@@ -79,7 +79,7 @@ export default function TermsConditionsPage({ onBackToHome }) {
               4. Booking, Fares, and Cancellation Guidelines
             </h2>
             <p>
-              Fare estimates displayed prior to booking are calculated based on route distance, expected trip duration, vehicle category (Uber Go, Comfort, XL, Black), and prevailing local traffic conditions.
+              Fare estimates displayed prior to booking are calculated based on route distance, expected trip duration, vehicle category (Veyro Go, Comfort, XL, Black), and prevailing local traffic conditions.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-neutral-400 text-sm">
               <li>
@@ -120,7 +120,7 @@ export default function TermsConditionsPage({ onBackToHome }) {
               7. Limitation of Liability
             </h2>
             <p>
-              Uber Clone shall not be liable for indirect, incidental, special, exemplary, punitive, or consequential damages resulting from the use of the platform, delays caused by unforeseen traffic congestion, or conduct of third-party independent drivers beyond verified platform safety protocols.
+              Veyro shall not be liable for indirect, incidental, special, exemplary, punitive, or consequential damages resulting from the use of the platform, delays caused by unforeseen traffic congestion, or conduct of third-party independent drivers beyond verified platform safety protocols.
             </p>
           </section>
 
@@ -131,9 +131,9 @@ export default function TermsConditionsPage({ onBackToHome }) {
             <p className="text-neutral-400 text-sm">
               For formal dispute notices or questions regarding these Terms, contact our legal counsel:
               <br />
-              <span className="font-semibold text-white">Uber Clone Legal Compliance Department</span>
+              <span className="font-semibold text-white">Veyro Legal Compliance Department</span>
               <br />
-              Email: legal@uberclone.internal · Physical Address: Tech Operations Hub, Salt Lake Sector V, Kolkata
+              Email: legal@veyro.internal · Physical Address: Tech Operations Hub, Salt Lake Sector V, Kolkata
             </p>
           </section>
         </div>

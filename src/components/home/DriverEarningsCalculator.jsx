@@ -3,13 +3,13 @@ import { DollarSign, Clock, ArrowRight, Zap, TrendingUp } from 'lucide-react';
 
 export default function DriverEarningsCalculator() {
   const [hoursPerWeek, setHoursPerWeek] = useState(25);
-  const [tier, setTier] = useState('UberX');
+  const [tier, setTier] = useState('Veyro Go');
 
   const ratePerHour = {
-    'UberX': 250,
-    'Uber Comfort': 320,
-    'UberXL': 420,
-    'Uber Black': 600
+    'Veyro Go': 250,
+    'Veyro Comfort': 320,
+    'Veyro XL': 420,
+    'Veyro Black': 600
   };
 
   const estimatedWeekly = hoursPerWeek * ratePerHour[tier];
@@ -58,7 +58,7 @@ export default function DriverEarningsCalculator() {
                 Vehicle Category
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {['UberX', 'Uber Comfort', 'UberXL', 'Uber Black'].map((vTier) => (
+                {['Veyro Go', 'Veyro Comfort', 'Veyro XL', 'Veyro Black'].map((vTier) => (
                   <button
                     key={vTier}
                     type="button"

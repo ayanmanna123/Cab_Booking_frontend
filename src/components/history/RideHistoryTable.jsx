@@ -102,7 +102,7 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
 
               const fare = Number(ride.final_fare || ride.finalFare || ride.estimated_fare || ride.fare || 0).toFixed(2);
               const driverName = ride.driver_name || ride.driver?.driver_user?.full_name || ride.driverName || 'Assigned Driver';
-              const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Uber Go';
+              const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Veyro Go';
 
               return (
                 <tr
@@ -190,7 +190,7 @@ export default function RideHistoryTable({ rides = [], onTrackRide, onSelectRide
             : 'Recent Trip';
 
           const fare = Number(ride.final_fare || ride.finalFare || ride.estimated_fare || ride.fare || 0).toFixed(2);
-          const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Uber Go';
+          const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Veyro Go';
           const driverName = ride.driver_name || ride.driver?.driver_user?.full_name || ride.driverName || 'Verified Driver';
 
           return (

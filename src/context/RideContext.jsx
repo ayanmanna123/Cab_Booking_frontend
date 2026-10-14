@@ -14,7 +14,7 @@ export function RideProvider({ children }) {
     coords: null
   });
 
-  const [selectedVehicle, setSelectedVehicle] = useState('UberX');
+  const [selectedVehicle, setSelectedVehicle] = useState('Veyro Go');
   const [fares, setFares] = useState([]);
   const [routePolyline, setRoutePolyline] = useState([]);
   const [routeMeta, setRouteMeta] = useState({ distanceKm: 0, durationMinutes: 0 });

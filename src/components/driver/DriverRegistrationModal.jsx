@@ -21,7 +21,7 @@ import { driversApi } from '../../api';
 // Pre-configured official transparent white vehicle assets
 const CAR_PRESETS = [
   {
-    name: 'Uber Go AC (Hatchback)',
+    name: 'Veyro Go AC (Hatchback)',
     make: 'Maruti Suzuki',
     model: 'Swift Dzire',
     year: 2024,
@@ -39,7 +39,7 @@ const CAR_PRESETS = [
     url: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/SedanComfort-Sparkles-523.png'
   },
   {
-    name: 'UberXL 6-Seater SUV',
+    name: 'VeyroXL 6-Seater SUV',
     make: 'Toyota',
     model: 'Innova Crysta',
     year: 2024,
@@ -48,7 +48,7 @@ const CAR_PRESETS = [
     url: 'https://d1a3f4spazzrp4.cloudfront.net/car-types/haloProductImages/Regular/MinivanLuggage-169-0.png'
   },
   {
-    name: 'Uber Moto / Bike',
+    name: 'Veyro Moto / Bike',
     make: 'Hero',
     model: 'Splendor Plus',
     year: 2023,
@@ -336,7 +336,7 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
               <Car className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">Join as an Uber Driver</h2>
+              <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">Join as a Veyro Driver</h2>
               <p className="text-[11px] text-neutral-400">Complete verification to start earning flexible payouts</p>
             </div>
           </div>
@@ -503,10 +503,10 @@ export default function DriverRegistrationModal({ isOpen, onClose, onRegisterSuc
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {[
-                        { id: 'economy', label: 'UberX', desc: 'Everyday Sedan' },
-                        { id: 'comfort', label: 'Uber Comfort', desc: 'Extra Legroom' },
-                        { id: 'xl', label: 'UberXL', desc: '6-Seater SUV' },
-                        { id: 'black', label: 'Uber Black', desc: 'Executive' }
+                        { id: 'economy', label: 'Veyro Go', desc: 'Everyday Sedan' },
+                        { id: 'comfort', label: 'Veyro Comfort', desc: 'Extra Legroom' },
+                        { id: 'xl', label: 'Veyro XL', desc: '6-Seater SUV' },
+                        { id: 'black', label: 'Veyro Black', desc: 'Executive' }
                       ].map((tier) => (
                         <button
                           key={tier.id}

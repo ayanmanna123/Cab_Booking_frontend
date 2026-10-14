@@ -21,7 +21,7 @@ export default function RideReceiptModal({ ride, onClose }) {
 
   const driverName = ride.driver_name || ride.driver?.driver_user?.full_name || ride.driverName || 'Verified Driver';
   const driverPlate = ride.vehicle_plate || ride.driver?.license_plate || ride.licensePlate || 'WB 02 AB 4488';
-  const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Uber Go';
+  const vehicleName = ride.vehicle_name || ride.cb_vehicle_types?.name || ride.vehicleModel || 'Veyro Go';
 
   const handlePrint = () => {
     window.print();
@@ -32,8 +32,13 @@ export default function RideReceiptModal({ ride, onClose }) {
       <div className="relative w-full max-w-xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-neutral-800 bg-neutral-950">
-          <div className="flex items-center space-x-3">
-            <span className="text-xl font-black tracking-tight text-white">Uber</span>
+          <div className="flex items-center space-x-2.5">
+            <img
+              src="/Logo 4.avif"
+              alt="Veyro"
+              className="w-6 h-6 object-contain rounded-md"
+            />
+            <span className="text-xl font-black tracking-tight text-white">Veyro</span>
             <span className="text-xs px-2.5 py-1 font-semibold rounded bg-neutral-800 text-neutral-300 border border-neutral-700">
               Trip Receipt
             </span>

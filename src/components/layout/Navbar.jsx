@@ -69,15 +69,20 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
     <header className="sticky top-0 z-50 bg-black text-white select-none border-b border-neutral-900/80 backdrop-blur-md bg-black/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left: Uber Wordmark & Nav Links */}
+          {/* Left: Veyro Wordmark & Nav Links */}
           <div className="flex items-center space-x-4 sm:space-x-7 min-w-0">
             <button
               onClick={() => handleNav('ride')}
-              className="flex items-center group cursor-pointer focus:outline-none shrink-0"
-              aria-label="Uber Home"
+              className="flex items-center space-x-2.5 group cursor-pointer focus:outline-none shrink-0"
+              aria-label="Veyro Home"
             >
-              <span className="text-2xl sm:text-[26px] font-black tracking-[-0.04em] text-white">
-                Uber
+              <img
+                src="/Logo 4.avif"
+                alt="Veyro Logo"
+                className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-lg"
+              />
+              <span className="text-2xl sm:text-[26px] font-black tracking-[-0.03em] text-white">
+                Veyro
               </span>
             </button>
 
@@ -269,7 +274,7 @@ export default function Navbar({ activeTab = 'ride', onSelectTab }) {
                 className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl text-left text-sm font-semibold text-neutral-200 hover:bg-neutral-900 flex items-center space-x-3 transition block"
               >
                 <Briefcase className="w-4 h-4 text-neutral-400" />
-                <span>Uber for Business</span>
+                <span>Veyro for Business</span>
               </a>
 
               <a

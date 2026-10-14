@@ -7,7 +7,14 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-neutral-800 pb-6 sm:pb-8 gap-4">
-          <span className="text-2xl sm:text-[28px] font-black tracking-[-0.04em]">Uber</span>
+          <div className="flex items-center space-x-2.5">
+            <img
+              src="/Logo 4.avif"
+              alt="Veyro Logo"
+              className="w-8 h-8 sm:w-9 sm:h-9 object-contain rounded-lg"
+            />
+            <span className="text-2xl sm:text-[28px] font-black tracking-[-0.04em]">Veyro</span>
+          </div>
           <a
             href="#help"
             className="text-xs sm:text-sm font-semibold text-neutral-300 hover:text-white underline underline-offset-4"
@@ -38,8 +45,8 @@ export default function Footer() {
               <li><a href="/driver" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/driver'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-white transition cursor-pointer">Drive</a></li>
               <li><a href="#deliver" className="hover:text-white transition">Deliver</a></li>
               <li><a href="#eats" className="hover:text-white transition">Eat</a></li>
-              <li><a href="#business" className="hover:text-white transition">Uber for Business</a></li>
-              <li><a href="#freight" className="hover:text-white transition">Uber Freight</a></li>
+              <li><a href="#business" className="hover:text-white transition">Veyro for Business</a></li>
+              <li><a href="#freight" className="hover:text-white transition">Veyro Freight</a></li>
             </ul>
           </div>
 
@@ -76,7 +83,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-6 sm:pt-8 border-t border-neutral-900 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500 gap-4 text-center md:text-left">
-          <p>© 2026 Uber Technologies Inc.</p>
+          <p>© 2026 Veyro Technologies Inc.</p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             <a
               href="/privacy"

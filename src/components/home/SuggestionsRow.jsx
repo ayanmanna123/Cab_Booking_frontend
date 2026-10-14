@@ -5,7 +5,7 @@ const offerings = [
   {
     id: 'ride',
     title: 'Ride',
-    description: 'Go anywhere with Uber. Request a ride, hop in, and go.',
+    description: 'Go anywhere with Veyro. Request a ride, hop in, and go.',
     icon: Car,
     image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=300&auto=format&fit=crop&q=80'
   },
@@ -33,7 +33,7 @@ const offerings = [
   {
     id: 'parcel',
     title: 'Parcel',
-    description: 'Uber makes same-day item delivery easier than ever.',
+    description: 'Veyro makes same-day item delivery easier than ever.',
     icon: Package,
     image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=300&auto=format&fit=crop&q=80'
   },
@@ -52,7 +52,7 @@ export default function SuggestionsRow() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Official Headline */}
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-[-0.03em] text-white mb-6 sm:mb-8">
-          Explore what you can do with Uber
+          Explore what you can do with Veyro
         </h2>
 
         {/* Responsive Grid: 1 col on mobile, 2 on tablet, 3 on desktop */}

@@ -17,7 +17,7 @@ export default function AppDownloadBanner() {
                 <QrCode className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-white" />
               </div>
               <div className="space-y-1 text-left min-w-0">
-                <h3 className="text-base sm:text-xl font-bold text-black truncate">Download the Uber app</h3>
+                <h3 className="text-base sm:text-xl font-bold text-black truncate">Download the Veyro app</h3>
                 <p className="text-xs text-neutral-500 line-clamp-2">Scan to download on iOS or Android</p>
               </div>
             </div>
@@ -31,7 +31,7 @@ export default function AppDownloadBanner() {
                 <QrCode className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-white" />
               </div>
               <div className="space-y-1 text-left min-w-0">
-                <h3 className="text-base sm:text-xl font-bold text-black truncate">Download the Driver app</h3>
+                <h3 className="text-base sm:text-xl font-bold text-black truncate">Download the Veyro Driver app</h3>
                 <p className="text-xs text-neutral-500 line-clamp-2">Scan to download and start earning</p>
               </div>
             </div>

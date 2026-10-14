@@ -614,7 +614,7 @@ export default function InteractiveMap({
               <Popup className="text-black font-sans text-xs">
                 <div className="p-1.5 space-y-1 min-w-[150px]">
                   <div className="flex items-center space-x-1.5 font-bold text-neutral-900 text-xs">
-                    <span>{vehicle.vehicle_model || (isBike ? 'Bike' : 'Uber Driver')}</span>
+                    <span>{vehicle.vehicle_model || (isBike ? 'Bike' : 'Veyro Driver')}</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-neutral-600">
                     <span>★ {vehicle.rating || '5.0'}</span>
@@ -650,7 +650,7 @@ export default function InteractiveMap({
               </div>
               <div className="min-w-0">
                 <h3 className="text-white font-extrabold text-sm sm:text-base truncate">
-                  Uber Live GPS Fleet Radar
+                  Veyro Live GPS Fleet Radar
                 </h3>
                 <p className="text-[11px] sm:text-xs text-neutral-400 truncate">
                   {nearbyDrivers.length > 0

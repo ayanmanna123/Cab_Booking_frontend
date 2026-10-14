@@ -67,7 +67,7 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
               Category
             </span>
             <span className="text-xs font-semibold text-white bg-black border border-neutral-800 px-2 py-1 rounded-md inline-block mt-1">
-              {offer.vehicleTier || offer.vehicleType || 'Uber Go AC'}
+              {offer.vehicleTier || offer.vehicleType || 'Veyro Go AC'}
             </span>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function IncomingOfferModal({ offer, onAccept, onDecline }) {
             </div>
             <div className="min-w-0">
               <span className="font-semibold text-white block truncate text-xs">
-                {offer.riderName || 'Uber Rider'}
+                {offer.riderName || 'Veyro Rider'}
               </span>
               <div className="flex items-center space-x-1 text-[11px] text-neutral-400 mt-0.5">
                 <Star className="w-3 h-3 text-white fill-white inline" />

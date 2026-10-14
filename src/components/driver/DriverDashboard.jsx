@@ -490,7 +490,7 @@ export default function DriverDashboard() {
               pickupCoords: [Number(r.pickup_latitude), Number(r.pickup_longitude)],
               dropoffCoords: [Number(r.dropoff_latitude), Number(r.dropoff_longitude)],
               estimatedFare: r.estimated_fare,
-              vehicleTier: r.vehicle_type?.name || r.vehicle_type_id || 'Uber Go',
+              vehicleTier: r.vehicle_type?.name || r.vehicle_type_id || 'Veyro Go',
               status: r.status,
               riderName: r.rider?.full_name || 'Passenger',
               riderPhone: r.rider?.phone || '+91 98765 00000',
@@ -609,7 +609,7 @@ export default function DriverDashboard() {
           ? [Number(data.dropoffLatitude), Number(data.dropoffLongitude)]
           : [22.5804, 88.4378],
         estimatedFare: data.estimatedFare || data.finalFare || '180.00',
-        vehicleTier: data.vehicleTier || data.vehicleType || 'Uber Go AC',
+        vehicleTier: data.vehicleTier || data.vehicleType || 'Veyro Go AC',
         isVerified: false,
         status: 'SEARCHING'
       });
@@ -1046,12 +1046,12 @@ export default function DriverDashboard() {
   }, [driverProfile]);
 
   const tierLabel = driverProfile?.vehicleTypeId === 'xl'
-    ? 'UberXL'
+    ? 'Veyro XL'
     : driverProfile?.vehicleTypeId === 'comfort'
-    ? 'Uber Comfort'
+    ? 'Veyro Comfort'
     : driverProfile?.vehicleTypeId === 'black'
-    ? 'Uber Black'
-    : 'UberX';
+    ? 'Veyro Black'
+    : 'Veyro Go';
 
   // =========================================================================
   // VIEW 1: NORMAL USER VIEW (NOT REGISTERED AS DRIVER)

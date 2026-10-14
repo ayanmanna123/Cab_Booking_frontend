@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage({ onBackToHome }) {
               1. Overview and Scope
             </h2>
             <p>
-              This Privacy Policy explains how Uber Clone collects, uses, processes, and protects your personal data when you interact with our ride-hailing applications, driver portal, web dashboard, and associated technology services. By accessing or using our services, you consent to the practices described in this policy.
+              This Privacy Policy explains how Veyro collects, uses, processes, and protects your personal data when you interact with our ride-hailing applications, driver portal, web dashboard, and associated technology services. By accessing or using our services, you consent to the practices described in this policy.
             </p>
           </section>
 
@@ -144,9 +144,9 @@ export default function PrivacyPolicyPage({ onBackToHome }) {
             <p className="text-neutral-400 text-sm">
               For privacy-related inquiries, legal notifications, or data protection officer requests, please contact:
               <br />
-              <span className="font-semibold text-white">Uber Clone Legal & Privacy Operations</span>
+              <span className="font-semibold text-white">Veyro Legal & Privacy Operations</span>
               <br />
-              Email: legal@uberclone.internal · Support Desk: Help Center
+              Email: legal@veyro.internal · Support Desk: Help Center
             </p>
           </section>
         </div>

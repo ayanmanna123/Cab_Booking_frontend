@@ -26,7 +26,7 @@ export default function FeaturesShowcase() {
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-white">Plan your trip in advance</h3>
               <p className="text-sm text-neutral-400 leading-relaxed">
-                Book your ride up to 90 days ahead by choosing Reserve on Uber.com or in the app.
+                Book your ride up to 90 days ahead by choosing Reserve on Veyro or in the app.
               </p>
               <div>
                 <a href="#ride" className="inline-block text-sm font-semibold text-white underline underline-offset-4 hover:text-neutral-300">
@@ -92,11 +92,11 @@ export default function FeaturesShowcase() {
         </div>
       </section>
 
-      {/* 2. Official "Earn with Uber" Section on Clean White Background */}
+      {/* 2. Official "Earn with Veyro" Section on Clean White Background */}
       <section id="drive" className="py-14 sm:py-20 bg-white text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
           <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-black tracking-[-0.03em] text-black">
-            Earn with Uber
+            Earn with Veyro
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
@@ -139,7 +139,7 @@ export default function FeaturesShowcase() {
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black">Earn with your specialized skills</h3>
               <p className="text-sm text-neutral-600 leading-relaxed">
-                Turn your expertise into flexible earning opportunities with Uber partner programs.
+                Turn your expertise into flexible earning opportunities with Veyro partner programs.
               </p>
               <div>
                 <a
@@ -159,7 +159,7 @@ export default function FeaturesShowcase() {
         </div>
       </section>
 
-      {/* 3. Official "Uber for Business" Section on Clean White Background */}
+      {/* 3. Official "Veyro for Business" Section on Clean White Background */}
       <section id="business" className="py-14 sm:py-20 bg-white text-black border-t border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
@@ -190,10 +190,10 @@ export default function FeaturesShowcase() {
             {/* Content */}
             <div className="space-y-5 sm:space-y-6 pt-4 lg:pt-0">
               <h2 className="text-2xl sm:text-3xl lg:text-[44px] font-black tracking-[-0.03em] text-black leading-tight">
-                All the benefits of Uber, reimagined for business
+                All the benefits of Veyro, reimagined for business
               </h2>
               <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-                Uber for Business gives your organization more control, deeper insights, and features built for enterprise users. Manage and track business travel, meal programs, and more on one dashboard.
+                Veyro for Business gives your organization more control, deeper insights, and features built for enterprise users. Manage and track business travel, meal programs, and more on one dashboard.
               </p>
               <div>
                 <a

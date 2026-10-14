@@ -1,5 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="veyroGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+  <!-- Sleek high-contrast squircle backdrop -->
   <rect width="128" height="128" rx="28" fill="#000000"/>
-  <!-- Clean high-contrast Uber U Wordmark icon -->
-  <path d="M44 38v34c0 12.15 9.85 22 22 22s22-9.85 22-22V38h-12v34c0 5.52-4.48 10-10 10s-10-4.48-10-10V38H44z" fill="#ffffff"/>
+  
+  <!-- Left branch of V (stylized highway/roadway) -->
+  <path d="M28 32 L54 32 L64 88 L46 88 Z" fill="url(#veyroGold)"/>
+  
+  <!-- Center dashed road line markings on left roadway -->
+  <line x1="41" y1="40" x2="43.5" y2="48" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="46" y1="56" x2="48.5" y2="64" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="51" y1="72" x2="53.5" y2="80" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Right branch of V (ascending speed dynamic stripe) -->
+  <path d="M64 88 L82 88 L100 32 L82 32 Z" fill="url(#veyroGold)"/>
+  
+  <!-- Inner speed accent line -->
+  <line x1="86" y1="40" x2="72" y2="80" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.9"/>
 </svg>

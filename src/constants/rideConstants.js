@@ -20,7 +20,7 @@ export const PAYMENT_STATUS = {
 export const VEHICLE_TIERS = [
   {
     id: 'uberx',
-    name: 'UberX',
+    name: 'Veyro Go',
     description: 'Affordable, everyday rides',
     capacity: 4,
     multiplier: 1.0,
@@ -29,7 +29,7 @@ export const VEHICLE_TIERS = [
   },
   {
     id: 'comfort',
-    name: 'Uber Comfort',
+    name: 'Veyro Comfort',
     description: 'Newer cars with extra legroom',
     capacity: 4,
     multiplier: 1.25,
@@ -38,7 +38,7 @@ export const VEHICLE_TIERS = [
   },
   {
     id: 'uberxl',
-    name: 'UberXL',
+    name: 'Veyro XL',
     description: 'Affordable rides for groups up to 6',
     capacity: 6,
     multiplier: 1.6,
@@ -47,7 +47,7 @@ export const VEHICLE_TIERS = [
   },
   {
     id: 'black',
-    name: 'Uber Black',
+    name: 'Veyro Black',
     description: 'Premium rides in luxury vehicles with top-rated drivers',
     capacity: 4,
     multiplier: 2.2,

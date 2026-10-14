@@ -37,7 +37,7 @@ export default function HomePage() {
           setHasActiveRoute(true);
         }
       }
-    }).catch(() => {});
+    }).catch(() => { });
     return () => { isMounted = false; };
   }, []);
 
@@ -55,7 +55,7 @@ export default function HomePage() {
             if (d && (d.latitude || d.current_latitude)) {
               formatted.push({
                 id: d.id,
-                vehicle_model: `${d.vehicle_make || 'Uber'} ${d.vehicle_model || 'Driver'}`,
+                vehicle_model: `${d.vehicle_make || 'Veyro'} ${d.vehicle_model || 'Driver'}`,
                 type: (d.vehicle_type_id || '').toLowerCase().includes('bike') ? 'bike' : 'car',
                 latitude: Number(d.current_latitude || d.latitude),
                 longitude: Number(d.current_longitude || d.longitude),
@@ -85,7 +85,7 @@ export default function HomePage() {
               });
             }
           }
-        } catch {}
+        } catch { }
 
         if (isMounted) {
           setNearbyDrivers(formatted);
@@ -109,7 +109,7 @@ export default function HomePage() {
               }]);
               return;
             }
-          } catch {}
+          } catch { }
           setNearbyDrivers([]);
         }
       }
@@ -152,7 +152,7 @@ export default function HomePage() {
             ...prev,
             {
               id: data.driverId,
-              vehicle_model: data.vehicleModel || 'Uber Driver',
+              vehicle_model: data.vehicleModel || 'Veyro Driver',
               latitude: data.latitude,
               longitude: data.longitude,
               heading: data.heading || 0,
@@ -227,10 +227,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Explore what you can do with Uber (6-card official grid) */}
+      {/* 2. Explore what you can do with Veyro (6-card official grid) */}
       <SuggestionsRow />
 
-      {/* 3. Plan ahead cards, Earn with Uber (light theme), and Business section */}
+      {/* 3. Plan ahead cards, Earn with Veyro (light theme), and Business section */}
       <FeaturesShowcase />
 
       {/* 4. Driver Earnings Interactive Calculator */}

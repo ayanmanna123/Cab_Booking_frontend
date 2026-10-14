@@ -344,7 +344,7 @@ export default function RideBookingWidget({
           }
         }
       };
-    } catch {}
+    } catch { }
 
     const customAccept = (e) => {
       if (e.detail) handleDriverAccepted(e.detail);
@@ -358,7 +358,7 @@ export default function RideBookingWidget({
       if (e.key === 'uber_active_accepted_driver' && e.newValue) {
         try {
           handleDriverAccepted(JSON.parse(e.newValue));
-        } catch {}
+        } catch { }
       }
     };
 
@@ -617,7 +617,7 @@ export default function RideBookingWidget({
           const channel = new BroadcastChannel('uber_dispatch_channel');
           channel.postMessage({ type: 'NEW_OFFER', ...dispatchPayload });
           channel.close();
-        } catch {}
+        } catch { }
 
         window.dispatchEvent(new CustomEvent('uber_driver_offer', { detail: dispatchPayload }));
       } else {
@@ -645,70 +645,70 @@ export default function RideBookingWidget({
     setSearchingTimedOut(false);
     try {
       localStorage.removeItem('uber_active_accepted_driver');
-    } catch {}
+    } catch { }
   };
 
-// Reverse-geocode coordinates to an exact area / address name
-const reverseGeocodeCoords = async (lat, lng) => {
-  try {
-    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.features?.length > 0) {
-        const p = data.features[0].properties || {};
+  // Reverse-geocode coordinates to an exact area / address name
+  const reverseGeocodeCoords = async (lat, lng) => {
+    try {
+      const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.features?.length > 0) {
+          const p = data.features[0].properties || {};
+          const parts = [
+            p.name !== p.street ? p.name : null,
+            p.street,
+            p.district || p.suburb || p.locality,
+            p.city || p.town
+          ].filter(Boolean);
+          const unique = [...new Set(parts)];
+          if (unique.length > 0) {
+            return unique.slice(0, 3).join(', ');
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Photon reverse geocode failed, using Nominatim fallback', err);
+    }
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const addr = data.address || {};
         const parts = [
-          p.name !== p.street ? p.name : null,
-          p.street,
-          p.district || p.suburb || p.locality,
-          p.city || p.town
+          addr.road || addr.neighbourhood,
+          addr.suburb || addr.district,
+          addr.city || addr.town || addr.municipality
         ].filter(Boolean);
         const unique = [...new Set(parts)];
         if (unique.length > 0) {
           return unique.slice(0, 3).join(', ');
         }
+        if (data.display_name) {
+          return data.display_name.split(',').slice(0, 3).join(',').trim();
+        }
       }
+    } catch (err) {
+      console.warn('Nominatim reverse geocode failed', err);
     }
-  } catch (err) {
-    console.warn('Photon reverse geocode failed, using Nominatim fallback', err);
-  }
 
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
-    );
-    if (res.ok) {
-      const data = await res.json();
-      const addr = data.address || {};
-      const parts = [
-        addr.road || addr.neighbourhood,
-        addr.suburb || addr.district,
-        addr.city || addr.town || addr.municipality
-      ].filter(Boolean);
-      const unique = [...new Set(parts)];
-      if (unique.length > 0) {
-        return unique.slice(0, 3).join(', ');
-      }
-      if (data.display_name) {
-        return data.display_name.split(',').slice(0, 3).join(',').trim();
-      }
+    // Pre-mapped local coordinates fallback
+    if (Math.abs(lat - 22.6116) < 0.08 && Math.abs(lng - 88.4204) < 0.08) {
+      return 'Baguiati, South Dumdum';
     }
-  } catch (err) {
-    console.warn('Nominatim reverse geocode failed', err);
-  }
+    if (Math.abs(lat - 22.5804) < 0.08 && Math.abs(lng - 88.4378) < 0.08) {
+      return 'Sector V, Bidhannagar';
+    }
+    if (Math.abs(lat - 37.7749) < 0.08 && Math.abs(lng - (-122.4194)) < 0.08) {
+      return 'Market St, San Francisco, CA';
+    }
 
-  // Pre-mapped local coordinates fallback
-  if (Math.abs(lat - 22.6116) < 0.08 && Math.abs(lng - 88.4204) < 0.08) {
-    return 'Baguiati, South Dumdum';
-  }
-  if (Math.abs(lat - 22.5804) < 0.08 && Math.abs(lng - 88.4378) < 0.08) {
-    return 'Sector V, Bidhannagar';
-  }
-  if (Math.abs(lat - 37.7749) < 0.08 && Math.abs(lng - (-122.4194)) < 0.08) {
-    return 'Market St, San Francisco, CA';
-  }
-
-  return 'Local Area';
-};
+    return 'Local Area';
+  };
 
   const handleUseCurrentLocation = () => {
     if ('geolocation' in navigator) {
@@ -824,9 +824,8 @@ const reverseGeocodeCoords = async (lat, lng) => {
                           className="p-1 hover:scale-110 transition cursor-pointer text-amber-400"
                         >
                           <Star
-                            className={`w-6 h-6 ${
-                              star <= driverRating ? 'fill-amber-400 text-amber-400' : 'text-neutral-700'
-                            }`}
+                            className={`w-6 h-6 ${star <= driverRating ? 'fill-amber-400 text-amber-400' : 'text-neutral-700'
+                              }`}
                           />
                         </button>
                       ))}
@@ -892,24 +891,24 @@ const reverseGeocodeCoords = async (lat, lng) => {
                         {rideTripStatus === 'IN_PROGRESS'
                           ? 'Trip in progress'
                           : rideTripStatus === 'ARRIVED'
-                          ? 'Driver arrived'
-                          : 'Driver arriving'}
+                            ? 'Driver arrived'
+                            : 'Driver arriving'}
                       </span>
                     </div>
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded">
                       {rideTripStatus === 'IN_PROGRESS'
                         ? 'On Route'
                         : rideTripStatus === 'ARRIVED'
-                        ? 'Arrived'
-                        : 'ETA ~3m'}
+                          ? 'Arrived'
+                          : 'ETA ~3m'}
                     </span>
                   </div>
                   <p className="text-[11px] text-neutral-400 mt-1 pl-4">
                     {rideTripStatus === 'IN_PROGRESS'
                       ? 'En route to your destination'
                       : rideTripStatus === 'ARRIVED'
-                      ? 'Your driver is waiting at the pickup point'
-                      : 'Heading towards your pickup location'}
+                        ? 'Your driver is waiting at the pickup point'
+                        : 'Heading towards your pickup location'}
                   </p>
                 </div>
 
@@ -1068,7 +1067,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
                           ...bookingConfirmed,
                           driver: activeDriver
                         }));
-                      } catch {}
+                      } catch { }
                       window.history.pushState({}, '', '/tracking');
                       window.dispatchEvent(new PopStateEvent('popstate'));
                     }}
@@ -1128,7 +1127,7 @@ const reverseGeocodeCoords = async (lat, lng) => {
                           const channel = new BroadcastChannel('uber_dispatch_channel');
                           channel.postMessage({ type: 'NEW_OFFER', ...dispatchPayload });
                           channel.close();
-                        } catch {}
+                        } catch { }
                         window.dispatchEvent(new CustomEvent('uber_driver_offer', { detail: dispatchPayload }));
                       }}
                       className="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl transition cursor-pointer"
@@ -1470,11 +1469,10 @@ const reverseGeocodeCoords = async (lat, lng) => {
                       key={tier.vehicleTypeId}
                       id={`ride-tier-${tier.vehicleTypeId}`}
                       onClick={() => setSelectedTier(tier.vehicleTypeId)}
-                      className={`flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all select-none gap-2 ${
-                        isSelected
+                      className={`flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all select-none gap-2 ${isSelected
                           ? 'bg-neutral-900 border-2 border-white shadow-2xl'
                           : 'bg-black border border-neutral-800/80 hover:border-neutral-700'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center space-x-2.5 sm:space-x-4 min-w-0 flex-1">
                         {/* Official Uber 3D Transparent Car Render */}

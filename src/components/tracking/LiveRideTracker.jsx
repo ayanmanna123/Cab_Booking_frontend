@@ -59,19 +59,19 @@ export default function LiveRideTracker({
       if (ride?.id) {
         return localStorage.getItem(`payment_completed_${ride.id}`) === 'true';
       }
-    } catch {}
+    } catch { }
     return false;
   });
   const [stripePaymentIntentId, setStripePaymentIntentId] = useState(() => {
     try {
       if (ride?.id) return localStorage.getItem(`stripe_pi_${ride.id}`) || '';
-    } catch {}
+    } catch { }
     return '';
   });
   const [stripeReceiptUrl, setStripeReceiptUrl] = useState(() => {
     try {
       if (ride?.id) return localStorage.getItem(`stripe_receipt_${ride.id}`) || '';
-    } catch {}
+    } catch { }
     return '';
   });
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -89,7 +89,7 @@ export default function LiveRideTracker({
       const custom = localStorage.getItem('driver_custom_upi');
       if (custom && custom !== 'vikram.cab@okhdfcbank') return custom;
       return ride?.driverUpiId || 'vikram.cab@okhdfcbank';
-    } catch {}
+    } catch { }
     return 'vikram.cab@okhdfcbank';
   });
   const [riderUpiId, setRiderUpiId] = useState('rider@okaxis');
@@ -97,7 +97,7 @@ export default function LiveRideTracker({
   const [savedUtr, setSavedUtr] = useState(() => {
     try {
       if (ride?.id) return localStorage.getItem(`upi_utr_${ride.id}`) || '';
-    } catch {}
+    } catch { }
     return '';
   });
   const [copiedUpi, setCopiedUpi] = useState(false);
@@ -158,7 +158,7 @@ export default function LiveRideTracker({
           setDriverUpiId(event.data.driverUpiId);
         }
       };
-    } catch {}
+    } catch { }
 
     return () => {
       if (channel) channel.close();
@@ -242,7 +242,7 @@ export default function LiveRideTracker({
           handleCompletion();
         }
       };
-    } catch {}
+    } catch { }
 
     const customComplete = () => handleCompletion();
     window.addEventListener('uber_ride_completed', customComplete);
@@ -288,7 +288,7 @@ export default function LiveRideTracker({
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.5);
-    } catch {}
+    } catch { }
   };
 
   // Process and complete payment
@@ -359,7 +359,7 @@ export default function LiveRideTracker({
             localStorage.setItem(`stripe_receipt_${rideId}`, confirmedReceiptUrl);
           }
         }
-      } catch {}
+      } catch { }
 
       // Broadcast to driver dashboard so driver sees payment received
       try {
@@ -376,7 +376,7 @@ export default function LiveRideTracker({
           timestamp: Date.now()
         });
         channel.close();
-      } catch {}
+      } catch { }
 
       if (socket && rideId) {
         socket.emit('ride:payment_completed', {
@@ -401,7 +401,7 @@ export default function LiveRideTracker({
 
   const fareFormatted = Number(ride?.fare || 115.38).toFixed(2);
   const driverName = ride?.driverName || 'Vikram Malhotra';
-  const upiPayUrl = `upi://pay?pa=${encodeURIComponent(driverUpiId)}&pn=${encodeURIComponent(driverName)}&am=${fareFormatted}&cu=INR&tn=${encodeURIComponent(`Uber_Ride_${(ride?.id || '123456').slice(0, 8)}`)}`;
+  const upiPayUrl = `upi://pay?pa=${encodeURIComponent(driverUpiId)}&pn=${encodeURIComponent(driverName)}&am=${fareFormatted}&cu=INR&tn=${encodeURIComponent(`Veyro_Ride_${(ride?.id || '123456').slice(0, 8)}`)}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(upiPayUrl)}`;
 
   return (
@@ -420,10 +420,10 @@ export default function LiveRideTracker({
                     {tripCompleted
                       ? 'Trip completed'
                       : statusStep >= 3
-                      ? 'Trip in progress'
-                      : statusStep === 2
-                      ? 'Driver arrived at pickup'
-                      : 'Driver arriving'}
+                        ? 'Trip in progress'
+                        : statusStep === 2
+                          ? 'Driver arrived at pickup'
+                          : 'Driver arriving'}
                   </span>
                 </div>
 
@@ -432,10 +432,10 @@ export default function LiveRideTracker({
                     {tripCompleted
                       ? 'COMPLETED'
                       : statusStep >= 3
-                      ? 'ON TRIP'
-                      : statusStep === 2
-                      ? 'AT PICKUP'
-                      : 'ARRIVING'}
+                        ? 'ON TRIP'
+                        : statusStep === 2
+                          ? 'AT PICKUP'
+                          : 'ARRIVING'}
                   </span>
 
                   {/* Compact Emergency SOS Button */}
@@ -444,11 +444,10 @@ export default function LiveRideTracker({
                       type="button"
                       onClick={handleSos}
                       title="Emergency Assistance"
-                      className={`h-5 px-1.5 rounded text-[10px] font-semibold flex items-center space-x-1 transition cursor-pointer ${
-                        sosActive
+                      className={`h-5 px-1.5 rounded text-[10px] font-semibold flex items-center space-x-1 transition cursor-pointer ${sosActive
                           ? 'bg-red-700 text-white animate-pulse'
                           : 'bg-neutral-900 text-neutral-400 hover:text-white border border-neutral-800'
-                      }`}
+                        }`}
                     >
                       <ShieldAlert className="w-2.5 h-2.5 text-red-400" />
                       <span>{sosActive ? 'SOS Dispatched' : 'SOS'}</span>
@@ -462,10 +461,10 @@ export default function LiveRideTracker({
                 {tripCompleted
                   ? 'You have safely arrived at your destination.'
                   : statusStep >= 3
-                  ? `En route to ${ride?.dropoffAddress || 'destination'}.`
-                  : statusStep === 2
-                  ? 'Your driver has arrived at the pickup location. Verify PIN to begin.'
-                  : 'Your driver is en route to meet you at pickup.'}
+                    ? `En route to ${ride?.dropoffAddress || 'destination'}.`
+                    : statusStep === 2
+                      ? 'Your driver has arrived at the pickup location. Verify PIN to begin.'
+                      : 'Your driver is en route to meet you at pickup.'}
               </p>
 
               {/* Slim 4-Step Stepper Progress Bar */}
@@ -473,14 +472,12 @@ export default function LiveRideTracker({
                 {steps.map(step => (
                   <div key={step.id} className="space-y-1">
                     <div
-                      className={`h-1 rounded-full transition-all ${
-                        step.id <= statusStep ? 'bg-white' : 'bg-neutral-800'
-                      }`}
+                      className={`h-1 rounded-full transition-all ${step.id <= statusStep ? 'bg-white' : 'bg-neutral-800'
+                        }`}
                     />
                     <span
-                      className={`text-[9px] font-medium block truncate text-center ${
-                        step.id <= statusStep ? 'text-white' : 'text-neutral-500'
-                      }`}
+                      className={`text-[9px] font-medium block truncate text-center ${step.id <= statusStep ? 'text-white' : 'text-neutral-500'
+                        }`}
                     >
                       {step.label}
                     </span>
@@ -788,11 +785,10 @@ export default function LiveRideTracker({
                 {/* Option 1: UPI / Instant Pay */}
                 <div
                   onClick={() => setSelectedPaymentMethod('upi')}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                    selectedPaymentMethod === 'upi'
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${selectedPaymentMethod === 'upi'
                       ? 'bg-neutral-900 border-neutral-600'
                       : 'bg-neutral-950 border-neutral-800/80 hover:border-neutral-700'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
@@ -808,9 +804,8 @@ export default function LiveRideTracker({
                       <span className="text-[11px] text-neutral-400">Instant scan or VPA transfer</span>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                    selectedPaymentMethod === 'upi' ? 'border-white bg-white' : 'border-neutral-600'
-                  }`}>
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedPaymentMethod === 'upi' ? 'border-white bg-white' : 'border-neutral-600'
+                    }`}>
                     {selectedPaymentMethod === 'upi' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                   </div>
                 </div>
@@ -818,11 +813,10 @@ export default function LiveRideTracker({
                 {/* Option 2: Credit / Debit Card (Stripe) */}
                 <div
                   onClick={() => setSelectedPaymentMethod('card')}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                    selectedPaymentMethod === 'card'
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${selectedPaymentMethod === 'card'
                       ? 'bg-neutral-900 border-neutral-600'
                       : 'bg-neutral-950 border-neutral-800/80 hover:border-neutral-700'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
@@ -833,9 +827,8 @@ export default function LiveRideTracker({
                       <span className="text-[11px] text-neutral-400">Stripe gateway (Visa/Mastercard)</span>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                    selectedPaymentMethod === 'card' ? 'border-white bg-white' : 'border-neutral-600'
-                  }`}>
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedPaymentMethod === 'card' ? 'border-white bg-white' : 'border-neutral-600'
+                    }`}>
                     {selectedPaymentMethod === 'card' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                   </div>
                 </div>
@@ -843,11 +836,10 @@ export default function LiveRideTracker({
                 {/* Option 3: Cash to Driver */}
                 <div
                   onClick={() => setSelectedPaymentMethod('cash')}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                    selectedPaymentMethod === 'cash'
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${selectedPaymentMethod === 'cash'
                       ? 'bg-neutral-900 border-neutral-600'
                       : 'bg-neutral-950 border-neutral-800/80 hover:border-neutral-700'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
@@ -858,9 +850,8 @@ export default function LiveRideTracker({
                       <span className="text-[11px] text-neutral-400">Pay cash upon destination arrival</span>
                     </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                    selectedPaymentMethod === 'cash' ? 'border-white bg-white' : 'border-neutral-600'
-                  }`}>
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedPaymentMethod === 'cash' ? 'border-white bg-white' : 'border-neutral-600'
+                    }`}>
                     {selectedPaymentMethod === 'cash' && <div className="w-1.5 h-1.5 rounded-full bg-black" />}
                   </div>
                 </div>
@@ -874,11 +865,10 @@ export default function LiveRideTracker({
                     <button
                       type="button"
                       onClick={() => setUpiSubMode('qr')}
-                      className={`py-1.5 px-3 rounded-md flex items-center justify-center space-x-1.5 transition cursor-pointer ${
-                        upiSubMode === 'qr'
+                      className={`py-1.5 px-3 rounded-md flex items-center justify-center space-x-1.5 transition cursor-pointer ${upiSubMode === 'qr'
                           ? 'bg-white text-black shadow-sm'
                           : 'text-neutral-400 hover:text-white'
-                      }`}
+                        }`}
                     >
                       <QrCode className="w-3.5 h-3.5" />
                       <span>Scan Dynamic QR</span>
@@ -886,11 +876,10 @@ export default function LiveRideTracker({
                     <button
                       type="button"
                       onClick={() => setUpiSubMode('id')}
-                      className={`py-1.5 px-3 rounded-md flex items-center justify-center space-x-1.5 transition cursor-pointer ${
-                        upiSubMode === 'id'
+                      className={`py-1.5 px-3 rounded-md flex items-center justify-center space-x-1.5 transition cursor-pointer ${upiSubMode === 'id'
                           ? 'bg-white text-black shadow-sm'
                           : 'text-neutral-400 hover:text-white'
-                      }`}
+                        }`}
                     >
                       <Smartphone className="w-3.5 h-3.5" />
                       <span>UPI ID / VPA</span>
@@ -946,7 +935,7 @@ export default function LiveRideTracker({
                                 try {
                                   localStorage.setItem('driver_custom_upi', driverUpiId.trim());
                                   localStorage.setItem('driver_registered_upi', driverUpiId.trim());
-                                } catch {}
+                                } catch { }
                               }
                               setIsEditingDriverUpi(!isEditingDriverUpi);
                             }}
@@ -1089,10 +1078,10 @@ export default function LiveRideTracker({
                       {selectedPaymentMethod === 'cash'
                         ? `Confirm Cash Payment · ₹${fareFormatted}`
                         : selectedPaymentMethod === 'upi'
-                        ? upiSubMode === 'qr'
-                          ? `I Have Scanned & Sent ₹${fareFormatted}`
-                          : `Send Request & Pay ₹${fareFormatted}`
-                        : `Pay ₹${fareFormatted} via Card`}
+                          ? upiSubMode === 'qr'
+                            ? `I Have Scanned & Sent ₹${fareFormatted}`
+                            : `Send Request & Pay ₹${fareFormatted}`
+                          : `Pay ₹${fareFormatted} via Card`}
                     </span>
                   </>
                 )}
@@ -1116,7 +1105,7 @@ export default function LiveRideTracker({
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight">Payment Receipt</h3>
-                  <p className="text-[11px] text-neutral-400">Uber Trip Tax Invoice</p>
+                  <p className="text-[11px] text-neutral-400">Veyro Trip Tax Invoice</p>
                 </div>
               </div>
 
