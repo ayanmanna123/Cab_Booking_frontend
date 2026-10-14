@@ -52,7 +52,7 @@ export default function HeroVisual({
 
         {viewMode === 'map' ? (
           /* Interactive Leaflet Map with responsive container */
-          <div className="relative w-full h-[280px] sm:h-[360px] lg:h-[480px]">
+          <div className="relative w-full h-[280px] sm:h-[360px] lg:h-[535px]">
             <InteractiveMap
               pickupCoords={pickupCoords}
               dropoffCoords={dropoffCoords}
@@ -63,7 +63,7 @@ export default function HeroVisual({
           </div>
         ) : (
           /* Hero Photography Collage */
-          <div className="relative rounded-[18px] overflow-hidden select-none h-[280px] sm:h-[360px] lg:h-[480px]">
+          <div className="relative rounded-[18px] overflow-hidden select-none h-[280px] sm:h-[360px] lg:h-[535px]">
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2 h-full">
               {/* Top Left */}
               <div className="rounded-xl overflow-hidden h-full">

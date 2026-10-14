@@ -1190,32 +1190,32 @@ export default function RideBookingWidget({
         </div>
       ) : (
         /* Official Uber Search Form */
-        <form onSubmit={handleCalculateFare} className="space-y-4">
+        <form onSubmit={handleCalculateFare} className="space-y-3">
           {/* Pickup time selector button */}
           <div className="relative inline-block">
             <button
               type="button"
               onClick={() => setShowTimeModal(!showTimeModal)}
-              className="inline-flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg font-semibold text-sm hover:bg-neutral-200 transition shadow-sm cursor-pointer"
+              className="inline-flex items-center space-x-1.5 bg-neutral-900 hover:bg-neutral-850 text-white border border-neutral-800 px-3 py-1.5 rounded-lg font-semibold text-xs transition cursor-pointer shadow-sm"
             >
-              <Clock className="w-4 h-4" />
+              <Clock className="w-3.5 h-3.5 text-neutral-400" />
               <span>{pickupTime}</span>
-              <ChevronDown className="w-3.5 h-3.5 ml-1" />
+              <ChevronDown className="w-3 h-3 text-neutral-400 ml-0.5" />
             </button>
 
             {showTimeModal && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-neutral-900 border border-neutral-800 rounded-xl p-2 z-50 text-xs shadow-2xl space-y-1">
+              <div className="absolute top-full left-0 mt-1.5 w-48 bg-neutral-900 border border-neutral-800 rounded-xl p-1.5 z-50 text-xs shadow-2xl space-y-0.5">
                 <button
                   type="button"
                   onClick={() => { setPickupTime('Pickup now'); setShowTimeModal(false); }}
-                  className="w-full text-left px-3 py-2 hover:bg-neutral-800 rounded-lg text-white font-medium cursor-pointer"
+                  className="w-full text-left px-3 py-1.5 hover:bg-neutral-800 rounded-lg text-white font-medium cursor-pointer"
                 >
                   Pickup now
                 </button>
                 <button
                   type="button"
                   onClick={() => { setPickupTime('Schedule for later'); setShowTimeModal(false); }}
-                  className="w-full text-left px-3 py-2 hover:bg-neutral-800 rounded-lg text-white font-medium cursor-pointer"
+                  className="w-full text-left px-3 py-1.5 hover:bg-neutral-800 rounded-lg text-white font-medium cursor-pointer"
                 >
                   Schedule for later
                 </button>
@@ -1224,14 +1224,13 @@ export default function RideBookingWidget({
           </div>
 
           {/* Connected Inputs with official light-gray background & icon connectors */}
-          {/* Connected Inputs with official light-gray background & icon connectors */}
-          <div ref={inputsContainerRef} className="relative space-y-2">
+          <div ref={inputsContainerRef} className="relative space-y-1.5">
             {/* Vertical connector line */}
-            <div className="absolute left-[21px] -translate-x-1/2 top-[24px] bottom-[24px] w-[2px] bg-neutral-400 z-10 pointer-events-none"></div>
+            <div className="absolute left-[20px] -translate-x-1/2 top-[22px] bottom-[22px] w-[2px] bg-neutral-400 z-10 pointer-events-none"></div>
 
             {/* Input 1: Pickup Location */}
             <div className="relative">
-              <div className="flex items-center bg-[#f3f3f3] rounded-lg border border-transparent focus-within:border-black transition">
+              <div className="flex items-center bg-[#f3f3f3] rounded-lg border border-transparent focus-within:border-black transition h-11">
                 <div className="w-10 shrink-0 flex items-center justify-center z-20">
                   {/* Official circle icon */}
                   <div className="w-3 h-3 rounded-full border-2 border-black flex items-center justify-center bg-transparent">
@@ -1248,7 +1247,7 @@ export default function RideBookingWidget({
                   }}
                   placeholder="Pickup location"
                   required
-                  className="w-full bg-transparent text-black text-[15px] font-medium py-3.5 pr-16 focus:outline-none placeholder-neutral-500"
+                  className="w-full bg-transparent text-black text-sm font-medium py-2.5 pr-16 focus:outline-none placeholder-neutral-500"
                 />
 
                 {pickup && (
@@ -1341,7 +1340,7 @@ export default function RideBookingWidget({
 
             {/* Input 2: Dropoff Location */}
             <div className="relative">
-              <div className="flex items-center bg-[#f3f3f3] rounded-lg border border-transparent focus-within:border-black transition">
+              <div className="flex items-center bg-[#f3f3f3] rounded-lg border border-transparent focus-within:border-black transition h-11">
                 <div className="w-10 shrink-0 flex items-center justify-center z-20">
                   {/* Official solid square icon */}
                   <div className="w-2.5 h-2.5 bg-black"></div>
@@ -1356,7 +1355,7 @@ export default function RideBookingWidget({
                   }}
                   placeholder="Dropoff location"
                   required
-                  className="w-full bg-transparent text-black text-[15px] font-medium py-3.5 pr-10 focus:outline-none placeholder-neutral-500"
+                  className="w-full bg-transparent text-black text-sm font-medium py-2.5 pr-10 focus:outline-none placeholder-neutral-500"
                 />
 
                 {dropoff && (
@@ -1425,39 +1424,38 @@ export default function RideBookingWidget({
           </div>
 
           {/* Promo code mini bar */}
-          <div className="flex items-center space-x-2 bg-neutral-900 px-3 py-2 rounded-lg border border-neutral-800 text-xs">
-            <Tag className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="text-neutral-400">Coupon:</span>
+          <div className="flex items-center space-x-2 bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800 text-xs h-9">
+            <Tag className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+            <span className="text-neutral-400 font-medium">Coupon:</span>
             <input
               type="text"
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder="e.g. WELCOME50"
-              className="bg-transparent text-white font-bold tracking-wider uppercase focus:outline-none text-xs w-full"
+              className="bg-transparent text-white font-mono font-semibold tracking-wider uppercase focus:outline-none text-xs w-full"
             />
           </div>
 
           {/* Error message */}
           {errorMsg && (
-            <div className="p-3 bg-red-950/60 border border-red-800/80 rounded-lg text-xs text-red-300 flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-2.5 bg-red-950/60 border border-red-800/80 rounded-lg text-xs text-red-300 flex items-center space-x-2">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {/* Vehicle options (displayed once calculated) */}
           {estimates && (
-            <div className="space-y-3 pt-2 animate-fadeIn">
-              <div className="flex flex-wrap items-center justify-between text-xs px-1 gap-2">
-                <h5 className="text-sm font-black text-white tracking-tight">
+            <div className="space-y-2 pt-1 animate-fadeIn">
+              <div className="flex items-center justify-between text-xs px-0.5">
+                <span className="text-xs font-semibold text-neutral-300">
                   Rides we think you'll like
-                </h5>
+                </span>
               </div>
 
-              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+              <div className="space-y-1.5 max-h-[220px] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:#333_transparent] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-neutral-800 [&::-webkit-scrollbar-thumb]:rounded-full">
                 {estimates.estimates.map((tier) => {
                   const carImgSrc = getOfficialWhiteCarImage(tier);
-
                   const isSelected = selectedTier === tier.vehicleTypeId;
                   const arrivalTime = new Date(Date.now() + (tier.durationMin || 5) * 60000).toLocaleTimeString([], {
                     hour: 'numeric',
@@ -1469,14 +1467,15 @@ export default function RideBookingWidget({
                       key={tier.vehicleTypeId}
                       id={`ride-tier-${tier.vehicleTypeId}`}
                       onClick={() => setSelectedTier(tier.vehicleTypeId)}
-                      className={`flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all select-none gap-2 ${isSelected
-                          ? 'bg-neutral-900 border-2 border-white shadow-2xl'
-                          : 'bg-black border border-neutral-800/80 hover:border-neutral-700'
-                        }`}
+                      className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all select-none gap-2 ${
+                        isSelected
+                          ? 'bg-neutral-900 border border-white shadow-md'
+                          : 'bg-black border border-neutral-800/80 hover:border-neutral-700 hover:bg-neutral-950'
+                      }`}
                     >
-                      <div className="flex items-center space-x-2.5 sm:space-x-4 min-w-0 flex-1">
+                      <div className="flex items-center space-x-3 min-w-0 flex-1">
                         {/* Official Uber 3D Transparent Car Render */}
-                        <div className="w-14 h-12 sm:w-20 sm:h-16 flex items-center justify-center shrink-0">
+                        <div className="w-12 h-10 sm:w-14 sm:h-11 flex items-center justify-center shrink-0">
                           <img
                             src={carImgSrc}
                             alt={tier.name}
@@ -1487,33 +1486,33 @@ export default function RideBookingWidget({
 
                         <div className="space-y-0.5 min-w-0 flex-1">
                           <div className="flex items-center space-x-1.5 truncate">
-                            <span className="font-extrabold text-sm sm:text-base text-white tracking-tight truncate">
+                            <span className="font-semibold text-xs sm:text-sm text-white tracking-tight truncate">
                               {tier.name}
                             </span>
-                            <span className="flex items-center text-xs text-neutral-400 font-semibold shrink-0">
-                              <User className="w-3 h-3 ml-0.5 mr-0.5 text-neutral-300" />
+                            <span className="flex items-center text-[11px] text-neutral-400 font-medium shrink-0">
+                              <User className="w-2.5 h-2.5 ml-0.5 mr-0.5 text-neutral-400" />
                               {tier.capacity}
                             </span>
                           </div>
 
-                          <p className="text-[11px] sm:text-xs text-neutral-400 font-medium truncate">
+                          <p className="text-[11px] text-neutral-400 font-normal truncate">
                             {tier.durationMin || '5'} mins away
                             <span className="mx-1">•</span>
                             {arrivalTime}
                           </p>
 
-                          <div className="text-[10px] sm:text-[11px] text-neutral-400 truncate">
+                          <div className="text-[10px] text-neutral-500 truncate">
                             {tier.description || 'Affordable everyday rides'}
                           </div>
                         </div>
                       </div>
 
                       <div className="text-right pl-2 shrink-0">
-                        <div className="text-base sm:text-xl font-black text-white tracking-tight">
+                        <div className="text-sm sm:text-base font-bold text-white tracking-tight font-mono">
                           ₹{Number(tier.finalFare).toFixed(2)}
                         </div>
                         {tier.discountAmount > 0 && (
-                          <span className="block text-[11px] sm:text-xs line-through text-neutral-500 font-medium">
+                          <span className="block text-[10px] line-through text-neutral-500 font-mono">
                             ₹{Number(tier.subtotal).toFixed(2)}
                           </span>
                         )}
@@ -1526,13 +1525,13 @@ export default function RideBookingWidget({
           )}
 
           {/* Actions: See prices & Log in to check your activity */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
+          <div className="space-y-2 pt-1.5">
             {!estimates ? (
               <button
                 id="see-prices-btn"
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto px-6 py-3.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.98] disabled:opacity-50 shadow-md cursor-pointer text-center"
+                className="w-full h-10 px-5 bg-white text-black font-semibold text-xs sm:text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.99] disabled:opacity-50 shadow-sm cursor-pointer flex items-center justify-center"
               >
                 {loading ? 'Calculating...' : 'See prices'}
               </button>
@@ -1542,18 +1541,20 @@ export default function RideBookingWidget({
                 type="button"
                 onClick={handleBookRide}
                 disabled={loading}
-                className="w-full sm:w-auto px-6 py-3.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.98] disabled:opacity-50 shadow-md cursor-pointer text-center"
+                className="w-full h-10 px-5 bg-white text-black font-semibold text-xs sm:text-sm rounded-lg hover:bg-neutral-200 transition active:scale-[0.99] disabled:opacity-50 shadow-sm cursor-pointer flex items-center justify-center"
               >
-                {loading ? 'Confirming...' : `Request ${selectedTier.toUpperCase()}`}
+                {loading ? 'Confirming...' : `Request ${selectedTierName}`}
               </button>
             )}
 
-            <a
-              href="#login"
-              className="text-xs sm:text-sm font-semibold text-white underline underline-offset-4 hover:text-neutral-300 transition text-center sm:text-left py-1"
-            >
-              Log in to check your activity
-            </a>
+            <div className="text-center pt-0.5">
+              <a
+                href="#login"
+                className="text-xs text-neutral-400 hover:text-white transition underline underline-offset-4"
+              >
+                Log in to check your activity
+              </a>
+            </div>
           </div>
         </form>
       )}

@@ -203,10 +203,10 @@ export default function HomePage() {
             </h1>
           </div>
 
-          {/* Responsive Two-Column Layout: Details (40% desktop) & Map (60% desktop) */}
+          {/* Responsive Two-Column Layout: Details (38% desktop) & Map (62% desktop) */}
           <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start">
             {/* Left Column: Details Section / Ride Booking Widget */}
-            <div className="w-full lg:w-[40%] shrink-0 z-10">
+            <div className="w-full lg:w-[38%] shrink-0 z-10">
               <RideBookingWidget
                 onRouteCalculated={handleRouteCalculated}
                 hideHeadline={true}
@@ -214,7 +214,7 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Live Map / Visuals */}
-            <div className="w-full lg:w-[60%] flex-1 min-w-0">
+            <div className="w-full lg:w-[62%] flex-1 min-w-0">
               <HeroVisual
                 pickupCoords={pickupCoords}
                 dropoffCoords={dropoffCoords}
